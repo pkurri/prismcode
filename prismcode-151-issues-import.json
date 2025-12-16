@@ -1,0 +1,19 @@
+{
+  "repository": "pkurri/prismcode",
+  "metadata": {
+    "total_issues": 150,
+    "new_issues_in_file": 140,
+    "already_created_in_github": 10,
+    "phases": {
+      "phase_0": 15,
+      "phase_1": 34,
+      "phase_2": 30,
+      "phase_3": 25,
+      "phase_4": 25,
+      "phase_5": 11
+    },
+    "import_instructions": "Use scripts/import-all-issues.js to bulk import"
+  },
+  "note": "This file contains 140 new issues to import. Issues 1-10 are already created in GitHub.",
+  "usage": "node scripts/import-all-issues.js"
+}
