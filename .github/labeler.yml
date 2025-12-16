@@ -1,0 +1,40 @@
+# Auto-labeler configuration for Pull Requests
+
+src/agents/*:
+  - 'component:agents'
+
+src/core/*:
+  - 'component:core'
+
+src/utils/*:
+  - 'component:utils'
+
+src/types/*:
+  - 'component:types'
+
+docs/**/*:
+  - 'documentation'
+
+scripts/**/*:
+  - 'tooling'
+
+.github/**/*:
+  - 'ci/cd'
+
+'**/*.test.ts':
+  - 'tests'
+
+'**/*.spec.ts':
+  - 'tests'
+
+tsconfig.json:
+  - 'configuration'
+
+package.json:
+  - 'dependencies'
+
+'.eslintrc*':
+  - 'code-quality'
+
+'.prettierrc*':
+  - 'code-quality'

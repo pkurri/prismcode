@@ -17,7 +17,7 @@ export abstract class BaseAgent {
   /**
    * Process input and return agent-specific output
    */
-  abstract async process(input: any): Promise<AgentOutput>;
+  abstract process(input: any): Promise<AgentOutput>;
 
   /**
    * Get agent name

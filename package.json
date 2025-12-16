@@ -4,6 +4,7 @@
   "description": "AI-powered multi-agent project orchestration platform",
   "main": "dist/index.js",
   "scripts": {
+    "prepare": "husky install",
     "hybrid-setup": "bash scripts/hybrid-setup.sh",
     "create-ide-labels": "node scripts/create-ide-labels.js",
     "import-issues": "node scripts/import-all-issues.js",
@@ -29,15 +30,31 @@
     "url": "https://github.com/pkurri/prismcode.git"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.10.0",
     "@octokit/rest": "^21.0.0",
-    "openai": "^4.20.0",
-    "@anthropic-ai/sdk": "^0.10.0"
+    "openai": "^4.20.0"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md}": [
+      "prettier --write"
+    ]
   },
   "devDependencies": {
-    "typescript": "^5.3.0",
     "@types/node": "^20.10.0",
+    "@typescript-eslint/eslint-plugin": "^8.50.0",
+    "@typescript-eslint/parser": "^8.50.0",
+    "eslint": "^8.57.1",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.4",
+    "husky": "^9.1.7",
     "jest": "^29.7.0",
-    "eslint": "^8.55.0",
-    "prettier": "^3.1.0"
+    "lint-staged": "^16.2.7",
+    "prettier": "^3.7.4",
+    "rimraf": "^6.1.2",
+    "typescript": "^5.3.0"
   }
 }
