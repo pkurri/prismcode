@@ -1,0 +1,61 @@
+name: Hybrid Cross-IDE Sync
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  sync-status:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Check for IDE Conflicts
+        id: conflicts
+        run: |
+          # Check if both Windsurf and Antigravity PRs are open
+          WINDSURF_PRS=$(gh pr list --state open --label windsurf-ready --json number --jq length)
+          ANTIGRAVITY_PRS=$(gh pr list --state open --label antigravity-ready --json number --jq length)
+          
+          if [[ $WINDSURF_PRS -gt 0 && $ANTIGRAVITY_PRS -gt 0 ]]; then
+            echo "conflict=true" >> $GITHUB_OUTPUT
+            echo "⚠️ Multiple IDE PRs open - sync needed"
+          else
+            echo "conflict=false" >> $GITHUB_OUTPUT
+          fi
+        env:
+          GH_TOKEN: ${{ github.token }}
+      
+      - name: Create Sync Report
+        uses: actions/github-script@v7
+        with:
+          script: |
+            // Get all open issues with IDE labels
+            const { data: issues } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'windsurf-ready,antigravity-ready,hybrid-ready',
+              per_page: 100
+            });
+            
+            const windsurf = issues.filter(i => i.labels.some(l => l.name === 'windsurf-ready'));
+            const antigravity = issues.filter(i => i.labels.some(l => l.name === 'antigravity-ready'));
+            const hybrid = issues.filter(i => i.labels.some(l => l.name === 'hybrid-ready'));
+            
+            const report = `## 🔄 IDE Sync Status Report\n\n` +
+              `**Last Sync**: ${new Date().toISOString()}\n\n` +
+              `### 📊 Issue Distribution\n` +
+              `- 🌊 Windsurf: ${windsurf.length} issues\n` +
+              `- 🪐 Antigravity: ${antigravity.length} issues\n` +
+              `- 🟢 Hybrid: ${hybrid.length} issues\n\n` +
+              `### ⚡ Active Work\n` +
+              `- **Windsurf PRs**: Open\n` +
+              `- **Antigravity PRs**: Open\n` +
+              `- **Conflicts**: ${'${{ steps.conflicts.outputs.conflict }}' === 'true' ? '⚠️ Yes' : '✅ None'}\n\n` +
+              `All IDEs are synced to commit: \`${context.sha.substring(0, 7)}\``;
+            
+            console.log(report);
+            core.summary.addRaw(report).write();

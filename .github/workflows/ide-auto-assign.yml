@@ -1,0 +1,92 @@
+name: Auto-Assign IDE Labels
+
+on:
+  issues:
+    types: [opened, labeled, edited]
+
+jobs:
+  assign-ide:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Analyze Issue Complexity
+        id: analyze
+        run: |
+          ISSUE_BODY="${{ github.event.issue.body }}"
+          ISSUE_TITLE="${{ github.event.issue.title }}"
+          
+          # Extract story points
+          POINTS=$(echo "$ISSUE_BODY" | grep -oE "Story Points: [0-9]+" | grep -oE "[0-9]+" || echo "0")
+          echo "points=$POINTS" >> $GITHUB_OUTPUT
+          
+          # Determine IDE based on complexity
+          if [[ $POINTS -ge 13 ]]; then
+            echo "ide=antigravity" >> $GITHUB_OUTPUT
+            echo "reason=High complexity (${POINTS} pts) - Multi-agent workflow recommended" >> $GITHUB_OUTPUT
+          elif [[ $POINTS -ge 5 ]]; then
+            echo "ide=hybrid" >> $GITHUB_OUTPUT
+            echo "reason=Medium complexity (${POINTS} pts) - Either IDE works" >> $GITHUB_OUTPUT
+          else
+            echo "ide=windsurf" >> $GITHUB_OUTPUT
+            echo "reason=Low complexity (${POINTS} pts) - Cascade quick edit" >> $GITHUB_OUTPUT
+          fi
+          
+          # Check for UI work
+          if echo "$ISSUE_BODY" | grep -qiE "(UI|React|component|frontend)"; then
+            echo "ui=true" >> $GITHUB_OUTPUT
+          fi
+          
+          # Check for infrastructure
+          if echo "$ISSUE_BODY" | grep -qiE "(Docker|CI/CD|DevOps|infrastructure)"; then
+            echo "infra=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Add IDE Labels
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const ide = '${{ steps.analyze.outputs.ide }}';
+            const points = '${{ steps.analyze.outputs.points }}';
+            const reason = '${{ steps.analyze.outputs.reason }}';
+            const labels = [`${ide}-ready`];
+            
+            // Add specialty labels
+            if ('${{ steps.analyze.outputs.ui }}' === 'true') {
+              labels.push('ui-heavy');
+            }
+            if ('${{ steps.analyze.outputs.infra }}' === 'true') {
+              labels.push('infrastructure');
+            }
+            
+            // Add IDE assignment labels
+            await github.rest.issues.addLabels({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              labels: labels
+            });
+            
+            // Add comment with recommendation
+            const comment = `🎯 **IDE Assignment Auto-Analysis**\n\n` +
+              `- **Complexity**: ${points} story points\n` +
+              `- **Recommended IDE**: ${ide.toUpperCase()}\n` +
+              `- **Reason**: ${reason}\n\n` +
+              `### 🌊 Windsurf Cascade\n` +
+              (ide === 'windsurf' ? '✅ **Best choice** - Quick implementation with Cascade\n' : '⚪ Available - Use for quick edits\n') +
+              '\`\`\`\n@github show issue #' + context.issue.number + '\n@cascade Implement this issue\n\`\`\`\n\n' +
+              `### 🪐 Antigravity Manager View\n` +
+              (ide === 'antigravity' ? '✅ **Best choice** - Multi-agent parallel execution\n' : '⚪ Available - Use for complex workflows\n') +
+              '\`\`\`\nManager View → New Task\nIssue #' + context.issue.number + '\nAgent: Auto-assign\nMode: Plan → Execute\n\`\`\`\n\n' +
+              `### 🟢 Hybrid Mode\n` +
+              (ide === 'hybrid' ? '✅ **Recommended** - Use either IDE based on preference\n' : '⚪ Optional\n') +
+              '\nBoth IDEs will stay synced via GitHub PRs.';
+            
+            await github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+            
+            console.log(`✅ Auto-assigned: ${labels.join(', ')}`);

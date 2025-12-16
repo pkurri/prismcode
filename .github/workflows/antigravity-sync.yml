@@ -1,0 +1,67 @@
+name: Antigravity → Windsurf Sync
+
+on:
+  pull_request:
+    types: [opened, synchronize, closed]
+    branches:
+      - 'antigravity/**'
+
+jobs:
+  notify-windsurf:
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.merged == true || github.event.action == 'opened'
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Extract Issue Number
+        id: issue
+        run: |
+          PR_BODY="${{ github.event.pull_request.body }}"
+          ISSUE_NUM=$(echo "$PR_BODY" | grep -oE "(Closes|Fixes|Resolves) #[0-9]+" | grep -oE "[0-9]+" | head -1)
+          echo "number=${ISSUE_NUM}" >> $GITHUB_OUTPUT
+      
+      - name: Comment on Issue
+        if: steps.issue.outputs.number != ''
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issueNumber = parseInt('${{ steps.issue.outputs.number }}');
+            const prNumber = context.payload.pull_request.number;
+            const action = '${{ github.event.action }}';
+            
+            let message = '';
+            if (action === 'opened') {
+              message = `🪐 **Antigravity PR Created**\n\nPR #${prNumber} created by Antigravity agents\n\n` +
+                `**Agent**: ${context.payload.pull_request.user.login}\n` +
+                `**Changes**: ${context.payload.pull_request.changed_files} files\n` +
+                `**Status**: Ready for review\n\n` +
+                `🌊 Windsurf users can now pull latest code with \`git pull origin main\``;
+            } else if (action === 'closed' && context.payload.pull_request.merged) {
+              message = `✅ **Antigravity PR Merged**\n\nPR #${prNumber} merged by multi-agent system\n\n` +
+                `🔄 **Sync Status**: All IDEs now have latest code\n` +
+                `📦 **Commit**: \`${context.payload.pull_request.merge_commit_sha.substring(0, 7)}\``;
+            }
+            
+            if (message) {
+              await github.rest.issues.createComment({
+                issue_number: issueNumber,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: message
+              });
+            }
+      
+      - name: Add Sync Label
+        if: github.event.action == 'closed' && github.event.pull_request.merged == true
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issueNumber = parseInt('${{ steps.issue.outputs.number }}');
+            if (issueNumber) {
+              await github.rest.issues.addLabels({
+                issue_number: issueNumber,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                labels: ['antigravity-completed', 'windsurf-synced']
+              });
+            }
