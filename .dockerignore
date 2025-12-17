@@ -1,0 +1,36 @@
+# Ignore node_modules
+node_modules
+npm-debug.log
+
+# Ignore build artifacts
+dist
+*.js.map
+
+# Ignore development files
+.git
+.gitignore
+.env*
+!.env.example
+
+# Ignore test files
+*.test.ts
+*.spec.ts
+tests/
+coverage/
+.nyc_output/
+
+# Ignore docs
+docs/
+*.md
+!README.md
+
+# Ignore IDE files
+.vscode/
+.idea/
+
+# Ignore scripts
+scripts/
+
+# Ignore logs
+logs/
+*.log
