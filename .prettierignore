@@ -1,6 +1,9 @@
 node_modules
-coverage
 dist
+build
+coverage
+.nyc_output
+*.tsbuildinfo
 logs
 output
 .output

@@ -1,9 +1,3 @@
-/**
- * PrismCode - AI-powered multi-agent project orchestration platform
- * @packageDocumentation
- */
-
-export * from './core/orchestrator';
 export * from './agents';
 export * from './types';
 export * from './utils';
