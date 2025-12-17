@@ -3,7 +3,7 @@ import { AgentOutput } from '../../src/types';
 
 describe('BaseAgent', () => {
     class TestAgent extends BaseAgent {
-        async process(input: any): Promise<AgentOutput> {
+        async process(input: unknown): Promise<AgentOutput> {
             return {
                 success: true,
                 data: { processed: input },

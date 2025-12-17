@@ -157,7 +157,7 @@ export class CoderAgent extends BaseAgent {
      */
     private async generateImplementation(
         task: Task,
-        analysis: ReturnType<typeof this.analyzeTask>
+        _analysis: ReturnType<typeof this.analyzeTask>
     ): Promise<GeneratedFile[]> {
         const files: GeneratedFile[] = [];
 

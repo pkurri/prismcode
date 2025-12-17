@@ -13,8 +13,8 @@
  */
 
 import { Request, Response, NextFunction, Application } from 'express';
-import { RateLimiter, sanitizeObject, validateSecurityConfig } from './security';
-import { PrismCodeError, normalizeError, createErrorHandler } from './errors';
+import { RateLimiter, sanitizeObject } from './security';
+import { normalizeError } from './errors';
 import logger from './logger';
 
 // ============================================
@@ -157,7 +157,7 @@ export function validateRequest(schema: ValidationSchema) {
 /**
  * Error handling middleware
  */
-export function errorMiddleware(err: Error, req: Request, res: Response, next: NextFunction): void {
+export function errorMiddleware(err: Error, req: Request, res: Response, _next: NextFunction): void {
     const prismError = normalizeError(err);
 
     logger.error('Request error', {

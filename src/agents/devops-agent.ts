@@ -317,7 +317,7 @@ volumes:
   /**
    * Generate Kubernetes manifests
    */
-  private generateKubernetesManifests(architecture: Architecture): string {
+  private generateKubernetesManifests(_architecture: Architecture): string {
     return `# Kubernetes Deployment
 apiVersion: apps/v1
 kind: Deployment

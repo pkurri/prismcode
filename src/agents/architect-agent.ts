@@ -234,7 +234,7 @@ export class ArchitectAgent extends BaseAgent {
     /**
      * Identify applicable design patterns
      */
-    private identifyPatterns(feature: FeatureInput, architecture: Architecture): DesignPattern[] {
+    private identifyPatterns(_feature: FeatureInput, _architecture: Architecture): DesignPattern[] {
         return [
             {
                 name: 'Repository Pattern',
@@ -266,7 +266,7 @@ export class ArchitectAgent extends BaseAgent {
     /**
      * Generate system diagram
      */
-    private generateSystemDiagram(feature: FeatureInput): string {
+    private generateSystemDiagram(_feature: FeatureInput): string {
         return `
 graph TB
     subgraph "Frontend"
@@ -302,7 +302,7 @@ graph TB
     /**
      * Generate ER diagram
      */
-    private generateERDiagram(feature: FeatureInput): string {
+    private generateERDiagram(_feature: FeatureInput): string {
         return `
 erDiagram
     PROJECT ||--o{ PLAN : contains
@@ -337,7 +337,7 @@ erDiagram
     /**
      * Generate sequence diagram
      */
-    private generateSequenceDiagram(feature: FeatureInput): string {
+    private generateSequenceDiagram(_feature: FeatureInput): string {
         return `
 sequenceDiagram
     participant U as User

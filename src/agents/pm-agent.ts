@@ -13,7 +13,7 @@ import { BaseAgent } from './base-agent';
 import {
     AgentOutput,
     FeatureInput,
-    ProjectPlan,
+    // ProjectPlan imported for type reference
     Epic,
     Story,
     Task,
@@ -171,7 +171,7 @@ export class PMAgent extends BaseAgent {
     /**
      * Generate stories for epics
      */
-    private async generateStories(epics: Epic[], feature: FeatureInput): Promise<Story[]> {
+    private async generateStories(epics: Epic[], _feature: FeatureInput): Promise<Story[]> {
         const stories: Story[] = [];
         let storyCount = 0;
 
@@ -278,7 +278,7 @@ export class PMAgent extends BaseAgent {
     /**
      * Define success metrics
      */
-    private defineSuccessMetrics(feature: FeatureInput): string[] {
+    private defineSuccessMetrics(_feature: FeatureInput): string[] {
         return [
             'Feature deployed to production',
             'All acceptance criteria met',

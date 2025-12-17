@@ -164,7 +164,7 @@ export function normalizeError(error: unknown): PrismCodeError {
  * Create error handler for Express/Koa style middleware
  */
 export function createErrorHandler() {
-    return (err: Error, req: unknown, res: { status: (code: number) => { json: (body: unknown) => void } }, next: unknown) => {
+    return (err: Error, req: unknown, res: { status: (code: number) => { json: (body: unknown) => void } }, _next: unknown) => {
         const prismError = normalizeError(err);
 
         logger.error('Request error', prismError.toJSON());
