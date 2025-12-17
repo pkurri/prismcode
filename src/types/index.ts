@@ -8,19 +8,19 @@
 export interface FeatureInput {
   /** Feature description */
   feature: string;
-  
+
   /** Technology stack */
   techStack?: string[];
-  
+
   /** Project scale */
   scale?: 'mvp' | 'startup' | 'enterprise';
-  
+
   /** Target platform */
   platform?: 'web' | 'mobile' | 'desktop' | 'api';
-  
+
   /** Third-party integrations */
   integrations?: string[];
-  
+
   /** Project constraints */
   constraints?: {
     budget?: 'low' | 'medium' | 'high';
@@ -36,25 +36,25 @@ export interface FeatureInput {
 export interface ProjectPlan {
   /** Feature analysis */
   analysis: FeatureAnalysis;
-  
+
   /** Epics */
   epics: Epic[];
-  
+
   /** User stories */
   stories: Story[];
-  
+
   /** Tasks */
   tasks: Task[];
-  
+
   /** Architecture design */
   architecture: Architecture;
-  
+
   /** GitHub issues payload */
   githubIssues: GitHubIssue[];
-  
+
   /** n8n workflow */
-  n8nWorkflow?: object;
-  
+  n8nWorkflow?: Record<string, unknown>;
+
   /** Cursor IDE prompts */
   cursorPrompts?: CursorPrompt[];
 }
@@ -188,7 +188,7 @@ export interface CursorPrompt {
  */
 export interface AgentOutput {
   agentName: string;
-  data: any;
+  data: unknown;
   metadata?: {
     processingTime?: number;
     tokensUsed?: number;
@@ -209,11 +209,11 @@ export interface PrismCodeConfig {
     projectId?: string;
   };
   agents?: {
-    pm?: any;
-    architect?: any;
-    coder?: any;
-    qa?: any;
-    devops?: any;
+    pm?: Record<string, unknown>;
+    architect?: Record<string, unknown>;
+    coder?: Record<string, unknown>;
+    qa?: Record<string, unknown>;
+    devops?: Record<string, unknown>;
   };
   output?: {
     format?: 'json' | 'markdown' | 'both';

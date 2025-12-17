@@ -27,7 +27,7 @@ export class PrismCode {
   /**
    * Create GitHub issues from project plan
    */
-  async createGitHubIssues(plan: ProjectPlan): Promise<void> {
+  async createGitHubIssues(_plan: ProjectPlan): Promise<void> {
     // TODO: Implement GitHub issue creation
     throw new Error('Not implemented yet');
   }
@@ -35,7 +35,7 @@ export class PrismCode {
   /**
    * Export project plan to various formats
    */
-  async export(plan: ProjectPlan, format: 'json' | 'markdown' | 'both'): Promise<string> {
+  async export(_plan: ProjectPlan, _format: 'json' | 'markdown' | 'both'): Promise<string> {
     // TODO: Implement export functionality
     throw new Error('Not implemented yet');
   }
