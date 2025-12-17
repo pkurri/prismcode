@@ -1,40 +1,55 @@
 # Auto-labeler configuration for Pull Requests
+# Format for actions/labeler@v5
 
-src/agents/*:
-  - 'component:agents'
+component:agents:
+  - changed-files:
+      - any-glob-to-any-file: 'src/agents/**/*'
 
-src/core/*:
-  - 'component:core'
+component:core:
+  - changed-files:
+      - any-glob-to-any-file: 'src/core/**/*'
 
-src/utils/*:
-  - 'component:utils'
+component:utils:
+  - changed-files:
+      - any-glob-to-any-file: 'src/utils/**/*'
 
-src/types/*:
-  - 'component:types'
+component:types:
+  - changed-files:
+      - any-glob-to-any-file: 'src/types/**/*'
 
-docs/**/*:
-  - 'documentation'
+documentation:
+  - changed-files:
+      - any-glob-to-any-file: 'docs/**/*'
 
-scripts/**/*:
-  - 'tooling'
+tooling:
+  - changed-files:
+      - any-glob-to-any-file: 'scripts/**/*'
 
-.github/**/*:
-  - 'ci/cd'
+ci/cd:
+  - changed-files:
+      - any-glob-to-any-file: '.github/**/*'
 
-'**/*.test.ts':
-  - 'tests'
+tests:
+  - changed-files:
+      - any-glob-to-any-file:
+          - '**/*.test.ts'
+          - '**/*.spec.ts'
+          - 'tests/**/*'
 
-'**/*.spec.ts':
-  - 'tests'
+configuration:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'tsconfig.json'
+          - 'jest.config.js'
+          - 'playwright.config.ts'
 
-tsconfig.json:
-  - 'configuration'
+dependencies:
+  - changed-files:
+      - any-glob-to-any-file: 'package.json'
 
-package.json:
-  - 'dependencies'
-
-'.eslintrc*':
-  - 'code-quality'
-
-'.prettierrc*':
-  - 'code-quality'
+code-quality:
+  - changed-files:
+      - any-glob-to-any-file:
+          - '.eslintrc*'
+          - '.prettierrc*'
+          - '.editorconfig'
