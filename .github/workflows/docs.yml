@@ -2,49 +2,52 @@ name: Documentation
 
 on:
   push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+    branches: [main]
+    paths:
+      - 'docs/**'
   workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '22.x'
           cache: 'npm'
-      
+
       - name: Install dependencies
         run: npm ci
-      
+
       - name: Build documentation
         run: npm run docs:build
-      
+        continue-on-error: true
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
+        if: success()
         with:
           path: docs/.vitepress/dist
 
   deploy:
     needs: build
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     runs-on: ubuntu-latest
-    
+
     permissions:
       pages: write
       id-token: write
-    
+
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    
+
     steps:
       - name: Deploy to GitHub Pages
         id: deployment

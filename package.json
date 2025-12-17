@@ -26,7 +26,10 @@
     "lint:staged": "lint-staged",
     "format": "prettier --write \"src/**/*.{ts,tsx}\"",
     "format:check": "prettier --check \"src/**/*.{ts,tsx}\"",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs"
   },
   "keywords": [
     "ai",
@@ -53,6 +56,7 @@
   "devDependencies": {
     "@octokit/graphql": "^9.0.3",
     "@types/express": "^5.0.6",
+    "@types/jest": "^30.0.0",
     "@types/node": "^20.10.0",
     "@typescript-eslint/eslint-plugin": "^8.50.0",
     "@typescript-eslint/parser": "^8.50.0",
@@ -65,7 +69,9 @@
     "lint-staged": "^16.2.7",
     "prettier": "^3.7.4",
     "rimraf": "^6.1.2",
-    "typescript": "^5.3.0"
+    "ts-jest": "^29.4.6",
+    "typescript": "^5.3.0",
+    "vitepress": "^1.6.4"
   },
   "lint-staged": {
     "*.{ts,tsx,js,jsx}": [

@@ -1,4 +1,4 @@
-import logger, { loggers } from '../../src/utils/logger';
+import logger, { loggers } from '../../../src/utils/logger';
 
 describe('Logger', () => {
     it('should have default logger instance', () => {

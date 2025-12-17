@@ -1,4 +1,4 @@
-import { getHealthStatus, getSimpleHealth } from '../../src/utils/health';
+import { getHealthStatus, getSimpleHealth } from '../../../src/utils/health';
 
 describe('Health Checks', () => {
     describe('getSimpleHealth', () => {
