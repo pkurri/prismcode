@@ -53,3 +53,4 @@ output/
 
 # Agent workspaces (if used)
 workstreams/*/workspace/
+node_modules

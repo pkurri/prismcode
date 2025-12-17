@@ -25,7 +25,10 @@
     "lint:fix": "eslint . --ext .ts,.tsx --fix",
     "format": "prettier --write \"src/**/*.{ts,tsx}\"",
     "format:check": "prettier --check \"src/**/*.{ts,tsx}\"",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs"
   },
   "keywords": [
     "ai",
@@ -70,8 +73,7 @@
     "rimraf": "^6.1.2",
     "@sentry/node": "^10.31.0",
     "openai": "^4.20.0",
-    "winston": "^3.19.0"
-    "@octokit/graphql": "^9.0.3",
+    "winston": "^3.19.0""@octokit/graphql": "^9.0.3",
     "dotenv": "^17.2.3",
     "eslint": "^8.55.0",
     "jest": "^29.7.0",
