@@ -1,6 +1,6 @@
 /**
  * DevOps Agent - CI/CD and Infrastructure Agent
- * 
+ *
  * Handles:
  * - CI/CD pipeline generation
  * - Infrastructure as Code
@@ -81,37 +81,37 @@ export class DevOpsAgent extends BaseAgent {
   constructor() {
     super('DevOps Agent');
   }
-  
+
   /**
    * Process architecture to generate DevOps artifacts
    */
   async process(input: DevOpsAgentInput): Promise<DevOpsAgentOutput> {
     const startTime = Date.now();
     logger.info(`${this.name}: Starting DevOps configuration`);
-    
+
     try {
       // Step 1: Generate CI/CD pipeline
       const pipeline = this.generatePipeline(input.architecture);
-      
+
       // Step 2: Generate infrastructure config
       const infrastructure = this.generateInfrastructure(input.architecture);
-      
+
       // Step 3: Generate Docker config
       const dockerConfig = this.generateDockerConfig(input.architecture);
-      
+
       // Step 4: Generate monitoring config
       const monitoringConfig = this.generateMonitoringConfig(input.architecture);
-      
+
       // Step 5: Generate Kubernetes manifests if needed
-      const kubernetesManifests = 
+      const kubernetesManifests =
         input.architecture.infrastructure.hosting.includes('kubernetes') ||
         input.architecture.infrastructure.hosting.includes('ECS')
           ? this.generateKubernetesManifests(input.architecture)
           : undefined;
-      
+
       const processingTime = Date.now() - startTime;
       logger.info(`${this.name}: DevOps configuration complete`, { processingTime });
-      
+
       return {
         agentName: this.name,
         data: {
@@ -131,7 +131,7 @@ export class DevOpsAgent extends BaseAgent {
       throw error;
     }
   }
-  
+
   /**
    * Generate CI/CD pipeline
    */
@@ -174,13 +174,13 @@ export class DevOpsAgent extends BaseAgent {
       ],
     };
   }
-  
+
   /**
    * Generate infrastructure configuration
    */
   private generateInfrastructure(architecture: Architecture): InfraConfig {
     const provider = this.determineProvider(architecture);
-    
+
     return {
       provider,
       resources: this.generateResources(architecture, provider),
@@ -201,29 +201,29 @@ export class DevOpsAgent extends BaseAgent {
       },
     };
   }
-  
+
   /**
    * Determine cloud provider
    */
   private determineProvider(architecture: Architecture): InfraConfig['provider'] {
     const hosting = architecture.infrastructure.hosting.toLowerCase();
-    
+
     if (hosting.includes('aws') || hosting.includes('ecs')) return 'aws';
     if (hosting.includes('gcp')) return 'gcp';
     if (hosting.includes('azure')) return 'azure';
     if (hosting.includes('vercel')) return 'vercel';
     return 'docker';
   }
-  
+
   /**
    * Generate infrastructure resources
    */
   private generateResources(
-    architecture: Architecture, 
-    provider: InfraConfig['provider']
+    architecture: Architecture,
+    provider: InfraConfig['provider'],
   ): InfraResource[] {
     const resources: InfraResource[] = [];
-    
+
     // Compute
     resources.push({
       name: 'app-service',
@@ -239,7 +239,7 @@ export class DevOpsAgent extends BaseAgent {
         },
       },
     });
-    
+
     // Database
     if (architecture.database.primary) {
       resources.push({
@@ -253,7 +253,7 @@ export class DevOpsAgent extends BaseAgent {
         },
       });
     }
-    
+
     // Cache
     if (architecture.database.cache) {
       resources.push({
@@ -266,10 +266,10 @@ export class DevOpsAgent extends BaseAgent {
         },
       });
     }
-    
+
     return resources;
   }
-  
+
   /**
    * Generate Docker configuration
    */
@@ -313,7 +313,7 @@ volumes:
   redis_data:
 `;
   }
-  
+
   /**
    * Generate Kubernetes manifests
    */
@@ -371,13 +371,13 @@ spec:
   type: LoadBalancer
 `;
   }
-  
+
   /**
    * Generate monitoring configuration
    */
   private generateMonitoringConfig(_architecture: Architecture): string {
     const monitoring = _architecture.infrastructure.monitoring;
-    
+
     return `# Monitoring Configuration
 
 ## Metrics
