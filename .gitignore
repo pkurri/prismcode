@@ -28,7 +28,9 @@ yarn-error.log*
 pnp.debug.log*
 
 # IDEs
-.vscode/
+.vscode/*
+!.vscode/settings.json
+!.vscode/extensions.json
 .idea/
 *.swp
 *.swo
