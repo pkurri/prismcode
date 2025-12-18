@@ -1,0 +1,141 @@
+{
+  "name": "prismcode-vscode",
+  "displayName": "PrismCode",
+  "description": "AI-powered multi-agent project orchestration for VS Code",
+  "version": "0.1.0",
+  "publisher": "prismcode",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Machine Learning",
+    "Other"
+  ],
+  "keywords": [
+    "ai",
+    "agents",
+    "automation",
+    "github",
+    "project-management"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "prismcode.start",
+        "title": "PrismCode: Start Session"
+      },
+      {
+        "command": "prismcode.generatePlan",
+        "title": "PrismCode: Generate Project Plan"
+      },
+      {
+        "command": "prismcode.runOrchestrator",
+        "title": "PrismCode: Run Orchestrator"
+      },
+      {
+        "command": "prismcode.selectAgent",
+        "title": "PrismCode: Select Agent"
+      },
+      {
+        "command": "prismcode.showDashboard",
+        "title": "PrismCode: Show Dashboard"
+      },
+      {
+        "command": "prismcode.connectGitHub",
+        "title": "PrismCode: Connect to GitHub"
+      },
+      {
+        "command": "prismcode.openSettings",
+        "title": "PrismCode: Open Settings"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "prismcode-sidebar",
+          "title": "PrismCode",
+          "icon": "resources/icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "prismcode-sidebar": [
+        {
+          "id": "prismcode.agents",
+          "name": "Agents"
+        },
+        {
+          "id": "prismcode.tasks",
+          "name": "Tasks"
+        },
+        {
+          "id": "prismcode.github",
+          "name": "GitHub"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "PrismCode",
+      "properties": {
+        "prismcode.githubToken": {
+          "type": "string",
+          "default": "",
+          "description": "GitHub Personal Access Token"
+        },
+        "prismcode.defaultOrg": {
+          "type": "string",
+          "default": "",
+          "description": "Default GitHub organization"
+        },
+        "prismcode.autoConnect": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically connect to GitHub on startup"
+        },
+        "prismcode.showNotifications": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show notifications for agent actions"
+        }
+      }
+    },
+    "keybindings": [
+      {
+        "command": "prismcode.start",
+        "key": "ctrl+shift+p p",
+        "mac": "cmd+shift+p p"
+      },
+      {
+        "command": "prismcode.generatePlan",
+        "key": "ctrl+shift+p g",
+        "mac": "cmd+shift+p g"
+      },
+      {
+        "command": "prismcode.selectAgent",
+        "key": "ctrl+shift+p a",
+        "mac": "cmd+shift+p a"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "package": "vsce package",
+    "publish": "vsce publish"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.85.0",
+    "@types/node": "^20.0.0",
+    "typescript": "^5.3.0",
+    "@vscode/vsce": "^2.22.0"
+  },
+  "dependencies": {
+    "@octokit/rest": "^20.0.0"
+  }
+}
