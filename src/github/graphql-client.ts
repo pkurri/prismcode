@@ -72,10 +72,11 @@ export class GitHubGraphQLClient {
       }
     `;
 
-    const result = await this.gql(query, {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const result = (await this.gql(query, {
       owner: this.owner,
       repo: this.repo,
-    });
+    })) as any;
 
     return result.repository.projectsV2.nodes;
   }
@@ -95,11 +96,12 @@ export class GitHubGraphQLClient {
       }
     `;
 
-    const result = await this.gql(query, {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const result = (await this.gql(query, {
       owner: this.owner,
       repo: this.repo,
       number: projectNumber,
-    });
+    })) as any;
 
     return result.repository.projectV2;
   }
@@ -115,10 +117,11 @@ export class GitHubGraphQLClient {
       }
     `;
 
-    const result = await this.gql(mutation, {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const result = (await this.gql(mutation, {
       projectId,
       contentId,
-    });
+    })) as any;
 
     return result.addProjectV2ItemById.item.id;
   }
@@ -312,8 +315,8 @@ export class GitHubGraphQLClient {
         }
       }
     `;
-
-    const result = await this.gql(query);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const result = (await this.gql(query)) as any;
 
     return result.viewer;
   }
@@ -336,8 +339,8 @@ export class GitHubGraphQLClient {
         }
       }
     `;
-
-    const result = await this.gql(query, { org });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const result = (await this.gql(query, { org })) as any;
 
     return {
       login: result.organization.login,
@@ -363,8 +366,8 @@ export class GitHubGraphQLClient {
         }
       }
     `;
-
-    const result = await this.gql(query, { org });
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const result = (await this.gql(query, { org })) as any;
 
     return result.organization.teams.nodes;
   }
@@ -383,12 +386,12 @@ export class GitHubGraphQLClient {
         }
       }
     `;
-
-    const result = await this.gql(query, {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const result = (await this.gql(query, {
       owner: this.owner,
       repo: this.repo,
       number: issueNumber,
-    });
+    })) as any;
 
     return result.repository.issue.id;
   }
@@ -403,12 +406,12 @@ export class GitHubGraphQLClient {
         }
       }
     `;
-
-    const result = await this.gql(query, {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const result = (await this.gql(query, {
       owner: this.owner,
       repo: this.repo,
       number: prNumber,
-    });
+    })) as any;
 
     return result.repository.pullRequest.id;
   }
