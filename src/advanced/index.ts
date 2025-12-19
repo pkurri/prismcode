@@ -22,6 +22,16 @@ export type {
   UsageSummary,
 } from './usage-metrics';
 
+// Performance Monitoring (#129)
+export { PerformanceMonitor, performanceMonitor } from './performance';
+export type {
+  PerformanceMetric,
+  OperationTiming,
+  SystemHealth,
+  PerformanceAlert,
+  PerformanceSummary,
+} from './performance';
+
 // Integrations (#125, #126, #127)
 export {
   SlackIntegration,
