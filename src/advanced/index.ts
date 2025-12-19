@@ -40,6 +40,14 @@ export type { TrackedError, ErrorGroup, ErrorStats, ErrorTrend } from './error-t
 export { CostTracker, costTracker } from './cost-tracking';
 export type { APICallCost, CostBudget, CostSummary, CostTrend } from './cost-tracking';
 
+// API Key Management (#134)
+export { APIKeyManager, apiKeyManager } from './api-keys';
+export type { APIKey, APIKeyCreateResult, APIKeyUsageStats } from './api-keys';
+
+// Rate Limiting (#133)
+export { RateLimitManager, rateLimitManager } from './rate-limit';
+export type { RateLimitRule, RateLimitStatus, RateLimitStats } from './rate-limit';
+
 // Integrations (#125, #126, #127)
 export {
   SlackIntegration,
