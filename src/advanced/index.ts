@@ -97,3 +97,24 @@ export type { Team, TeamMember, TeamSettings, AuditLogEntry } from './team';
 // Experiments (#131, #132)
 export { FeatureFlagService, ABTestingService } from './experiments';
 export type { FeatureFlag, Experiment, ExperimentVariant, ExperimentResult } from './experiments';
+
+// Pattern Library (#123)
+export { PatternLibrary, patternLibrary } from './pattern-library';
+export type { CodePattern, PatternVariable, PatternCategory } from './pattern-library';
+
+// Custom Agent (#122)
+export { CustomAgentManager, customAgentManager } from './custom-agent';
+export type { CustomAgent, AgentExecution } from './custom-agent';
+
+// Workflow Templates (#116)
+export { WorkflowTemplateManager, workflowTemplateManager } from './workflow-templates';
+export type {
+  WorkflowTemplate,
+  WorkflowNode,
+  WorkflowConnection,
+  DeployedWorkflow,
+} from './workflow-templates';
+
+// Template Marketplace (#124)
+export { TemplateMarketplace, templateMarketplace } from './marketplace';
+export type { MarketplaceTemplate, TemplateReview } from './marketplace';
