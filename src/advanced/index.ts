@@ -118,3 +118,29 @@ export type {
 // Template Marketplace (#124)
 export { TemplateMarketplace, templateMarketplace } from './marketplace';
 export type { MarketplaceTemplate, TemplateReview } from './marketplace';
+
+// Usage Analytics (#214)
+export { UsageAnalytics, usageAnalytics } from './usage-analytics';
+export type {
+  UsageReport,
+  UserUsage,
+  ProjectUsage,
+  ModelUsage,
+  AgentUsage,
+  UsageAlert,
+  ExportConfig,
+} from './usage-analytics';
+
+// Smart Model Router (#215)
+export { ModelRouter, modelRouter } from './model-router';
+export type {
+  ModelCapabilities,
+  ModelCapability,
+  TaskContext,
+  RoutingDecision,
+  RoutingPolicy,
+} from './model-router';
+
+// RBAC - Role Based Access Control (#218)
+export { RBACManager, rbacManager } from './rbac';
+export type { Permission, Role, UserRole, PermissionCheck, AuditEntry } from './rbac';
