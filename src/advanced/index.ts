@@ -4,8 +4,23 @@
  */
 
 // Analytics (#117, #119, #128, #129, #130)
-export { AnalyticsDashboard } from './analytics';
-export type { AnalyticsMetrics, TimeSeriesData, AgentMetrics } from './analytics';
+export { AnalyticsDashboard, analyticsDashboard } from './analytics';
+export type {
+  AnalyticsMetrics,
+  TimeSeriesData,
+  AgentMetrics,
+  DashboardSummary,
+  EventLog,
+} from './analytics';
+
+// Usage Metrics (#128)
+export { UsageMetricsService, usageMetrics } from './usage-metrics';
+export type {
+  APIUsageMetrics,
+  FeatureUsageMetrics,
+  UserSessionMetrics,
+  UsageSummary,
+} from './usage-metrics';
 
 // Integrations (#125, #126, #127)
 export {
