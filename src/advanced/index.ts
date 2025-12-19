@@ -60,6 +60,27 @@ export type { ConfigExport, ConfigImportResult } from './config-manager';
 export { BackupManager, backupManager } from './backup';
 export type { BackupMetadata, BackupSchedule, RestoreResult } from './backup';
 
+// SSO Support (#136)
+export { SSOManager, ssoManager } from './sso';
+export type { SSOProvider, SSOSession, SSOConfig } from './sso';
+
+// Version Control (#139)
+export { VersionControlManager, versionControlManager } from './version-control';
+export type { Repository, Commit, Branch, DiffResult } from './version-control';
+
+// Dependency Graph (#140)
+export { DependencyGraphManager, dependencyGraphManager } from './dependency-graph';
+export type {
+  DependencyNode,
+  DependencyEdge,
+  DependencyGraph,
+  DependencyAnalysis,
+} from './dependency-graph';
+
+// Multi-Repo Management (#118)
+export { MultiRepoManager, multiRepoManager } from './multi-repo';
+export type { ManagedRepo, RepoGroup, CrossRepoChange } from './multi-repo';
+
 // Integrations (#125, #126, #127)
 export {
   SlackIntegration,
