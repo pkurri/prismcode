@@ -32,6 +32,10 @@ export type {
   PerformanceSummary,
 } from './performance';
 
+// Error Tracking (#130)
+export { ErrorTracker, errorTracker } from './error-tracking';
+export type { TrackedError, ErrorGroup, ErrorStats, ErrorTrend } from './error-tracking';
+
 // Integrations (#125, #126, #127)
 export {
   SlackIntegration,
