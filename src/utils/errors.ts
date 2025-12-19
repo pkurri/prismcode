@@ -24,7 +24,7 @@ export class PrismCodeError extends Error {
     message: string,
     code: string = 'PRISMCODE_ERROR',
     context: Record<string, unknown> = {},
-    isOperational: boolean = true,
+    isOperational: boolean = true
   ) {
     super(message);
     this.name = 'PrismCodeError';
@@ -116,7 +116,7 @@ export function withErrorHandling<T extends unknown[], R>(
     rethrow?: boolean;
     logLevel?: 'error' | 'warn' | 'info';
     defaultValue?: R;
-  } = {},
+  } = {}
 ): (...args: T) => Promise<R> {
   const { rethrow = true, logLevel = 'error', defaultValue } = options;
 
@@ -168,7 +168,7 @@ export function createErrorHandler() {
     err: Error,
     req: unknown,
     res: { status: (code: number) => { json: (body: unknown) => void } },
-    _next: unknown,
+    _next: unknown
   ) => {
     const prismError = normalizeError(err);
 
@@ -202,7 +202,7 @@ export async function retry<T>(
     baseDelay?: number;
     maxDelay?: number;
     onRetry?: (error: Error, attempt: number) => void;
-  } = {},
+  } = {}
 ): Promise<T> {
   const { maxAttempts = 3, baseDelay = 1000, maxDelay = 30000, onRetry } = options;
 
@@ -231,7 +231,7 @@ export async function retry<T>(
     }
   }
 
-  throw lastError;
+  throw lastError ?? new Error('Retry failed with no error captured');
 }
 
 /**
@@ -240,7 +240,7 @@ export async function retry<T>(
 export function assert(
   condition: unknown,
   message: string,
-  ErrorClass: new (message: string) => Error = ValidationError,
+  ErrorClass: new (message: string) => Error = ValidationError
 ): asserts condition {
   if (!condition) {
     throw new ErrorClass(message);

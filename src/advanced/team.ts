@@ -46,7 +46,7 @@ export interface AuditLogEntry {
 export class TeamService {
   private teams: Map<string, Team> = new Map();
 
-  async createTeam(name: string, ownerId: string, ownerName: string): Promise<Team> {
+  createTeam(name: string, ownerId: string, ownerName: string): Promise<Team> {
     const team: Team = {
       id: this.generateId(),
       name,
@@ -68,31 +68,31 @@ export class TeamService {
     };
 
     this.teams.set(team.id, team);
-    return team;
+    return Promise.resolve(team);
   }
 
-  async addMember(teamId: string, member: Omit<TeamMember, 'lastActive'>): Promise<boolean> {
+  addMember(teamId: string, member: Omit<TeamMember, 'lastActive'>): Promise<boolean> {
     const team = this.teams.get(teamId);
-    if (!team) return false;
+    if (!team) return Promise.resolve(false);
 
     team.members.push({ ...member, lastActive: new Date() });
-    return true;
+    return Promise.resolve(true);
   }
 
-  async removeMember(teamId: string, memberId: string): Promise<boolean> {
+  removeMember(teamId: string, memberId: string): Promise<boolean> {
     const team = this.teams.get(teamId);
-    if (!team) return false;
+    if (!team) return Promise.resolve(false);
 
     team.members = team.members.filter((m) => m.id !== memberId);
-    return true;
+    return Promise.resolve(true);
   }
 
-  async getTeam(teamId: string): Promise<Team | null> {
-    return this.teams.get(teamId) || null;
+  getTeam(teamId: string): Promise<Team | null> {
+    return Promise.resolve(this.teams.get(teamId) || null);
   }
 
-  async listTeams(): Promise<Team[]> {
-    return Array.from(this.teams.values());
+  listTeams(): Promise<Team[]> {
+    return Promise.resolve(Array.from(this.teams.values()));
   }
 
   private generateId(): string {

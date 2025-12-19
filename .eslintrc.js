@@ -27,5 +27,14 @@ module.exports = {
     '@typescript-eslint/no-misused-promises': 'error',
     'no-console': 'off',
   },
-  ignorePatterns: ['node_modules/', 'dist/', 'coverage/', '*.js'],
+  ignorePatterns: [
+    'node_modules/',
+    'dist/',
+    'coverage/',
+    '*.js',
+    'ide-extension/',
+    'vscode-extension/',
+    'tests/',
+    'playwright.config.ts',
+  ],
 };

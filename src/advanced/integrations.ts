@@ -118,15 +118,15 @@ export class EmailIntegration {
     this.config = config;
   }
 
-  async send(to: string, payload: NotificationPayload): Promise<boolean> {
+  send(to: string, payload: NotificationPayload): Promise<boolean> {
     if (!this.config.enabled) {
-      return false;
+      return Promise.resolve(false);
     }
 
     // Email sending would use nodemailer or similar
     // This is a placeholder implementation
     console.log(`[Email] To: ${to}, Subject: ${payload.title}`);
-    return true;
+    return Promise.resolve(true);
   }
 }
 
@@ -146,7 +146,9 @@ export class NotificationService {
     this.discord = new DiscordIntegration(config);
   }
 
-  registerEmail(config: Parameters<typeof EmailIntegration.prototype.send>[1] & IntegrationConfig): void {
+  registerEmail(
+    config: Parameters<typeof EmailIntegration.prototype.send>[1] & IntegrationConfig
+  ): void {
     this.email = new EmailIntegration(config);
   }
 

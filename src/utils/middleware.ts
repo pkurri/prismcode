@@ -106,7 +106,7 @@ export function validateRequest(schema: ValidationSchema) {
     // Validate body
     if (schema.body) {
       for (const [field, rules] of Object.entries(schema.body)) {
-        const value = req.body?.[field];
+        const value = (req.body as Record<string, unknown>)?.[field];
         if (rules.required && (value === undefined || value === null)) {
           errors.push(`Body field '${field}' is required`);
         }
@@ -143,7 +143,7 @@ export function validateRequest(schema: ValidationSchema) {
 
     // Sanitize body
     if (req.body && typeof req.body === 'object') {
-      req.body = sanitizeObject(req.body);
+      req.body = sanitizeObject(req.body as Record<string, unknown>);
     }
 
     next();
@@ -161,7 +161,7 @@ export function errorMiddleware(
   err: Error,
   req: Request,
   res: Response,
-  _next: NextFunction,
+  _next: NextFunction
 ): void {
   const prismError = normalizeError(err);
 
@@ -265,7 +265,7 @@ export function securityHeadersMiddleware(req: Request, res: Response, next: Nex
   // CSP
   res.setHeader(
     'Content-Security-Policy',
-    "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'",
+    "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'"
   );
 
   // Referrer Policy

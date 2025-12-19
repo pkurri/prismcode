@@ -60,15 +60,15 @@ export class DatabasePool {
   /**
    * Initialize the connection pool
    */
-  async connect(): Promise<void> {
+  connect(): Promise<void> {
     if (this.isConnected) {
       logger.warn('Database pool already connected');
-      return;
+      return Promise.resolve();
     }
 
     if (!this.config.url) {
       logger.info('No DATABASE_URL configured, skipping database connection');
-      return;
+      return Promise.resolve();
     }
 
     try {
@@ -82,6 +82,7 @@ export class DatabasePool {
       // Simulated connection
       this.isConnected = true;
       logger.info('Database pool connected');
+      return Promise.resolve();
     } catch (error) {
       logger.error('Database connection failed', { error });
       throw error;
@@ -91,9 +92,9 @@ export class DatabasePool {
   /**
    * Close the connection pool
    */
-  async disconnect(): Promise<void> {
+  disconnect(): Promise<void> {
     if (!this.isConnected) {
-      return;
+      return Promise.resolve();
     }
 
     try {
@@ -101,6 +102,7 @@ export class DatabasePool {
       this.isConnected = false;
       this.pool = null;
       logger.info('Database pool disconnected');
+      return Promise.resolve();
     } catch (error) {
       logger.error('Database disconnect failed', { error });
       throw error;
@@ -129,17 +131,17 @@ export class DatabasePool {
   /**
    * Health check
    */
-  async healthCheck(): Promise<{ healthy: boolean; latency?: number }> {
+  healthCheck(): Promise<{ healthy: boolean; latency?: number }> {
     if (!this.isConnected) {
-      return { healthy: false };
+      return Promise.resolve({ healthy: false });
     }
 
     const start = Date.now();
     try {
       // In real implementation: await db.raw('SELECT 1')
-      return { healthy: true, latency: Date.now() - start };
+      return Promise.resolve({ healthy: true, latency: Date.now() - start });
     } catch {
-      return { healthy: false };
+      return Promise.resolve({ healthy: false });
     }
   }
 }
@@ -191,16 +193,16 @@ export class CacheManager {
   /**
    * Connect to Redis
    */
-  async connect(): Promise<void> {
+  connect(): Promise<void> {
     if (this.isConnected) {
       logger.warn('Redis already connected');
-      return;
+      return Promise.resolve();
     }
 
     if (!this.config.url) {
       logger.info('No REDIS_URL configured, using in-memory cache');
       this.isConnected = true;
-      return;
+      return Promise.resolve();
     }
 
     try {
@@ -208,6 +210,7 @@ export class CacheManager {
       logger.info('Redis connecting', { keyPrefix: this.config.keyPrefix });
       this.isConnected = true;
       logger.info('Redis connected');
+      return Promise.resolve();
     } catch (error) {
       logger.error('Redis connection failed', { error });
       throw error;
@@ -217,39 +220,40 @@ export class CacheManager {
   /**
    * Disconnect from Redis
    */
-  async disconnect(): Promise<void> {
+  disconnect(): Promise<void> {
     if (!this.isConnected) {
-      return;
+      return Promise.resolve();
     }
 
     this.isConnected = false;
     this.cache.clear();
     logger.info('Redis disconnected');
+    return Promise.resolve();
   }
 
   /**
    * Get a cached value
    */
-  async get<T>(key: string): Promise<T | null> {
+  get<T>(key: string): Promise<T | null> {
     const prefixedKey = this.config.keyPrefix + key;
 
     const entry = this.cache.get(prefixedKey);
     if (!entry) {
-      return null;
+      return Promise.resolve(null);
     }
 
     if (entry.expiresAt && entry.expiresAt < Date.now()) {
       this.cache.delete(prefixedKey);
-      return null;
+      return Promise.resolve(null);
     }
 
-    return entry.value as T;
+    return Promise.resolve(entry.value as T);
   }
 
   /**
    * Set a cached value
    */
-  async set<T>(key: string, value: T, options: CacheOptions = {}): Promise<void> {
+  set<T>(key: string, value: T, options: CacheOptions = {}): Promise<void> {
     const prefixedKey = this.config.keyPrefix + key;
     const ttl = options.ttl || 3600; // Default 1 hour
 
@@ -257,20 +261,21 @@ export class CacheManager {
       value,
       expiresAt: Date.now() + ttl * 1000,
     });
+    return Promise.resolve();
   }
 
   /**
    * Delete a cached value
    */
-  async delete(key: string): Promise<boolean> {
+  delete(key: string): Promise<boolean> {
     const prefixedKey = this.config.keyPrefix + key;
-    return this.cache.delete(prefixedKey);
+    return Promise.resolve(this.cache.delete(prefixedKey));
   }
 
   /**
    * Delete by pattern
    */
-  async deleteByPattern(pattern: string): Promise<number> {
+  deleteByPattern(pattern: string): Promise<number> {
     const prefixedPattern = this.config.keyPrefix + pattern.replace('*', '');
     let count = 0;
 
@@ -281,31 +286,32 @@ export class CacheManager {
       }
     }
 
-    return count;
+    return Promise.resolve(count);
   }
 
   /**
    * Clear all cache
    */
-  async flush(): Promise<void> {
+  flush(): Promise<void> {
     this.cache.clear();
     logger.info('Cache flushed');
+    return Promise.resolve();
   }
 
   /**
    * Health check
    */
-  async healthCheck(): Promise<{ healthy: boolean; latency?: number }> {
+  healthCheck(): Promise<{ healthy: boolean; latency?: number }> {
     if (!this.isConnected) {
-      return { healthy: false };
+      return Promise.resolve({ healthy: false });
     }
 
     const start = Date.now();
     try {
       // In real implementation: await redis.ping()
-      return { healthy: true, latency: Date.now() - start };
+      return Promise.resolve({ healthy: true, latency: Date.now() - start });
     } catch {
-      return { healthy: false };
+      return Promise.resolve({ healthy: false });
     }
   }
 
@@ -315,7 +321,7 @@ export class CacheManager {
   async getOrSet<T>(
     key: string,
     factory: () => Promise<T>,
-    options: CacheOptions = {},
+    options: CacheOptions = {}
   ): Promise<T> {
     const cached = await this.get<T>(key);
     if (cached !== null) {

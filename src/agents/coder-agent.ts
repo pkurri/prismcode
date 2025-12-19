@@ -155,9 +155,9 @@ export class CoderAgent extends BaseAgent {
   /**
    * Generate implementation files
    */
-  private async generateImplementation(
+  private generateImplementation(
     task: Task,
-    _analysis: ReturnType<typeof this.analyzeTask>,
+    _analysis: ReturnType<typeof this.analyzeTask>
   ): Promise<GeneratedFile[]> {
     const files: GeneratedFile[] = [];
 
@@ -173,7 +173,7 @@ export class CoderAgent extends BaseAgent {
       files.push(this.generateRepositoryFile(task));
     }
 
-    return files;
+    return Promise.resolve(files);
   }
 
   /**
@@ -465,15 +465,16 @@ export const ${this.toCamelCase(name)}Repository = new ${name}Repository();
   /**
    * Generate tests
    */
-  private async generateTests(task: Task, files: GeneratedFile[]): Promise<GeneratedFile[]> {
-    return files.map((file) => ({
-      path: file.path
-        .replace('/src/', '/tests/')
-        .replace('.ts', '.test.ts')
-        .replace('.tsx', '.test.tsx'),
-      language: file.language,
-      purpose: `Tests for ${file.purpose}`,
-      content: `/**
+  private generateTests(task: Task, files: GeneratedFile[]): Promise<GeneratedFile[]> {
+    return Promise.resolve(
+      files.map((file) => ({
+        path: file.path
+          .replace('/src/', '/tests/')
+          .replace('.ts', '.test.ts')
+          .replace('.tsx', '.test.tsx'),
+        language: file.language,
+        purpose: `Tests for ${file.purpose}`,
+        content: `/**
  * Tests for ${file.path}
  */
 
@@ -485,7 +486,8 @@ describe('${this.toClassName(task.title)}', () => {
   // Comprehensive test suite can be expanded
 });
 `,
-    }));
+      }))
+    );
   }
 
   /**

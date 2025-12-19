@@ -52,11 +52,11 @@ export class AnalyticsDashboard {
     avgTimeToMerge: 0,
   };
 
-  async getMetrics(): Promise<AnalyticsMetrics> {
-    return this.metrics;
+  getMetrics(): Promise<AnalyticsMetrics> {
+    return Promise.resolve(this.metrics);
   }
 
-  async getTimeSeries(days: number = 30): Promise<TimeSeriesData[]> {
+  getTimeSeries(days: number = 30): Promise<TimeSeriesData[]> {
     const data: TimeSeriesData[] = [];
     const now = new Date();
 
@@ -71,17 +71,47 @@ export class AnalyticsDashboard {
       });
     }
 
-    return data;
+    return Promise.resolve(data);
   }
 
-  async getAgentMetrics(): Promise<AgentMetrics[]> {
-    return [
-      { agentName: 'PM Agent', tasksCompleted: 45, avgProcessingTime: 2.5, successRate: 0.95, tokensUsed: 15000 },
-      { agentName: 'Architect', tasksCompleted: 32, avgProcessingTime: 4.2, successRate: 0.92, tokensUsed: 25000 },
-      { agentName: 'Coder', tasksCompleted: 128, avgProcessingTime: 8.1, successRate: 0.88, tokensUsed: 85000 },
-      { agentName: 'QA Agent', tasksCompleted: 67, avgProcessingTime: 3.8, successRate: 0.91, tokensUsed: 22000 },
-      { agentName: 'DevOps', tasksCompleted: 23, avgProcessingTime: 5.4, successRate: 0.96, tokensUsed: 18000 },
-    ];
+  getAgentMetrics(): Promise<AgentMetrics[]> {
+    return Promise.resolve([
+      {
+        agentName: 'PM Agent',
+        tasksCompleted: 45,
+        avgProcessingTime: 2.5,
+        successRate: 0.95,
+        tokensUsed: 15000,
+      },
+      {
+        agentName: 'Architect',
+        tasksCompleted: 32,
+        avgProcessingTime: 4.2,
+        successRate: 0.92,
+        tokensUsed: 25000,
+      },
+      {
+        agentName: 'Coder',
+        tasksCompleted: 128,
+        avgProcessingTime: 8.1,
+        successRate: 0.88,
+        tokensUsed: 85000,
+      },
+      {
+        agentName: 'QA Agent',
+        tasksCompleted: 67,
+        avgProcessingTime: 3.8,
+        successRate: 0.91,
+        tokensUsed: 22000,
+      },
+      {
+        agentName: 'DevOps',
+        tasksCompleted: 23,
+        avgProcessingTime: 5.4,
+        successRate: 0.96,
+        tokensUsed: 18000,
+      },
+    ]);
   }
 
   updateMetrics(partial: Partial<AnalyticsMetrics>): void {
