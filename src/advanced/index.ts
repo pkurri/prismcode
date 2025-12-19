@@ -48,6 +48,18 @@ export type { APIKey, APIKeyCreateResult, APIKeyUsageStats } from './api-keys';
 export { RateLimitManager, rateLimitManager } from './rate-limit';
 export type { RateLimitRule, RateLimitStatus, RateLimitStats } from './rate-limit';
 
+// OAuth Integration (#135)
+export { OAuthManager, oauthManager } from './oauth';
+export type { OAuthProvider, OAuthToken, OAuthSession } from './oauth';
+
+// Config Management (#137)
+export { ConfigManager, configManager } from './config-manager';
+export type { ConfigExport, ConfigImportResult } from './config-manager';
+
+// Backup System (#138)
+export { BackupManager, backupManager } from './backup';
+export type { BackupMetadata, BackupSchedule, RestoreResult } from './backup';
+
 // Integrations (#125, #126, #127)
 export {
   SlackIntegration,
