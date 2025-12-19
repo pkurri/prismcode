@@ -36,6 +36,10 @@ export type {
 export { ErrorTracker, errorTracker } from './error-tracking';
 export type { TrackedError, ErrorGroup, ErrorStats, ErrorTrend } from './error-tracking';
 
+// Cost Tracking (#119)
+export { CostTracker, costTracker } from './cost-tracking';
+export type { APICallCost, CostBudget, CostSummary, CostTrend } from './cost-tracking';
+
 // Integrations (#125, #126, #127)
 export {
   SlackIntegration,
