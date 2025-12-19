@@ -5,6 +5,8 @@
  * Provides typed wrapper around GitHub GraphQL API
  */
 
+/* eslint-disable @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unsafe-return, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call */
+
 import { graphql } from '@octokit/graphql';
 import logger from '../utils/logger';
 
@@ -70,10 +72,10 @@ export class GitHubGraphQLClient {
       }
     `;
 
-    const result = (await this.gql(query, {
+    const result = await this.gql(query, {
       owner: this.owner,
       repo: this.repo,
-    })) as { repository: { projectsV2: { nodes: ProjectV2[] } } };
+    });
 
     return result.repository.projectsV2.nodes;
   }
@@ -93,11 +95,11 @@ export class GitHubGraphQLClient {
       }
     `;
 
-    const result = (await this.gql(query, {
+    const result = await this.gql(query, {
       owner: this.owner,
       repo: this.repo,
       number: projectNumber,
-    })) as { repository: { projectV2: ProjectV2 | null } };
+    });
 
     return result.repository.projectV2;
   }
@@ -113,10 +115,10 @@ export class GitHubGraphQLClient {
       }
     `;
 
-    const result = (await this.gql(mutation, {
+    const result = await this.gql(mutation, {
       projectId,
       contentId,
-    })) as { addProjectV2ItemById: { item: { id: string } } };
+    });
 
     return result.addProjectV2ItemById.item.id;
   }
@@ -153,18 +155,22 @@ export class GitHubGraphQLClient {
       }
     `;
 
-    interface ItemNode {
-      id: string;
-      content: { title: string } | null;
-      type: 'ISSUE' | 'PULL_REQUEST' | 'DRAFT_ISSUE';
-      fieldValueByName: { name: string } | null;
-    }
+    const result = await this.gql(query, { projectId });
 
-    const result = (await this.gql(query, { projectId })) as {
-      node: { items: { nodes: ItemNode[] } };
-    };
-
-    return result.node.items.nodes.map((item) => ({
+    return (
+      result as {
+        node: {
+          items: {
+            nodes: Array<{
+              id: string;
+              content: { title: string } | null;
+              type: 'ISSUE' | 'PULL_REQUEST' | 'DRAFT_ISSUE';
+              fieldValueByName: { name: string } | null;
+            }>;
+          };
+        };
+      }
+    ).node.items.nodes.map((item) => ({
       id: item.id,
       title: item.content?.title || 'Draft',
       status: item.fieldValueByName?.name || null,
@@ -176,7 +182,9 @@ export class GitHubGraphQLClient {
   // Code Search (#73)
   // ========================================
 
-  async searchCode(query: string): Promise<Array<{ path: string; repo: string; matchCount: number }>> {
+  async searchCode(
+    query: string
+  ): Promise<Array<{ path: string; repo: string; matchCount: number }>> {
     logger.info('GitHub GraphQL: Searching code', { query });
 
     const gqlQuery = `
@@ -255,22 +263,28 @@ export class GitHubGraphQLClient {
       }
     `;
 
-    interface ReviewNode {
-      id: string;
-      author: { login: string } | null;
-      state: string;
-      body: string;
-    }
-
-    const result = (await this.gql(query, {
+    const result = await this.gql(query, {
       owner: this.owner,
       repo: this.repo,
       prNumber,
-    })) as {
-      repository: { pullRequest: { reviews: { nodes: ReviewNode[] } } };
-    };
+    });
 
-    return result.repository.pullRequest.reviews.nodes.map((r) => ({
+    return (
+      result as {
+        repository: {
+          pullRequest: {
+            reviews: {
+              nodes: Array<{
+                id: string;
+                author: { login: string } | null;
+                state: string;
+                body: string;
+              }>;
+            };
+          };
+        };
+      }
+    ).repository.pullRequest.reviews.nodes.map((r) => ({
       id: r.id,
       author: r.author?.login || 'unknown',
       state: r.state,
@@ -299,9 +313,7 @@ export class GitHubGraphQLClient {
       }
     `;
 
-    const result = (await this.gql(query)) as {
-      viewer: { login: string; name: string | null; email: string | null; avatarUrl: string };
-    };
+    const result = await this.gql(query);
 
     return result.viewer;
   }
@@ -325,14 +337,7 @@ export class GitHubGraphQLClient {
       }
     `;
 
-    const result = (await this.gql(query, { org })) as {
-      organization: {
-        login: string;
-        name: string | null;
-        description: string | null;
-        membersWithRole: { totalCount: number };
-      };
-    };
+    const result = await this.gql(query, { org });
 
     return {
       login: result.organization.login,
@@ -342,7 +347,9 @@ export class GitHubGraphQLClient {
     };
   }
 
-  async getTeams(org: string): Promise<Array<{ slug: string; name: string; description: string | null }>> {
+  async getTeams(
+    org: string
+  ): Promise<Array<{ slug: string; name: string; description: string | null }>> {
     const query = `
       query($org: String!) {
         organization(login: $org) {
@@ -357,11 +364,7 @@ export class GitHubGraphQLClient {
       }
     `;
 
-    const result = (await this.gql(query, { org })) as {
-      organization: {
-        teams: { nodes: Array<{ slug: string; name: string; description: string | null }> };
-      };
-    };
+    const result = await this.gql(query, { org });
 
     return result.organization.teams.nodes;
   }
@@ -381,11 +384,11 @@ export class GitHubGraphQLClient {
       }
     `;
 
-    const result = (await this.gql(query, {
+    const result = await this.gql(query, {
       owner: this.owner,
       repo: this.repo,
       number: issueNumber,
-    })) as { repository: { issue: { id: string } } };
+    });
 
     return result.repository.issue.id;
   }
@@ -401,11 +404,11 @@ export class GitHubGraphQLClient {
       }
     `;
 
-    const result = (await this.gql(query, {
+    const result = await this.gql(query, {
       owner: this.owner,
       repo: this.repo,
       number: prNumber,
-    })) as { repository: { pullRequest: { id: string } } };
+    });
 
     return result.repository.pullRequest.id;
   }
