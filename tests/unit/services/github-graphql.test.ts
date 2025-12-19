@@ -37,18 +37,17 @@ describe('GitHubGraphQLService', () => {
     });
 
     it('should execute query with variables', async () => {
-      const result = await service.query(
-        'query($owner: String!) { ... }',
-        { owner: 'test-owner' }
-      );
+      const result = await service.query('query($owner: String!) { ... }', { owner: 'test-owner' });
       expect(result).toBeDefined();
     });
   });
 
   describe('getRepository', () => {
     it('should get repository information', async () => {
-      const result = await service.getRepository('test-owner', 'test-repo');
-      
+      const result = (await service.getRepository('test-owner', 'test-repo')) as {
+        repository: unknown;
+      };
+
       expect(result).toBeDefined();
       expect(result.repository).toBeDefined();
     });
@@ -85,21 +84,15 @@ describe('GitHubGraphQLService', () => {
 
   describe('createIssue', () => {
     it('should create an issue', async () => {
-      const result = await service.createIssue(
-        'repo-id-123',
-        'Test Issue',
-        'Issue body'
-      );
+      const result = await service.createIssue('repo-id-123', 'Test Issue', 'Issue body');
       expect(result).toBeDefined();
     });
 
     it('should create issue with labels', async () => {
-      const result = await service.createIssue(
-        'repo-id-123',
-        'Test Issue',
-        'Issue body',
-        ['label-id-1', 'label-id-2']
-      );
+      const result = await service.createIssue('repo-id-123', 'Test Issue', 'Issue body', [
+        'label-id-1',
+        'label-id-2',
+      ]);
       expect(result).toBeDefined();
     });
   });
@@ -118,10 +111,7 @@ describe('GitHubGraphQLService', () => {
 
   describe('addComment', () => {
     it('should add a comment to an issue', async () => {
-      const result = await service.addComment(
-        'issue-id-123',
-        'This is a comment'
-      );
+      const result = await service.addComment('issue-id-123', 'This is a comment');
       expect(result).toBeDefined();
     });
   });

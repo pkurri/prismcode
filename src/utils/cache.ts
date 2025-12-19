@@ -15,10 +15,10 @@ let redisClient: RedisClientType | null = null;
 export async function getRedisClient(): Promise<RedisClientType> {
   if (!redisClient) {
     const url = env.REDIS_URL || `redis://${env.REDIS_HOST}:${env.REDIS_PORT}`;
-    
+
     redisClient = createClient({ url });
 
-    redisClient.on('error', (err) => {
+    redisClient.on('error', (err: Error) => {
       logger.error('Redis error', { error: err });
     });
 

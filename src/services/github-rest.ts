@@ -1,7 +1,7 @@
 /**
  * GitHub REST API Service
  * Provides wrapper around Octokit REST API with error handling and rate limiting
- * 
+ *
  * Issue #67
  */
 
@@ -47,11 +47,13 @@ export class GitHubRestService {
         retries: 3,
       },
       throttle: {
-        onRateLimit: (retryAfter: number, options: any) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        onRateLimit: (retryAfter: number, options: Record<string, unknown>) => {
           logger.warn(`Rate limit hit, retrying after ${retryAfter}s`, { options });
           return true;
         },
-        onSecondaryRateLimit: (retryAfter: number, options: any) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        onSecondaryRateLimit: (retryAfter: number, options: Record<string, unknown>) => {
           logger.warn(`Secondary rate limit hit, retrying after ${retryAfter}s`, { options });
           return true;
         },
@@ -72,7 +74,7 @@ export class GitHubRestService {
   async createIssue(params: CreateIssueParams): Promise<number> {
     try {
       logger.info('Creating GitHub issue', { title: params.title });
-      
+
       const response = await this.octokit.issues.create({
         owner: this.owner,
         repo: this.repo,
@@ -97,7 +99,7 @@ export class GitHubRestService {
   async updateIssue(issueNumber: number, params: UpdateIssueParams): Promise<void> {
     try {
       logger.info('Updating GitHub issue', { issueNumber });
-      
+
       await this.octokit.issues.update({
         owner: this.owner,
         repo: this.repo,
@@ -209,7 +211,7 @@ export class GitHubRestService {
   }): Promise<number> {
     try {
       logger.info('Creating pull request', { title: params.title });
-      
+
       const response = await this.octokit.pulls.create({
         owner: this.owner,
         repo: this.repo,
@@ -247,13 +249,15 @@ export class GitHubRestService {
   /**
    * List repository issues
    */
-  async listIssues(params: {
-    state?: 'open' | 'closed' | 'all';
-    labels?: string;
-    sort?: 'created' | 'updated' | 'comments';
-    direction?: 'asc' | 'desc';
-    per_page?: number;
-  } = {}) {
+  async listIssues(
+    params: {
+      state?: 'open' | 'closed' | 'all';
+      labels?: string;
+      sort?: 'created' | 'updated' | 'comments';
+      direction?: 'asc' | 'desc';
+      per_page?: number;
+    } = {}
+  ) {
     try {
       const response = await this.octokit.issues.listForRepo({
         owner: this.owner,

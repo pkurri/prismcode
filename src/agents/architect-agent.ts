@@ -121,10 +121,10 @@ export class ArchitectAgent extends BaseAgent {
   /**
    * Design the system architecture
    */
-  private async designArchitecture(feature: FeatureInput): Promise<Architecture> {
+  private designArchitecture(feature: FeatureInput): Promise<Architecture> {
     const stack = this.selectTechStack(feature);
 
-    return {
+    return Promise.resolve({
       frontend: {
         framework: stack.frontend.framework,
         stateManagement: stack.frontend.stateManagement,
@@ -152,7 +152,7 @@ export class ArchitectAgent extends BaseAgent {
         erDiagram: this.generateERDiagram(feature),
         sequenceDiagram: this.generateSequenceDiagram(feature),
       },
-    };
+    });
   }
 
   /**
@@ -201,11 +201,11 @@ export class ArchitectAgent extends BaseAgent {
   /**
    * Make technical decisions
    */
-  private async makeTechnicalDecisions(
+  private makeTechnicalDecisions(
     feature: FeatureInput,
-    architecture: Architecture,
+    architecture: Architecture
   ): Promise<TechnicalDecision[]> {
-    return [
+    return Promise.resolve([
       {
         id: 'adr-001',
         title: 'Backend Framework Selection',
@@ -234,7 +234,7 @@ export class ArchitectAgent extends BaseAgent {
         alternatives:
           architecture.backend.apiStyle === 'rest' ? ['GraphQL', 'tRPC'] : ['REST', 'tRPC'],
       },
-    ];
+    ]);
   }
 
   /**
@@ -368,7 +368,7 @@ sequenceDiagram
    */
   private generateDiagrams(
     architecture: Architecture,
-    feature: FeatureInput,
+    feature: FeatureInput
   ): {
     system: string;
     sequence?: string;
@@ -389,7 +389,7 @@ sequenceDiagram
 
     recommendations.push(`Use ${architecture.backend.framework} for the backend implementation`);
     recommendations.push(
-      `Implement ${architecture.backend.apiStyle.toUpperCase()} API with OpenAPI documentation`,
+      `Implement ${architecture.backend.apiStyle.toUpperCase()} API with OpenAPI documentation`
     );
     recommendations.push('Follow clean architecture principles for maintainability');
     recommendations.push('Implement comprehensive error handling and logging');

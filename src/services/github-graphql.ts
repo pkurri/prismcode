@@ -1,7 +1,7 @@
 /**
  * GitHub GraphQL API Service
  * Provides GraphQL client for advanced GitHub operations
- * 
+ *
  * Issue #68
  */
 
@@ -29,9 +29,11 @@ export class GitHubGraphQLService {
   /**
    * Execute a GraphQL query
    */
-  async query<T = any>(query: string, variables?: Record<string, any>): Promise<T> {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  async query<T = unknown>(query: string, variables?: Record<string, unknown>): Promise<T> {
     try {
       logger.debug('Executing GraphQL query', { query, variables });
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
       const result = await this.graphqlClient<T>(query, variables);
       return result;
     } catch (error) {
@@ -131,12 +133,7 @@ export class GitHubGraphQLService {
   /**
    * Create issue using GraphQL mutation
    */
-  async createIssue(
-    repositoryId: string,
-    title: string,
-    body?: string,
-    labelIds?: string[]
-  ) {
+  async createIssue(repositoryId: string, title: string, body?: string, labelIds?: string[]) {
     const mutation = `
       mutation($repositoryId: ID!, $title: String!, $body: String, $labelIds: [ID!]) {
         createIssue(input: {

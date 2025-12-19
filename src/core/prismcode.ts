@@ -27,16 +27,16 @@ export class PrismCode {
   /**
    * Create GitHub issues from project plan
    */
-  async createGitHubIssues(_plan: ProjectPlan): Promise<void> {
+  createGitHubIssues(_plan: ProjectPlan): Promise<void> {
     // TODO: Implement GitHub issue creation
-    throw new Error('Not implemented yet');
+    return Promise.reject(new Error('Not implemented yet'));
   }
 
   /**
    * Export project plan to various formats
    */
-  async export(_plan: ProjectPlan, _format: 'json' | 'markdown' | 'both'): Promise<string> {
+  export(_plan: ProjectPlan, _format: 'json' | 'markdown' | 'both'): Promise<string> {
     // TODO: Implement export functionality
-    throw new Error('Not implemented yet');
+    return Promise.reject(new Error('Not implemented yet'));
   }
 }

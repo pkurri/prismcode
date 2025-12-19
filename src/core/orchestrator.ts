@@ -1,12 +1,20 @@
 /**
  * Orchestrator - Coordinates all specialized agents
- * 
+ *
  * This is the main entry point for the PrismCode multi-agent system.
  * It coordinates PM, Architect, Coder, QA, and DevOps agents to generate
  * a complete project plan from a feature description.
  */
 
-import { FeatureInput, ProjectPlan, PrismCodeConfig, Epic, Story, Task, GitHubIssue } from '../types';
+import {
+  FeatureInput,
+  ProjectPlan,
+  PrismCodeConfig,
+  Epic,
+  Story,
+  Task,
+  GitHubIssue,
+} from '../types';
 import { PMAgent } from '../agents/pm-agent';
 import { ArchitectAgent } from '../agents/architect-agent';
 import logger from '../utils/logger';
@@ -27,7 +35,7 @@ export class Orchestrator {
 
   /**
    * Orchestrate multi-agent collaboration to generate complete project plan
-   * 
+   *
    * @param input - Feature description and requirements
    * @returns Complete project plan with epics, stories, tasks, and architecture
    */
@@ -47,9 +55,9 @@ export class Orchestrator {
 
       // Step 2: Architect Agent - Design system architecture
       logger.info('Orchestrator: Calling Architect Agent for system design');
-      const architectOutput = await this.architectAgent.process({ 
+      const architectOutput = await this.architectAgent.process({
         feature: input,
-        requirements: analysis.successMetrics 
+        requirements: analysis.successMetrics,
       });
 
       if (!architectOutput.data) {
@@ -60,7 +68,7 @@ export class Orchestrator {
 
       // Step 3: Assemble complete project plan
       logger.info('Orchestrator: Assembling complete project plan');
-      
+
       const projectPlan: ProjectPlan = {
         analysis,
         epics,

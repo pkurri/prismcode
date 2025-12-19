@@ -5,7 +5,17 @@
  * Combines REST and GraphQL clients into a unified service
  */
 
-import { GitHubRestClient, GitHubConfig, Issue, PullRequest, Label, Milestone, Release, Repository, Branch } from './rest-client';
+import {
+  GitHubRestClient,
+  GitHubConfig,
+  Issue,
+  PullRequest,
+  Label,
+  Milestone,
+  Release,
+  Repository,
+  Branch,
+} from './rest-client';
 import { GitHubGraphQLClient, ProjectV2, ProjectItem } from './graphql-client';
 import logger from '../utils/logger';
 
@@ -37,12 +47,14 @@ export class GitHubService {
 
   get issues() {
     return {
-      create: (title: string, body: string, labels?: string[]) => this.rest.createIssue(title, body, labels),
+      create: (title: string, body: string, labels?: string[]) =>
+        this.rest.createIssue(title, body, labels),
       get: (number: number) => this.rest.getIssue(number),
       update: (number: number, updates: Parameters<typeof this.rest.updateIssue>[1]) =>
         this.rest.updateIssue(number, updates),
       close: (number: number, comment?: string) => this.rest.closeIssue(number, comment),
-      list: (options?: { state?: 'open' | 'closed' | 'all'; labels?: string[] }) => this.rest.listIssues(options),
+      list: (options?: { state?: 'open' | 'closed' | 'all'; labels?: string[] }) =>
+        this.rest.listIssues(options),
       comment: (number: number, body: string) => this.rest.createComment(number, body),
     };
   }
@@ -57,7 +69,8 @@ export class GitHubService {
         this.rest.createPullRequest(title, head, base, body),
       get: (number: number) => this.rest.getPullRequest(number),
       list: (state?: 'open' | 'closed' | 'all') => this.rest.listPullRequests(state),
-      merge: (number: number, method?: 'merge' | 'squash' | 'rebase') => this.rest.mergePullRequest(number, method),
+      merge: (number: number, method?: 'merge' | 'squash' | 'rebase') =>
+        this.rest.mergePullRequest(number, method),
       reviews: (number: number) => this.graphql.getPullRequestReviews(number),
     };
   }
@@ -68,7 +81,8 @@ export class GitHubService {
 
   get labels() {
     return {
-      create: (name: string, color: string, description?: string) => this.rest.createLabel(name, color, description),
+      create: (name: string, color: string, description?: string) =>
+        this.rest.createLabel(name, color, description),
       list: () => this.rest.listLabels(),
       delete: (name: string) => this.rest.deleteLabel(name),
     };
@@ -92,7 +106,8 @@ export class GitHubService {
 
   get releases() {
     return {
-      create: (tagName: string, name: string, body?: string) => this.rest.createRelease(tagName, name, body),
+      create: (tagName: string, name: string, body?: string) =>
+        this.rest.createRelease(tagName, name, body),
       list: () => this.rest.listReleases(),
     };
   }
@@ -138,7 +153,8 @@ export class GitHubService {
     return {
       list: () => this.graphql.listProjectsV2(),
       get: (number: number) => this.graphql.getProjectV2(number),
-      addItem: (projectId: string, contentId: string) => this.graphql.addItemToProject(projectId, contentId),
+      addItem: (projectId: string, contentId: string) =>
+        this.graphql.addItemToProject(projectId, contentId),
       listItems: (projectId: string) => this.graphql.listProjectItems(projectId),
     };
   }
@@ -174,4 +190,14 @@ export class GitHubService {
 }
 
 // Re-export types
-export type { Issue, PullRequest, Label, Milestone, Release, Repository, Branch, ProjectV2, ProjectItem };
+export type {
+  Issue,
+  PullRequest,
+  Label,
+  Milestone,
+  Release,
+  Repository,
+  Branch,
+  ProjectV2,
+  ProjectItem,
+};

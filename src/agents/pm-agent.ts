@@ -107,24 +107,24 @@ export class PMAgent extends BaseAgent {
   /**
    * Analyze the feature request
    */
-  private async analyzeFeature(feature: FeatureInput): Promise<FeatureAnalysis> {
+  private analyzeFeature(feature: FeatureInput): Promise<FeatureAnalysis> {
     // Integrate AI for deeper analysis in future iterations
     const complexity = this.assessComplexity(feature);
 
-    return {
+    return Promise.resolve({
       coreValue: `Implement ${feature.feature} to provide value to users`,
       userPersonas: this.identifyPersonas(feature),
       successMetrics: this.defineSuccessMetrics(feature),
       realWorldPatterns: [],
       technicalComplexity: complexity,
       estimatedTimeline: this.estimateTimeline(complexity, feature.scale),
-    };
+    });
   }
 
   /**
    * Generate epics from feature
    */
-  private async generateEpics(feature: FeatureInput, analysis: FeatureAnalysis): Promise<Epic[]> {
+  private generateEpics(feature: FeatureInput, analysis: FeatureAnalysis): Promise<Epic[]> {
     const epics: Epic[] = [];
 
     // Core feature epic
@@ -165,13 +165,13 @@ export class PMAgent extends BaseAgent {
       effort: 15,
     });
 
-    return epics;
+    return Promise.resolve(epics);
   }
 
   /**
    * Generate stories for epics
    */
-  private async generateStories(epics: Epic[], _feature: FeatureInput): Promise<Story[]> {
+  private generateStories(epics: Epic[], _feature: FeatureInput): Promise<Story[]> {
     const stories: Story[] = [];
     let storyCount = 0;
 
@@ -203,13 +203,13 @@ export class PMAgent extends BaseAgent {
       }
     }
 
-    return stories;
+    return Promise.resolve(stories);
   }
 
   /**
    * Generate tasks for stories
    */
-  private async generateTasks(stories: Story[]): Promise<Task[]> {
+  private generateTasks(stories: Story[]): Promise<Task[]> {
     const tasks: Task[] = [];
     let taskCount = 0;
 
@@ -235,7 +235,7 @@ export class PMAgent extends BaseAgent {
       }
     }
 
-    return tasks;
+    return Promise.resolve(tasks);
   }
 
   /**

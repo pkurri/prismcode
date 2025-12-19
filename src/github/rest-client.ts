@@ -154,7 +154,10 @@ export class GitHubRestClient {
     });
   }
 
-  async listIssues(options?: { state?: 'open' | 'closed' | 'all'; labels?: string[] }): Promise<Issue[]> {
+  async listIssues(options?: {
+    state?: 'open' | 'closed' | 'all';
+    labels?: string[];
+  }): Promise<Issue[]> {
     const { data } = await this.octokit.issues.listForRepo({
       owner: this.owner,
       repo: this.repo,
@@ -163,9 +166,7 @@ export class GitHubRestClient {
       per_page: 100,
     });
 
-    return data
-      .filter((i) => !i.pull_request)
-      .map((i) => this.mapIssue(i));
+    return data.filter((i) => !i.pull_request).map((i) => this.mapIssue(i));
   }
 
   async createComment(issueNumber: number, body: string): Promise<void> {
@@ -181,7 +182,12 @@ export class GitHubRestClient {
   // Pull Request Operations (#65)
   // ========================================
 
-  async createPullRequest(title: string, head: string, base: string, body?: string): Promise<PullRequest> {
+  async createPullRequest(
+    title: string,
+    head: string,
+    base: string,
+    body?: string
+  ): Promise<PullRequest> {
     logger.info('GitHub: Creating PR', { title, head, base });
 
     const { data } = await this.octokit.pulls.create({
@@ -217,7 +223,10 @@ export class GitHubRestClient {
     return data.map((pr) => this.mapPullRequest(pr));
   }
 
-  async mergePullRequest(prNumber: number, mergeMethod?: 'merge' | 'squash' | 'rebase'): Promise<void> {
+  async mergePullRequest(
+    prNumber: number,
+    mergeMethod?: 'merge' | 'squash' | 'rebase'
+  ): Promise<void> {
     await this.octokit.pulls.merge({
       owner: this.owner,
       repo: this.repo,
@@ -371,7 +380,9 @@ export class GitHubRestClient {
   // Status & Checks (#81)
   // ========================================
 
-  async getCommitStatus(ref: string): Promise<{ state: string; statuses: Array<{ context: string; state: string }> }> {
+  async getCommitStatus(
+    ref: string
+  ): Promise<{ state: string; statuses: Array<{ context: string; state: string }> }> {
     const { data } = await this.octokit.repos.getCombinedStatusForRef({
       owner: this.owner,
       repo: this.repo,

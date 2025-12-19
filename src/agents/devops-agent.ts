@@ -85,7 +85,7 @@ export class DevOpsAgent extends BaseAgent {
   /**
    * Process architecture to generate DevOps artifacts
    */
-  async process(input: DevOpsAgentInput): Promise<DevOpsAgentOutput> {
+  process(input: DevOpsAgentInput): Promise<DevOpsAgentOutput> {
     const startTime = Date.now();
     logger.info(`${this.name}: Starting DevOps configuration`);
 
@@ -112,7 +112,7 @@ export class DevOpsAgent extends BaseAgent {
       const processingTime = Date.now() - startTime;
       logger.info(`${this.name}: DevOps configuration complete`, { processingTime });
 
-      return {
+      return Promise.resolve({
         agentName: this.name,
         data: {
           pipeline,
@@ -125,7 +125,7 @@ export class DevOpsAgent extends BaseAgent {
           processingTime,
           confidence: 0.85,
         },
-      };
+      });
     } catch (error) {
       logger.error(`${this.name}: Error during configuration`, { error });
       throw error;
@@ -220,7 +220,7 @@ export class DevOpsAgent extends BaseAgent {
    */
   private generateResources(
     architecture: Architecture,
-    provider: InfraConfig['provider'],
+    provider: InfraConfig['provider']
   ): InfraResource[] {
     const resources: InfraResource[] = [];
 

@@ -79,7 +79,7 @@ export class QAAgent extends BaseAgent {
   /**
    * Process task to generate testing artifacts
    */
-  async process(input: QAAgentInput): Promise<QAAgentOutput> {
+  process(input: QAAgentInput): Promise<QAAgentOutput> {
     const startTime = Date.now();
     logger.info(`${this.name}: Starting QA analysis`, { taskId: input.task.id });
 
@@ -102,7 +102,7 @@ export class QAAgent extends BaseAgent {
         processingTime,
       });
 
-      return {
+      return Promise.resolve({
         agentName: this.name,
         data: {
           strategy,
@@ -114,7 +114,7 @@ export class QAAgent extends BaseAgent {
           processingTime,
           confidence: 0.8,
         },
-      };
+      });
     } catch (error) {
       logger.error(`${this.name}: Error during QA analysis`, { error });
       throw error;

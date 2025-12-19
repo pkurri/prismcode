@@ -22,7 +22,7 @@ export interface HealthStatus {
 /**
  * Check if GitHub API is accessible
  */
-async function checkGitHubAPI(): Promise<{
+function checkGitHubAPI(): Promise<{
   status: 'pass' | 'fail';
   message?: string;
   responseTime: number;
@@ -32,25 +32,25 @@ async function checkGitHubAPI(): Promise<{
   try {
     // Simple check - verify token and basic connectivity
     if (!process.env.GITHUB_TOKEN) {
-      return {
+      return Promise.resolve({
         status: 'fail',
         message: 'GitHub token not configured',
         responseTime: Date.now() - startTime,
-      };
+      });
     }
 
     // If we have Octokit, we could do a real API call here
     // For now, just verify token exists
-    return {
+    return Promise.resolve({
       status: 'pass',
       responseTime: Date.now() - startTime,
-    };
+    });
   } catch (error) {
-    return {
+    return Promise.resolve({
       status: 'fail',
       message: error instanceof Error ? error.message : 'Unknown error',
       responseTime: Date.now() - startTime,
-    };
+    });
   }
 }
 
