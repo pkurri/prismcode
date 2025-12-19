@@ -8,7 +8,12 @@ export { AnalyticsDashboard } from './analytics';
 export type { AnalyticsMetrics, TimeSeriesData, AgentMetrics } from './analytics';
 
 // Integrations (#125, #126, #127)
-export { SlackIntegration, DiscordIntegration, EmailIntegration, NotificationService } from './integrations';
+export {
+  SlackIntegration,
+  DiscordIntegration,
+  EmailIntegration,
+  NotificationService,
+} from './integrations';
 export type { NotificationPayload, IntegrationConfig } from './integrations';
 
 // Team Features (#120, #121)

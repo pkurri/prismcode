@@ -47,7 +47,7 @@ export function captureException(error: Error, context?: Record<string, unknown>
 export function captureMessage(
   message: string,
   level: Sentry.SeverityLevel = 'info',
-  context?: Record<string, unknown>,
+  context?: Record<string, unknown>
 ): void {
   logger.log(level, message, context);
 
@@ -75,7 +75,7 @@ export function addBreadcrumb(
   category: string,
   message: string,
   level: Sentry.SeverityLevel = 'info',
-  data?: Record<string, unknown>,
+  data?: Record<string, unknown>
 ): void {
   if (SENTRY_DSN) {
     Sentry.addBreadcrumb({
@@ -92,7 +92,7 @@ export function addBreadcrumb(
  */
 export function wrapAsync<T extends (...args: unknown[]) => Promise<unknown>>(
   fn: T,
-  context?: Record<string, unknown>,
+  context?: Record<string, unknown>
 ): T {
   return (async (...args: Parameters<T>) => {
     try {

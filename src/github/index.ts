@@ -14,4 +14,9 @@ export {
   type Repository,
   type Branch,
 } from './rest-client';
-export { GitHubGraphQLClient, type GraphQLConfig, type ProjectV2, type ProjectItem } from './graphql-client';
+export {
+  GitHubGraphQLClient,
+  type GraphQLConfig,
+  type ProjectV2,
+  type ProjectItem,
+} from './graphql-client';

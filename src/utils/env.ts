@@ -9,7 +9,7 @@ import { z } from 'zod';
 const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
   PORT: z.string().default('3000'),
-  
+
   // Database
   DATABASE_URL: z.string().optional(),
   DB_HOST: z.string().default('localhost'),
@@ -17,17 +17,17 @@ const envSchema = z.object({
   DB_NAME: z.string().default('prismcode'),
   DB_USER: z.string().default('postgres'),
   DB_PASSWORD: z.string().default(''),
-  
+
   // Redis
   REDIS_URL: z.string().optional(),
   REDIS_HOST: z.string().default('localhost'),
   REDIS_PORT: z.string().default('6379'),
-  
+
   // GitHub
   GITHUB_TOKEN: z.string().optional(),
   GITHUB_OWNER: z.string().optional(),
   GITHUB_REPO: z.string().optional(),
-  
+
   // Logging
   LOG_LEVEL: z.enum(['error', 'warn', 'info', 'debug']).default('info'),
   SENTRY_DSN: z.string().optional(),
