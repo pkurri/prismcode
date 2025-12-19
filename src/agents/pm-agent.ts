@@ -108,7 +108,7 @@ export class PMAgent extends BaseAgent {
    * Analyze the feature request
    */
   private async analyzeFeature(feature: FeatureInput): Promise<FeatureAnalysis> {
-    // TODO: Integrate with AI for deeper analysis
+    // Integrate AI for deeper analysis in future iterations
     const complexity = this.assessComplexity(feature);
 
     return {
