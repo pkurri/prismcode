@@ -144,3 +144,19 @@ export type {
 // RBAC - Role Based Access Control (#218)
 export { RBACManager, rbacManager } from './rbac';
 export type { Permission, Role, UserRole, PermissionCheck, AuditEntry } from './rbac';
+
+// Snyk Security Integration (#216)
+export { SnykIntegration, snykIntegration } from './snyk-integration';
+export type { SnykConfig, Vulnerability, ScanResult, FixSuggestion } from './snyk-integration';
+
+// SonarQube Quality Gate (#217)
+export { SonarQubeIntegration, sonarQubeIntegration } from './sonarqube-integration';
+export type { SonarQubeConfig, QualityMetric, CodeSmell, QualityGateResult, PRAnalysisResult } from './sonarqube-integration';
+
+// Linear Integration (#207)
+export { LinearIntegration, linearIntegration } from './linear-integration';
+export type { LinearConfig, LinearIssue, LinearState, LinearProject, SyncResult } from './linear-integration';
+
+// Vercel Deployment Integration (#201)
+export { VercelIntegration, vercelIntegration } from './vercel-integration';
+export type { VercelConfig, VercelProject, VercelEnvVar, Deployment, DeploymentResult, FrameworkDetection } from './vercel-integration';

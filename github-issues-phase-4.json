@@ -1,0 +1,107 @@
+[
+  {
+    "title": "[EPIC] Real-Time Code Execution Environment",
+    "body": "## 🎯 Epic\nBuild a secure, sandboxed code execution environment that enables real-time code running, testing, and iteration directly within PrismCode - matching Devin AI and Bolt.new capabilities.\n\n## 🧩 Market Gap\n- **Devin AI**: Cloud-based containers for autonomous code execution\n- **Bolt.new**: WebContainer technology for instant full-stack previews\n- **Replit**: Integrated runtime environments\n- **PrismCode**: Currently no execution capability\n\n## ✅ Goals\n- Execute code in isolated sandboxes (Docker/WebContainers)\n- Support 10+ languages (TypeScript, Python, Go, Rust, Java)\n- Real-time output streaming\n- Persistent workspaces for iterative development\n- Security-first with resource isolation\n\n## 🛠 Technical Approach\n```\n┌─────────────────────────────────────────────────┐\n│             PrismCode Execution Layer           │\n├─────────────────────────────────────────────────┤\n│  WebSocket Gateway  │  REST API  │  gRPC Stream │\n├─────────────────────────────────────────────────┤\n│         Execution Orchestrator Service          │\n├─────────────────────────────────────────────────┤\n│  Docker Sandbox  │  WebContainer  │  Firecracker│\n└─────────────────────────────────────────────────┘\n```\n\n## 📊 Success Metrics\n- <500ms cold start time\n- 99.9% execution success rate\n- Zero security breaches\n- Support 1000 concurrent executions\n\n## 📝 Story Points: 21",
+    "labels": ["epic", "phase-4", "backend", "priority:P0", "competitive-parity"]
+  },
+  {
+    "title": "[STORY] Docker-based Secure Sandbox Infrastructure",
+    "body": "## 📖 User Story\nAs a developer, I want code to execute in isolated Docker containers so that my execution environment is secure and reproducible.\n\n## 🔍 Competitive Context\nDevin uses AWS Fargate containers; Bolt.new uses WebContainers for browser-based isolation.\n\n## ✅ Acceptance Criteria\n- [ ] Docker containers spin up in <2 seconds\n- [ ] Memory/CPU limits enforced (512MB RAM, 0.5 CPU default)\n- [ ] Network isolation with optional allowlisting\n- [ ] Auto-cleanup after 30 minutes idle\n- [ ] Support for custom Docker images\n\n## 🛠 Implementation Notes\n```typescript\ninterface SandboxConfig {\n  language: 'typescript' | 'python' | 'go' | 'rust';\n  memoryMB: number;\n  cpuLimit: number;\n  networkPolicy: 'isolated' | 'allowlist' | 'full';\n  timeout: number;\n}\n```\n\n## 🔗 Epic: [EPIC] Real-Time Code Execution Environment\n\n## 📝 Story Points: 8",
+    "labels": ["story", "phase-4", "backend", "priority:P0", "infrastructure"]
+  },
+  {
+    "title": "[STORY] Real-Time Output Streaming via WebSockets",
+    "body": "## 📖 User Story\nAs a developer, I want to see code output in real-time so that I can debug and iterate quickly.\n\n## 🔍 Competitive Context\nBolt.new streams terminal output live; Devin shows execution logs in real-time.\n\n## ✅ Acceptance Criteria\n- [ ] WebSocket connection for bidirectional streaming\n- [ ] stdout/stderr separation\n- [ ] ANSI color support\n- [ ] <100ms latency from execution to display\n- [ ] Reconnection handling\n\n## 🛠 Implementation Notes\n```typescript\nconst ws = new WebSocket('wss://api.prismcode.dev/exec/stream');\nws.onmessage = (event) => {\n  const { type, data, timestamp } = JSON.parse(event.data);\n  // type: 'stdout' | 'stderr' | 'exit' | 'error'\n};\n```\n\n## 🔗 Epic: [EPIC] Real-Time Code Execution Environment\n\n## 📝 Story Points: 5",
+    "labels": ["story", "phase-4", "backend", "priority:P0", "developer-experience"]
+  },
+  {
+    "title": "[STORY] Multi-Language Runtime Support",
+    "body": "## 📖 User Story\nAs a developer, I want to execute code in multiple languages so that I can work on polyglot projects.\n\n## 🔍 Competitive Context\nReplit supports 50+ languages; Devin focuses on Python/TypeScript/Go.\n\n## ✅ Acceptance Criteria\n- [ ] TypeScript/Node.js 20+ runtime\n- [ ] Python 3.11+ with pip support\n- [ ] Go 1.21+ runtime\n- [ ] Rust with cargo support\n- [ ] Java 21 with Maven/Gradle\n- [ ] Language auto-detection from file extensions\n\n## 🛠 Implementation Notes\nPre-built Docker images per language with common dependencies.\n\n## 🔗 Epic: [EPIC] Real-Time Code Execution Environment\n\n## 📝 Story Points: 5",
+    "labels": ["story", "phase-4", "backend", "priority:P1", "developer-experience"]
+  },
+  {
+    "title": "[STORY] Execution API & SDK",
+    "body": "## 📖 User Story\nAs an integration developer, I want a clean API to trigger code execution so that I can build custom workflows.\n\n## ✅ Acceptance Criteria\n- [ ] REST API: POST /api/v1/execute\n- [ ] TypeScript SDK published to npm\n- [ ] Python SDK published to PyPI\n- [ ] Rate limiting (100 req/min default)\n- [ ] API key authentication\n\n## 🛠 Implementation Notes\n```typescript\nimport { PrismCode } from '@prismcode/sdk';\nconst result = await prismcode.execute({\n  code: 'console.log(\"Hello\")',\n  language: 'typescript'\n});\n```\n\n## 🔗 Epic: [EPIC] Real-Time Code Execution Environment\n\n## 📝 Story Points: 5",
+    "labels": ["story", "phase-4", "backend", "priority:P1", "api"]
+  },
+  {
+    "title": "[EPIC] Visual UI Preview System",
+    "body": "## 🎯 Epic\nCreate a v0.dev-competitive visual UI generation and live preview system that renders React/Vue/Svelte components in real-time.\n\n## 🧩 Market Gap\n- **v0.dev**: Text-to-UI with shadcn/ui, live preview, one-click export\n- **Bolt.new**: Full-stack preview in browser\n- **PrismCode**: No visual preview capability\n\n## ✅ Goals\n- Generate UI from natural language descriptions\n- Live preview with hot-reload\n- Component library integration (shadcn/ui, Tailwind)\n- Export to React/Vue/Svelte\n- Responsive design testing\n\n## 🛠 Technical Approach\nIframe-based preview with Vite HMR, component AST generation, design token system.\n\n## 📊 Success Metrics\n- <3 second generation time\n- 90% user satisfaction on generated UI\n- Support for 3 frameworks\n\n## 📝 Story Points: 21",
+    "labels": ["epic", "phase-4", "frontend", "priority:P0", "competitive-parity"]
+  },
+  {
+    "title": "[STORY] Live Preview Iframe Renderer",
+    "body": "## 📖 User Story\nAs a developer, I want to see my UI components render live so that I can iterate on designs quickly.\n\n## ✅ Acceptance Criteria\n- [ ] Sandboxed iframe with Vite dev server\n- [ ] Hot module replacement (<200ms refresh)\n- [ ] Console log forwarding\n- [ ] Error boundary with friendly messages\n- [ ] Responsive viewport controls\n\n## 🔗 Epic: [EPIC] Visual UI Preview System\n\n## 📝 Story Points: 8",
+    "labels": ["story", "phase-4", "frontend", "priority:P0", "developer-experience"]
+  },
+  {
+    "title": "[STORY] Text-to-UI Generation Engine",
+    "body": "## 📖 User Story\nAs a developer, I want to describe UI in natural language and get working code so that I can prototype faster.\n\n## 🔍 Competitive Context\nv0.dev uses GPT-4 + shadcn/ui templates for high-quality generation.\n\n## ✅ Acceptance Criteria\n- [ ] Natural language to React/TSX\n- [ ] shadcn/ui component integration\n- [ ] Tailwind CSS styling\n- [ ] Accessibility compliance (WCAG 2.1)\n- [ ] Dark mode support\n\n## 🔗 Epic: [EPIC] Visual UI Preview System\n\n## 📝 Story Points: 8",
+    "labels": ["story", "phase-4", "frontend", "priority:P0", "ai"]
+  },
+  {
+    "title": "[STORY] Component Export & Code Download",
+    "body": "## 📖 User Story\nAs a developer, I want to export generated UI as clean, production-ready code.\n\n## ✅ Acceptance Criteria\n- [ ] Download as React component\n- [ ] Vue SFC export option\n- [ ] Svelte component export\n- [ ] Include dependencies in package.json\n- [ ] ESLint/Prettier formatted output\n\n## 🔗 Epic: [EPIC] Visual UI Preview System\n\n## 📝 Story Points: 5",
+    "labels": ["story", "phase-4", "frontend", "priority:P1", "developer-experience"]
+  },
+  {
+    "title": "[EPIC] Autonomous Task Completion with Iterative Loops",
+    "body": "## 🎯 Epic\nImplement Devin-style autonomous iteration where agents continue working until tasks are complete, with self-healing error recovery.\n\n## 🧩 Market Gap\n- **Devin AI**: Fully autonomous with multi-step planning and error recovery\n- **Cursor**: Background agents for async work\n- **PrismCode**: Sequential execution without iteration\n\n## ✅ Goals\n- Agents iterate until success or explicit failure\n- Automatic error detection and retry\n- Progress checkpoints for long tasks\n- Human-in-the-loop approval gates\n- Maximum iteration limits with notifications\n\n## 📊 Success Metrics\n- 80% task completion without human intervention\n- <5% false positive completions\n- Average 3.2 iterations per task\n\n## 📝 Story Points: 21",
+    "labels": ["epic", "phase-4", "backend", "priority:P0", "competitive-parity", "ai"]
+  },
+  {
+    "title": "[STORY] Iteration Loop Controller",
+    "body": "## 📖 User Story\nAs a developer, I want agents to automatically retry failed actions so that tasks complete without manual intervention.\n\n## ✅ Acceptance Criteria\n- [ ] Configurable max iterations (default: 10)\n- [ ] Exponential backoff between retries\n- [ ] Error classification (transient vs permanent)\n- [ ] Iteration history logging\n- [ ] Break conditions (success, max iterations, user cancel)\n\n## 🔗 Epic: [EPIC] Autonomous Task Completion with Iterative Loops\n\n## 📝 Story Points: 8",
+    "labels": ["story", "phase-4", "backend", "priority:P0", "ai"]
+  },
+  {
+    "title": "[STORY] Self-Healing Error Recovery",
+    "body": "## 📖 User Story\nAs a developer, I want the system to automatically fix common errors so that my workflow isn't blocked.\n\n## ✅ Acceptance Criteria\n- [ ] Parse error messages and suggest fixes\n- [ ] Automatic dependency installation\n- [ ] Type error auto-correction\n- [ ] Build failure diagnosis\n- [ ] Test failure analysis and fix suggestions\n\n## 🔗 Epic: [EPIC] Autonomous Task Completion with Iterative Loops\n\n## 📝 Story Points: 8",
+    "labels": ["story", "phase-4", "backend", "priority:P0", "ai"]
+  },
+  {
+    "title": "[STORY] Progress Checkpoints & Rollback",
+    "body": "## 📖 User Story\nAs a developer, I want automatic checkpoints so I can rollback if something goes wrong.\n\n## ✅ Acceptance Criteria\n- [ ] Git commits at each checkpoint\n- [ ] State snapshots for rollback\n- [ ] Visual diff between checkpoints\n- [ ] One-click rollback\n\n## 🔗 Epic: [EPIC] Autonomous Task Completion with Iterative Loops\n\n## 📝 Story Points: 5",
+    "labels": ["story", "phase-4", "backend", "priority:P1", "developer-experience"]
+  },
+  {
+    "title": "[EPIC] Codebase Q&A System - Ask PrismCode",
+    "body": "## 🎯 Epic\nBuild a Cursor @codebase-competitive system for asking questions about any codebase with RAG-powered context.\n\n## 🧩 Market Gap\n- **Cursor**: @codebase for codebase-wide questions\n- **Devin**: Ask Devin for explanations\n- **GitHub Copilot**: #codebase context\n- **PrismCode**: No codebase Q&A\n\n## ✅ Goals\n- Natural language codebase queries\n- RAG with vector embeddings\n- Cross-file context understanding\n- Code explanation and documentation generation\n- Architecture diagram generation\n\n## 📊 Success Metrics\n- 85% answer accuracy\n- <3 second response time\n- Support repos up to 1M lines\n\n## 📝 Story Points: 21",
+    "labels": ["epic", "phase-4", "ai", "priority:P0", "competitive-parity"]
+  },
+  {
+    "title": "[STORY] Codebase Indexing & Embedding Pipeline",
+    "body": "## 📖 User Story\nAs a developer, I want my codebase automatically indexed so I can ask questions about it.\n\n## ✅ Acceptance Criteria\n- [ ] Incremental indexing on file changes\n- [ ] OpenAI/Voyage embeddings\n- [ ] pgvector or Pinecone storage\n- [ ] AST-aware chunking\n- [ ] Symbol extraction\n\n## 🔗 Epic: [EPIC] Codebase Q&A System - Ask PrismCode\n\n## 📝 Story Points: 8",
+    "labels": ["story", "phase-4", "backend", "priority:P0", "ai"]
+  },
+  {
+    "title": "[STORY] Natural Language Query Interface",
+    "body": "## 📖 User Story\nAs a developer, I want to ask questions in plain English and get accurate answers with code references.\n\n## ✅ Acceptance Criteria\n- [ ] Chat UI in IDE extension\n- [ ] Context-aware responses with file links\n- [ ] Code snippet highlighting\n- [ ] Follow-up question support\n- [ ] Conversation history\n\n## 🔗 Epic: [EPIC] Codebase Q&A System - Ask PrismCode\n\n## 📝 Story Points: 5",
+    "labels": ["story", "phase-4", "frontend", "priority:P0", "developer-experience"]
+  },
+  {
+    "title": "[STORY] Architecture Diagram Generation",
+    "body": "## 📖 User Story\nAs a developer, I want auto-generated architecture diagrams from my codebase.\n\n## ✅ Acceptance Criteria\n- [ ] Mermaid diagram output\n- [ ] Dependency graph visualization\n- [ ] Module relationship mapping\n- [ ] Export to PNG/SVG\n\n## 🔗 Epic: [EPIC] Codebase Q&A System - Ask PrismCode\n\n## 📝 Story Points: 5",
+    "labels": ["story", "phase-4", "frontend", "priority:P2", "developer-experience"]
+  },
+  {
+    "title": "[EPIC] Cross-IDE Universal MCP Server",
+    "body": "## 🎯 Epic\nCreate a universal Model Context Protocol server that works in any editor.\n\n## ✅ Goals\n- Single protocol for all IDEs\n- Editor-agnostic agent execution\n- Plugin marketplace for extensions\n- Self-update mechanism\n\n## 📊 Success Metrics\n- Support 10+ IDEs\n- <100ms protocol latency\n- 99.9% uptime\n\n## 📝 Story Points: 13",
+    "labels": ["epic", "phase-4", "ide-integration", "priority:P0", "competitive-parity"]
+  },
+  {
+    "title": "[STORY] MCP Server Core Implementation",
+    "body": "## 📖 User Story\nAs a developer, I want PrismCode to work in my preferred IDE.\n\n## ✅ Acceptance Criteria\n- [ ] JSON-RPC 2.0 protocol support\n- [ ] File system operations\n- [ ] Terminal access\n- [ ] Git operations\n- [ ] LSP integration\n\n## 🔗 Epic: [EPIC] Cross-IDE Universal MCP Server\n\n## 📝 Story Points: 8",
+    "labels": ["story", "phase-4", "ide-integration", "priority:P0", "infrastructure"]
+  },
+  {
+    "title": "[STORY] Neovim Plugin",
+    "body": "## 📖 User Story\nAs a Neovim user, I want PrismCode integration.\n\n## ✅ Acceptance Criteria\n- [ ] Lua plugin implementation\n- [ ] Telescope integration\n- [ ] Floating window UI\n- [ ] Keybinding customization\n\n## 🔗 Epic: [EPIC] Cross-IDE Universal MCP Server\n\n## 📝 Story Points: 5",
+    "labels": ["story", "phase-4", "ide-integration", "priority:P2", "developer-experience"]
+  },
+  {
+    "title": "[STORY] JetBrains Plugin (IntelliJ, WebStorm, PyCharm)",
+    "body": "## 📖 User Story\nAs a JetBrains user, I want native PrismCode integration.\n\n## ✅ Acceptance Criteria\n- [ ] IntelliJ Platform plugin\n- [ ] Tool window integration\n- [ ] Kotlin/Java implementation\n- [ ] IDE marketplace publishing\n\n## 🔗 Epic: [EPIC] Cross-IDE Universal MCP Server\n\n## 📝 Story Points: 8",
+    "labels": ["story", "phase-4", "ide-integration", "priority:P1", "developer-experience"]
+  }
+]
