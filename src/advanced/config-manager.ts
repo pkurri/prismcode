@@ -36,6 +36,7 @@ export class ConfigManager {
   private config: Map<string, unknown> = new Map();
   private exports: Map<string, ConfigExport> = new Map();
   private version: string = '1.0.0';
+  private exportCounter: number = 0;
 
   constructor() {
     this.initializeDefaults();
@@ -84,7 +85,7 @@ export class ConfigManager {
    * Export configuration
    */
   exportConfig(name: string, exportedBy: string = 'system'): ConfigExport {
-    const id = `export_${Date.now()}`;
+    const id = `export_${Date.now()}_${++this.exportCounter}`;
     const config = this.getAll();
 
     const configExport: ConfigExport = {
