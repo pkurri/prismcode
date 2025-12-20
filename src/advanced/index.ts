@@ -160,3 +160,19 @@ export type { LinearConfig, LinearIssue, LinearState, LinearProject, SyncResult 
 // Vercel Deployment Integration (#201)
 export { VercelIntegration, vercelIntegration } from './vercel-integration';
 export type { VercelConfig, VercelProject, VercelEnvVar, Deployment, DeploymentResult, FrameworkDetection } from './vercel-integration';
+
+// Jira Cloud Integration (#208)
+export { JiraIntegration, jiraIntegration } from './jira-integration';
+export type { JiraConfig, JiraIssue, JiraStatus, JiraSprint, JiraProject } from './jira-integration';
+
+// Compliance Audit Logging (#209)
+export { ComplianceAuditLogger, complianceAuditLogger } from './audit-logging';
+export type { AuditEvent, AuditAction, AuditContext, AuditQuery, AuditExport } from './audit-logging';
+
+// PII Detection & Redaction (#210)
+export { PIIDetector, piiDetector } from './pii-detection';
+export type { PIIMatch, PIIType, ScanResult as PIIScanResult, PIIPolicy } from './pii-detection';
+
+// Code Complexity Analyzer (#211)
+export { CodeComplexityAnalyzer, codeComplexityAnalyzer } from './code-complexity';
+export type { ComplexityMetrics, FileAnalysis, FunctionComplexity, ComplexityIssue, ProjectAnalysis } from './code-complexity';
