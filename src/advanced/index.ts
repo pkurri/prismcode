@@ -176,3 +176,19 @@ export type { PIIMatch, PIIType, ScanResult as PIIScanResult, PIIPolicy } from '
 // Code Complexity Analyzer (#211)
 export { CodeComplexityAnalyzer, codeComplexityAnalyzer } from './code-complexity';
 export type { ComplexityMetrics, FileAnalysis, FunctionComplexity, ComplexityIssue, ProjectAnalysis } from './code-complexity';
+
+// Agent Pool Manager (#202)
+export { AgentPoolManager, agentPoolManager } from './agent-pool';
+export type { AgentInstance, PoolConfig, TaskQueueItem, PoolStats } from './agent-pool';
+
+// Task Decomposition Engine (#203)
+export { TaskDecompositionEngine, taskDecompositionEngine } from './task-decomposition';
+export type { Task, DecompositionResult, DependencyGraph as TaskDependencyGraph, MergeStrategy } from './task-decomposition';
+
+// Conflict Resolution System (#204)
+export { ConflictResolutionSystem, conflictResolutionSystem } from './conflict-resolution';
+export type { FileChange as ConflictFileChange, Conflict, Resolution, MergeResult } from './conflict-resolution';
+
+// Refactoring PR Generator (#212)
+export { RefactoringPRGenerator, refactoringPRGenerator } from './refactoring-pr';
+export type { RefactoringOpportunity, RefactoringType, RefactoringPR, RefactoringConfig } from './refactoring-pr';
