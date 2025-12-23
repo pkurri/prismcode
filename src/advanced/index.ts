@@ -118,3 +118,77 @@ export type {
 // Template Marketplace (#124)
 export { TemplateMarketplace, templateMarketplace } from './marketplace';
 export type { MarketplaceTemplate, TemplateReview } from './marketplace';
+
+// Usage Analytics (#214)
+export { UsageAnalytics, usageAnalytics } from './usage-analytics';
+export type {
+  UsageReport,
+  UserUsage,
+  ProjectUsage,
+  ModelUsage,
+  AgentUsage,
+  UsageAlert,
+  ExportConfig,
+} from './usage-analytics';
+
+// Smart Model Router (#215)
+export { ModelRouter, modelRouter } from './model-router';
+export type {
+  ModelCapabilities,
+  ModelCapability,
+  TaskContext,
+  RoutingDecision,
+  RoutingPolicy,
+} from './model-router';
+
+// RBAC - Role Based Access Control (#218)
+export { RBACManager, rbacManager } from './rbac';
+export type { Permission, Role, UserRole, PermissionCheck, AuditEntry } from './rbac';
+
+// Snyk Security Integration (#216)
+export { SnykIntegration, snykIntegration } from './snyk-integration';
+export type { SnykConfig, Vulnerability, ScanResult, FixSuggestion } from './snyk-integration';
+
+// SonarQube Quality Gate (#217)
+export { SonarQubeIntegration, sonarQubeIntegration } from './sonarqube-integration';
+export type { SonarQubeConfig, QualityMetric, CodeSmell, QualityGateResult, PRAnalysisResult } from './sonarqube-integration';
+
+// Linear Integration (#207)
+export { LinearIntegration, linearIntegration } from './linear-integration';
+export type { LinearConfig, LinearIssue, LinearState, LinearProject, SyncResult } from './linear-integration';
+
+// Vercel Deployment Integration (#201)
+export { VercelIntegration, vercelIntegration } from './vercel-integration';
+export type { VercelConfig, VercelProject, VercelEnvVar, Deployment, DeploymentResult, FrameworkDetection } from './vercel-integration';
+
+// Jira Cloud Integration (#208)
+export { JiraIntegration, jiraIntegration } from './jira-integration';
+export type { JiraConfig, JiraIssue, JiraStatus, JiraSprint, JiraProject } from './jira-integration';
+
+// Compliance Audit Logging (#209)
+export { ComplianceAuditLogger, complianceAuditLogger } from './audit-logging';
+export type { AuditEvent, AuditAction, AuditContext, AuditQuery, AuditExport } from './audit-logging';
+
+// PII Detection & Redaction (#210)
+export { PIIDetector, piiDetector } from './pii-detection';
+export type { PIIMatch, PIIType, ScanResult as PIIScanResult, PIIPolicy } from './pii-detection';
+
+// Code Complexity Analyzer (#211)
+export { CodeComplexityAnalyzer, codeComplexityAnalyzer } from './code-complexity';
+export type { ComplexityMetrics, FileAnalysis, FunctionComplexity, ComplexityIssue, ProjectAnalysis } from './code-complexity';
+
+// Agent Pool Manager (#202)
+export { AgentPoolManager, agentPoolManager } from './agent-pool';
+export type { AgentInstance, PoolConfig, TaskQueueItem, PoolStats } from './agent-pool';
+
+// Task Decomposition Engine (#203)
+export { TaskDecompositionEngine, taskDecompositionEngine } from './task-decomposition';
+export type { Task, DecompositionResult, DependencyGraph as TaskDependencyGraph, MergeStrategy } from './task-decomposition';
+
+// Conflict Resolution System (#204)
+export { ConflictResolutionSystem, conflictResolutionSystem } from './conflict-resolution';
+export type { FileChange as ConflictFileChange, Conflict, Resolution, MergeResult } from './conflict-resolution';
+
+// Refactoring PR Generator (#212)
+export { RefactoringPRGenerator, refactoringPRGenerator } from './refactoring-pr';
+export type { RefactoringOpportunity, RefactoringType, RefactoringPR, RefactoringConfig } from './refactoring-pr';
