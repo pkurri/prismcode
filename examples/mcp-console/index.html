@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MCP Server Console | Prismcode</title>
+    <style>
+        :root { --bg: #1e1e1e; --card: #252526; --green: #4ec9b0; --blue: #569cd6; --yellow: #dcdcaa; --orange: #ce9178; --purple: #c586c0; --text: #d4d4d4; --muted: #808080; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Consolas', 'Monaco', monospace; background: var(--bg); min-height: 100vh; color: var(--text); display: grid; grid-template-columns: 280px 1fr; }
+        .sidebar { background: var(--card); padding: 1rem; border-right: 1px solid #333; overflow-y: auto; }
+        .sidebar h2 { font-size: 0.85rem; color: var(--muted); text-transform: uppercase; margin-bottom: 1rem; }
+        .tool-item { padding: 0.75rem; background: rgba(0,0,0,0.2); border-radius: 0.5rem; margin-bottom: 0.5rem; cursor: pointer; border: 1px solid transparent; }
+        .tool-item:hover { border-color: var(--blue); }
+        .tool-item.selected { border-color: var(--green); background: rgba(78,201,176,0.1); }
+        .tool-name { color: var(--yellow); font-weight: 600; margin-bottom: 0.25rem; }
+        .tool-desc { font-size: 0.8rem; color: var(--muted); }
+        .main { display: flex; flex-direction: column; }
+        .header { padding: 1rem; background: var(--card); border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center; }
+        .header h1 { font-size: 1rem; color: var(--green); }
+        .status { display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; }
+        .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        .content { flex: 1; display: grid; grid-template-rows: auto 1fr auto; }
+        .input-section { padding: 1rem; background: var(--card); border-bottom: 1px solid #333; }
+        .input-section h3 { font-size: 0.8rem; color: var(--muted); margin-bottom: 0.75rem; }
+        .params-grid { display: grid; gap: 0.75rem; }
+        .param-row { display: flex; align-items: center; gap: 1rem; }
+        .param-label { min-width: 100px; color: var(--blue); font-size: 0.9rem; }
+        .param-input { flex: 1; padding: 0.5rem; background: var(--bg); border: 1px solid #333; border-radius: 0.4rem; color: var(--text); font-family: inherit; }
+        .param-input:focus { outline: none; border-color: var(--blue); }
+        .output-section { padding: 1rem; overflow-y: auto; }
+        .output-section h3 { font-size: 0.8rem; color: var(--muted); margin-bottom: 0.75rem; }
+        .output-box { background: #1a1a1a; border-radius: 0.5rem; padding: 1rem; font-size: 0.9rem; min-height: 200px; white-space: pre-wrap; }
+        .output-line { margin-bottom: 0.5rem; }
+        .output-time { color: var(--muted); }
+        .output-type { color: var(--purple); }
+        .output-content { color: var(--text); }
+        .output-success { color: var(--green); }
+        .output-error { color: #f44747; }
+        .execute-section { padding: 1rem; background: var(--card); border-top: 1px solid #333; display: flex; gap: 1rem; }
+        .execute-btn { flex: 1; padding: 0.75rem; background: var(--green); border: none; border-radius: 0.5rem; color: #1e1e1e; font-weight: 600; font-family: inherit; cursor: pointer; }
+        .execute-btn:hover { opacity: 0.9; }
+        .clear-btn { padding: 0.75rem 1.5rem; background: transparent; border: 1px solid #333; border-radius: 0.5rem; color: var(--muted); font-family: inherit; cursor: pointer; }
+        .clear-btn:hover { border-color: var(--text); color: var(--text); }
+    </style>
+</head>
+<body>
+    <aside class="sidebar">
+        <h2>🔧 Available Tools</h2>
+        <div id="toolsList">
+            <div class="tool-item selected" onclick="selectTool(this, 'echo')">
+                <div class="tool-name">echo</div>
+                <div class="tool-desc">Echo back input message</div>
+            </div>
+            <div class="tool-item" onclick="selectTool(this, 'readFile')">
+                <div class="tool-name">readFile</div>
+                <div class="tool-desc">Read file contents</div>
+            </div>
+            <div class="tool-item" onclick="selectTool(this, 'searchCode')">
+                <div class="tool-name">searchCode</div>
+                <div class="tool-desc">Search codebase</div>
+            </div>
+            <div class="tool-item" onclick="selectTool(this, 'delay')">
+                <div class="tool-name">delay</div>
+                <div class="tool-desc">Wait for specified time</div>
+            </div>
+            <div class="tool-item" onclick="selectTool(this, 'listTools')">
+                <div class="tool-name">listTools</div>
+                <div class="tool-desc">List all available tools</div>
+            </div>
+        </div>
+    </aside>
+    <main class="main">
+        <div class="header">
+            <h1>📡 MCP Server Console</h1>
+            <div class="status"><div class="status-dot"></div>Connected</div>
+        </div>
+        <div class="content">
+            <div class="input-section">
+                <h3>📥 Parameters</h3>
+                <div class="params-grid" id="paramsGrid">
+                    <div class="param-row">
+                        <label class="param-label">message:</label>
+                        <input class="param-input" id="param1" value="Hello, MCP Server!">
+                    </div>
+                </div>
+            </div>
+            <div class="output-section">
+                <h3>📤 Output</h3>
+                <div class="output-box" id="output">
+                    <div class="output-line"><span class="output-time">[14:15:30]</span> <span class="output-type">[INFO]</span> <span class="output-content">MCP Server initialized</span></div>
+                    <div class="output-line"><span class="output-time">[14:15:30]</span> <span class="output-type">[INFO]</span> <span class="output-content">5 tools registered</span></div>
+                    <div class="output-line"><span class="output-time">[14:15:31]</span> <span class="output-type">[INFO]</span> <span class="output-content">Ready to accept requests</span></div>
+                </div>
+            </div>
+            <div class="execute-section">
+                <button class="execute-btn" onclick="execute()">▶ Execute Tool</button>
+                <button class="clear-btn" onclick="clearOutput()">Clear</button>
+            </div>
+        </div>
+    </main>
+    <script>
+        const toolParams = {
+            echo: [{ name: 'message', value: 'Hello, MCP Server!' }],
+            readFile: [{ name: 'path', value: './src/index.ts' }],
+            searchCode: [{ name: 'query', value: 'function' }, { name: 'path', value: './src' }],
+            delay: [{ name: 'ms', value: '1000' }],
+            listTools: []
+        };
+        let currentTool = 'echo';
+        function selectTool(el, tool) {
+            document.querySelectorAll('.tool-item').forEach(t => t.classList.remove('selected'));
+            el.classList.add('selected');
+            currentTool = tool;
+            const params = toolParams[tool] || [];
+            const grid = document.getElementById('paramsGrid');
+            grid.innerHTML = params.length ? params.map((p, i) => `<div class="param-row"><label class="param-label">${p.name}:</label><input class="param-input" id="param${i}" value="${p.value}"></div>`).join('') : '<div style="color: var(--muted)">No parameters required</div>';
+        }
+        function execute() {
+            const time = new Date().toLocaleTimeString('en-US', { hour12: false });
+            const output = document.getElementById('output');
+            output.innerHTML += `<div class="output-line"><span class="output-time">[${time}]</span> <span class="output-type">[EXEC]</span> <span class="output-content">Invoking ${currentTool}...</span></div>`;
+            setTimeout(() => {
+                const t2 = new Date().toLocaleTimeString('en-US', { hour12: false });
+                let result = '';
+                if (currentTool === 'echo') result = document.getElementById('param0')?.value || 'Echo!';
+                else if (currentTool === 'readFile') result = '// File contents here...\\nexport const app = {};';
+                else if (currentTool === 'searchCode') result = 'Found 12 matches in 8 files';
+                else if (currentTool === 'delay') result = 'Waited 1000ms';
+                else result = 'echo, readFile, searchCode, delay, listTools';
+                output.innerHTML += `<div class="output-line"><span class="output-time">[${t2}]</span> <span class="output-type">[RESULT]</span> <span class="output-success">${result}</span></div>`;
+                output.scrollTop = output.scrollHeight;
+            }, 300);
+        }
+        function clearOutput() { document.getElementById('output').innerHTML = ''; }
+    </script>
+</body>
+</html>

@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Self-Healing Code Advisor | Prismcode</title>
+    <style>
+        :root { --bg: #0f0f0f; --card: #1a1a1a; --green: #22c55e; --red: #ef4444; --yellow: #eab308; --blue: #3b82f6; --purple: #a855f7; --text: #fff; --muted: #6b7280; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: system-ui, sans-serif; background: var(--bg); min-height: 100vh; color: var(--text); padding: 2rem; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        header { text-align: center; margin-bottom: 2rem; }
+        h1 { font-size: 2rem; background: linear-gradient(135deg, var(--green), var(--blue)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+        .panel { background: var(--card); border-radius: 1rem; padding: 1.5rem; border: 1px solid #333; }
+        .panel-title { font-weight: 600; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+        .code-area { width: 100%; min-height: 300px; padding: 1rem; background: #0a0a0a; border: 1px solid #333; border-radius: 0.5rem; color: var(--text); font-family: 'JetBrains Mono', monospace; font-size: 0.9rem; resize: vertical; }
+        .code-area:focus { outline: none; border-color: var(--blue); }
+        .diagnose-btn { width: 100%; padding: 1rem; background: linear-gradient(135deg, var(--green), var(--blue)); border: none; border-radius: 0.5rem; color: white; font-weight: 600; cursor: pointer; margin-top: 1rem; }
+        .diagnosis-card { padding: 1rem; border-radius: 0.75rem; margin-bottom: 0.75rem; border-left: 4px solid; }
+        .diagnosis-error { background: rgba(239,68,68,0.1); border-color: var(--red); }
+        .diagnosis-warning { background: rgba(234,179,8,0.1); border-color: var(--yellow); }
+        .diagnosis-header { display: flex; justify-content: space-between; margin-bottom: 0.5rem; }
+        .diagnosis-type { font-weight: 600; }
+        .diagnosis-line { font-size: 0.8rem; color: var(--muted); }
+        .diagnosis-message { font-size: 0.9rem; margin-bottom: 0.75rem; }
+        .fix-btn { padding: 0.5rem 1rem; background: var(--green); border: none; border-radius: 0.4rem; color: white; font-size: 0.85rem; cursor: pointer; }
+        .fix-btn:hover { opacity: 0.9; }
+        .healing-progress { display: none; flex-direction: column; align-items: center; padding: 2rem; }
+        .healing-progress.active { display: flex; }
+        .spinner { width: 50px; height: 50px; border: 3px solid #333; border-top-color: var(--green); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 1rem; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .step-list { list-style: none; width: 100%; }
+        .step-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem; background: rgba(0,0,0,0.2); border-radius: 0.5rem; margin-bottom: 0.5rem; }
+        .step-icon { width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; }
+        .step-pending { background: #333; }
+        .step-done { background: var(--green); }
+        .step-error { background: var(--red); }
+        .conflict-item { padding: 1rem; background: rgba(168,85,247,0.1); border: 1px solid rgba(168,85,247,0.3); border-radius: 0.5rem; margin-bottom: 0.75rem; }
+        .conflict-header { font-weight: 600; color: var(--purple); margin-bottom: 0.5rem; }
+        .conflict-options { display: flex; gap: 0.5rem; margin-top: 0.5rem; }
+        .conflict-btn { padding: 0.4rem 0.8rem; border-radius: 0.4rem; font-size: 0.8rem; cursor: pointer; }
+        .btn-keep { background: transparent; border: 1px solid var(--green); color: var(--green); }
+        .btn-discard { background: transparent; border: 1px solid var(--red); color: var(--red); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header><h1>🔄 Self-Healing Code Advisor</h1><p style="color: var(--muted); margin-top: 0.5rem;">Automatic error detection, diagnosis, and fix suggestions</p></header>
+        <div class="grid">
+            <div class="panel">
+                <div class="panel-title">📝 Code Input</div>
+                <textarea class="code-area" id="codeInput">function processData(data) {
+  const result = data.map(item => {
+    return item.value.toUpperCase()
+  })
+  
+  for (let i = 0; i <= result.length; i++) {
+    console.log(result[i].trim())
+  }
+  
+  const config = JSON.parse(localStorage.getItem('config'))
+  return config.setting.enabled
+}</textarea>
+                <button class="diagnose-btn" onclick="diagnose()">🔍 Diagnose & Heal</button>
+            </div>
+            <div class="panel">
+                <div class="panel-title">🏥 Diagnosis</div>
+                <div id="diagnosis">
+                    <div class="diagnosis-card diagnosis-error">
+                        <div class="diagnosis-header"><span class="diagnosis-type">🔴 Error</span><span class="diagnosis-line">Line 6</span></div>
+                        <div class="diagnosis-message">Off-by-one error: Loop will access undefined index</div>
+                        <button class="fix-btn" onclick="applyFix(1)">⚡ Fix: Use &lt; instead of &lt;=</button>
+                    </div>
+                    <div class="diagnosis-card diagnosis-error">
+                        <div class="diagnosis-header"><span class="diagnosis-type">🔴 Error</span><span class="diagnosis-line">Line 10</span></div>
+                        <div class="diagnosis-message">Potential null reference: JSON.parse may return null</div>
+                        <button class="fix-btn" onclick="applyFix(2)">⚡ Fix: Add null check</button>
+                    </div>
+                    <div class="diagnosis-card diagnosis-warning">
+                        <div class="diagnosis-header"><span class="diagnosis-type">🟡 Warning</span><span class="diagnosis-line">Line 3</span></div>
+                        <div class="diagnosis-message">Missing null check on item.value</div>
+                        <button class="fix-btn" onclick="applyFix(3)">⚡ Fix: Add optional chaining</button>
+                    </div>
+                </div>
+                <div class="healing-progress" id="healingProgress">
+                    <div class="spinner"></div>
+                    <p>Healing in progress...</p>
+                    <ul class="step-list" id="stepList">
+                        <li class="step-item"><span class="step-icon step-done">✓</span>Analyzing code structure</li>
+                        <li class="step-item"><span class="step-icon step-done">✓</span>Identifying error patterns</li>
+                        <li class="step-item"><span class="step-icon step-pending">3</span>Generating fixes</li>
+                        <li class="step-item"><span class="step-icon step-pending">4</span>Applying changes</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="panel" style="margin-top: 1.5rem;">
+            <div class="panel-title">⚠️ Conflict Resolution</div>
+            <div class="conflict-item">
+                <div class="conflict-header">Merge Conflict: config.ts</div>
+                <div style="font-family: monospace; font-size: 0.85rem; color: var(--muted);">
+                    &lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD<br>
+                    const timeout = 5000;<br>
+                    =======<br>
+                    const timeout = 10000;<br>
+                    &gt;&gt;&gt;&gt;&gt;&gt;&gt; feature/update
+                </div>
+                <div class="conflict-options">
+                    <button class="conflict-btn btn-keep">Keep Current</button>
+                    <button class="conflict-btn btn-discard">Accept Incoming</button>
+                    <button class="conflict-btn" style="border: 1px solid var(--purple); color: var(--purple);">Merge Both</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        function diagnose() {
+            document.getElementById('diagnosis').style.display = 'none';
+            document.getElementById('healingProgress').classList.add('active');
+            const steps = document.querySelectorAll('.step-item .step-icon');
+            let i = 2;
+            const interval = setInterval(() => {
+                if (i < steps.length) {
+                    steps[i].classList.remove('step-pending');
+                    steps[i].classList.add('step-done');
+                    steps[i].textContent = '✓';
+                    i++;
+                } else {
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        document.getElementById('healingProgress').classList.remove('active');
+                        document.getElementById('diagnosis').style.display = 'block';
+                    }, 500);
+                }
+            }, 600);
+        }
+        function applyFix(id) {
+            const code = document.getElementById('codeInput');
+            let text = code.value;
+            if (id === 1) text = text.replace('i <= result.length', 'i < result.length');
+            if (id === 2) text = text.replace("JSON.parse(localStorage.getItem('config'))", "JSON.parse(localStorage.getItem('config')) || {}");
+            if (id === 3) text = text.replace('item.value.toUpperCase()', 'item.value?.toUpperCase() || ""');
+            code.value = text;
+            event.target.textContent = '✓ Fixed';
+            event.target.disabled = true;
+            event.target.style.background = '#333';
+        }
+    </script>
+</body>
+</html>

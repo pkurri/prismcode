@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text-to-UI Generator | Prismcode</title>
+    <style>
+        :root { --bg: #0c0c0c; --card: #1a1a1a; --pink: #ff6b9d; --cyan: #00d9ff; --purple: #a855f7; --text: #fff; --muted: #888; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: system-ui, sans-serif; background: var(--bg); min-height: 100vh; color: var(--text); display: grid; grid-template-columns: 1fr 1fr; }
+        .input-panel { padding: 2rem; border-right: 1px solid #333; display: flex; flex-direction: column; }
+        h1 { font-size: 1.5rem; margin-bottom: 0.5rem; background: linear-gradient(135deg, var(--pink), var(--cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .subtitle { color: var(--muted); margin-bottom: 2rem; }
+        .prompt-area { flex: 1; background: var(--card); border: 1px solid #333; border-radius: 1rem; padding: 1rem; font-size: 1rem; color: var(--text); resize: none; font-family: inherit; margin-bottom: 1rem; }
+        .prompt-area:focus { outline: none; border-color: var(--cyan); }
+        .examples { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; }
+        .example { padding: 0.5rem 1rem; background: #222; border: 1px solid #333; border-radius: 2rem; font-size: 0.8rem; cursor: pointer; }
+        .example:hover { border-color: var(--pink); color: var(--pink); }
+        .generate-btn { padding: 1rem; background: linear-gradient(135deg, var(--pink), var(--purple)); border: none; border-radius: 0.75rem; color: white; font-weight: 600; font-size: 1rem; cursor: pointer; }
+        .generate-btn:hover { transform: scale(1.02); }
+        .preview-panel { padding: 2rem; background: #111; display: flex; flex-direction: column; }
+        .preview-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+        .preview-header h2 { font-size: 1rem; color: var(--muted); }
+        .preview-actions { display: flex; gap: 0.5rem; }
+        .action-btn { padding: 0.4rem 0.8rem; background: transparent; border: 1px solid #333; border-radius: 0.4rem; color: var(--muted); font-size: 0.8rem; cursor: pointer; }
+        .action-btn:hover { border-color: var(--cyan); color: var(--cyan); }
+        .preview-frame { flex: 1; background: #fff; border-radius: 1rem; overflow: hidden; }
+        .preview-content { width: 100%; height: 100%; border: none; }
+        .generating { display: none; align-items: center; justify-content: center; flex: 1; flex-direction: column; gap: 1rem; }
+        .generating.active { display: flex; }
+        .pulse { width: 60px; height: 60px; background: linear-gradient(135deg, var(--pink), var(--cyan)); border-radius: 50%; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.2); opacity: 0.5; } }
+    </style>
+</head>
+<body>
+    <div class="input-panel">
+        <h1>✨ Text-to-UI Generator</h1>
+        <p class="subtitle">Describe a UI and watch it come to life</p>
+        <textarea class="prompt-area" id="prompt" placeholder="Describe your UI...">A modern login form with email and password fields, a gradient submit button, and social login options for Google and GitHub. Use a dark theme with subtle animations.</textarea>
+        <div class="examples">
+            <span class="example" onclick="setPrompt('pricing')">Pricing cards</span>
+            <span class="example" onclick="setPrompt('dashboard')">Dashboard</span>
+            <span class="example" onclick="setPrompt('profile')">Profile page</span>
+            <span class="example" onclick="setPrompt('navbar')">Navigation bar</span>
+        </div>
+        <button class="generate-btn" onclick="generate()">⚡ Generate UI</button>
+    </div>
+    <div class="preview-panel">
+        <div class="preview-header">
+            <h2>Live Preview</h2>
+            <div class="preview-actions">
+                <button class="action-btn" onclick="copyCode()">📋 Copy</button>
+                <button class="action-btn" onclick="download()">⬇️ Export</button>
+            </div>
+        </div>
+        <div class="generating" id="loading"><div class="pulse"></div><p>Generating UI...</p></div>
+        <div class="preview-frame" id="previewFrame">
+            <iframe class="preview-content" id="preview"></iframe>
+        </div>
+    </div>
+    <script>
+        const templates = {
+            login: `<style>*{margin:0;padding:0;box-sizing:border-box}body{min-height:100vh;background:#0f0f0f;display:flex;align-items:center;justify-content:center;font-family:system-ui}.card{background:#1a1a1a;padding:2.5rem;border-radius:1.5rem;width:360px;border:1px solid #333}h2{color:#fff;margin-bottom:1.5rem;text-align:center}.input{width:100%;padding:1rem;background:#0f0f0f;border:1px solid #333;border-radius:0.75rem;color:#fff;margin-bottom:1rem;font-size:1rem}.input:focus{outline:none;border-color:#ff6b9d}.btn{width:100%;padding:1rem;background:linear-gradient(135deg,#ff6b9d,#a855f7);border:none;border-radius:0.75rem;color:#fff;font-weight:600;font-size:1rem;cursor:pointer;margin-bottom:1.5rem}.btn:hover{transform:translateY(-2px)}.divider{text-align:center;color:#666;margin-bottom:1rem;position:relative}.divider::before,.divider::after{content:'';position:absolute;top:50%;width:40%;height:1px;background:#333}.divider::before{left:0}.divider::after{right:0}.social{display:flex;gap:1rem}.social button{flex:1;padding:0.75rem;background:#222;border:1px solid #333;border-radius:0.5rem;color:#fff;cursor:pointer}.social button:hover{border-color:#ff6b9d}</style><div class="card"><h2>Welcome Back</h2><input class="input" placeholder="Email"><input class="input" type="password" placeholder="Password"><button class="btn">Sign In</button><div class="divider">or</div><div class="social"><button>Google</button><button>GitHub</button></div></div>`,
+            pricing: `<style>*{margin:0;padding:0;box-sizing:border-box}body{min-height:100vh;background:#0f0f0f;display:flex;align-items:center;justify-content:center;gap:1.5rem;font-family:system-ui;padding:2rem}.card{background:#1a1a1a;padding:2rem;border-radius:1rem;width:280px;border:1px solid #333;text-align:center}.card.featured{border-color:#00d9ff;transform:scale(1.05)}.badge{display:inline-block;background:#00d9ff;color:#000;padding:0.25rem 0.75rem;border-radius:1rem;font-size:0.75rem;font-weight:600;margin-bottom:1rem}h3{color:#fff;margin-bottom:0.5rem}.price{font-size:2.5rem;color:#fff;margin-bottom:1rem}.price span{font-size:1rem;color:#666}ul{list-style:none;margin-bottom:1.5rem;text-align:left}li{color:#888;padding:0.5rem 0;border-bottom:1px solid #222}li::before{content:'✓';color:#00d9ff;margin-right:0.5rem}.btn{width:100%;padding:0.75rem;border-radius:0.5rem;font-weight:600;cursor:pointer}.card:not(.featured) .btn{background:transparent;border:1px solid #333;color:#fff}.featured .btn{background:#00d9ff;border:none;color:#000}</style><div class="card"><h3>Starter</h3><div class="price">$9<span>/mo</span></div><ul><li>5 Projects</li><li>Basic Support</li><li>1GB Storage</li></ul><button class="btn">Get Started</button></div><div class="card featured"><span class="badge">Popular</span><h3>Pro</h3><div class="price">$29<span>/mo</span></div><ul><li>Unlimited Projects</li><li>Priority Support</li><li>100GB Storage</li></ul><button class="btn">Get Started</button></div><div class="card"><h3>Enterprise</h3><div class="price">$99<span>/mo</span></div><ul><li>Everything in Pro</li><li>Custom Domain</li><li>SSO & SAML</li></ul><button class="btn">Contact Sales</button></div>`,
+            dashboard: `<style>*{margin:0;padding:0;box-sizing:border-box}body{min-height:100vh;background:#0f0f0f;font-family:system-ui;padding:1.5rem;color:#fff}.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem}h1{font-size:1.5rem}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.5rem}.stat{background:#1a1a1a;padding:1.25rem;border-radius:0.75rem;border:1px solid #333}.stat-label{color:#666;font-size:0.8rem;margin-bottom:0.5rem}.stat-value{font-size:1.75rem;font-weight:600}.stat:nth-child(1) .stat-value{color:#00d9ff}.stat:nth-child(2) .stat-value{color:#ff6b9d}.stat:nth-child(3) .stat-value{color:#a855f7}.stat:nth-child(4) .stat-value{color:#10b981}.grid{display:grid;grid-template-columns:2fr 1fr;gap:1rem}.panel{background:#1a1a1a;padding:1.25rem;border-radius:0.75rem;border:1px solid #333}h3{font-size:0.9rem;margin-bottom:1rem;color:#888}.chart{height:120px;display:flex;align-items:flex-end;gap:0.5rem}.bar{flex:1;background:linear-gradient(180deg,#00d9ff,#0066ff);border-radius:4px 4px 0 0}.activity{display:flex;flex-direction:column;gap:0.75rem}.activity-item{display:flex;align-items:center;gap:0.75rem;padding:0.5rem;background:#222;border-radius:0.5rem}.dot{width:8px;height:8px;border-radius:50%;background:#00d9ff}</style><div class="header"><h1>Dashboard</h1></div><div class="stats"><div class="stat"><div class="stat-label">Users</div><div class="stat-value">2,847</div></div><div class="stat"><div class="stat-label">Revenue</div><div class="stat-value">$48.2k</div></div><div class="stat"><div class="stat-label">Orders</div><div class="stat-value">1,234</div></div><div class="stat"><div class="stat-label">Growth</div><div class="stat-value">+24%</div></div></div><div class="grid"><div class="panel"><h3>Analytics</h3><div class="chart"><div class="bar" style="height:60%"></div><div class="bar" style="height:80%"></div><div class="bar" style="height:45%"></div><div class="bar" style="height:90%"></div><div class="bar" style="height:70%"></div><div class="bar" style="height:85%"></div><div class="bar" style="height:65%"></div></div></div><div class="panel"><h3>Activity</h3><div class="activity"><div class="activity-item"><div class="dot"></div><span>New user signup</span></div><div class="activity-item"><div class="dot" style="background:#ff6b9d"></div><span>Payment received</span></div><div class="activity-item"><div class="dot" style="background:#a855f7"></div><span>New order placed</span></div></div></div></div>`,
+            profile: `<style>*{margin:0;padding:0;box-sizing:border-box}body{min-height:100vh;background:#0f0f0f;display:flex;align-items:center;justify-content:center;font-family:system-ui}.card{background:#1a1a1a;padding:2rem;border-radius:1.5rem;width:320px;text-align:center;border:1px solid #333}.avatar{width:100px;height:100px;border-radius:50%;background:linear-gradient(135deg,#ff6b9d,#a855f7);margin:0 auto 1rem;display:flex;align-items:center;justify-content:center;font-size:2.5rem}.name{color:#fff;font-size:1.5rem;margin-bottom:0.25rem}.role{color:#666;margin-bottom:1.5rem}.stats{display:flex;justify-content:space-around;margin-bottom:1.5rem;padding:1rem 0;border-top:1px solid #333;border-bottom:1px solid #333}.stat-item{text-align:center}.stat-num{color:#fff;font-size:1.25rem;font-weight:600}.stat-label{color:#666;font-size:0.75rem}.btn{width:100%;padding:0.75rem;background:linear-gradient(135deg,#ff6b9d,#a855f7);border:none;border-radius:0.5rem;color:#fff;font-weight:600;cursor:pointer}.btn:hover{transform:scale(1.02)}</style><div class="card"><div class="avatar">👤</div><div class="name">Alex Chen</div><div class="role">Senior Developer</div><div class="stats"><div class="stat-item"><div class="stat-num">142</div><div class="stat-label">Projects</div></div><div class="stat-item"><div class="stat-num">8.4k</div><div class="stat-label">Followers</div></div><div class="stat-item"><div class="stat-num">326</div><div class="stat-label">Following</div></div></div><button class="btn">Follow</button></div>`,
+            navbar: `<style>*{margin:0;padding:0;box-sizing:border-box}body{min-height:100vh;background:#0f0f0f;font-family:system-ui}nav{display:flex;align-items:center;justify-content:space-between;padding:1rem 2rem;background:#1a1a1a;border-bottom:1px solid #333}.logo{font-size:1.25rem;font-weight:700;background:linear-gradient(135deg,#ff6b9d,#00d9ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent}.links{display:flex;gap:2rem}a{color:#888;text-decoration:none;font-size:0.9rem}a:hover{color:#fff}.btn{padding:0.5rem 1rem;background:linear-gradient(135deg,#ff6b9d,#a855f7);border:none;border-radius:0.5rem;color:#fff;font-weight:500;cursor:pointer}</style><nav><div class="logo">Prismcode</div><div class="links"><a href="#">Features</a><a href="#">Pricing</a><a href="#">Docs</a><a href="#">Blog</a></div><button class="btn">Get Started</button></nav>`
+        };
+        function setPrompt(type) {
+            const prompts = { pricing: 'Three pricing cards with starter, pro, and enterprise tiers', dashboard: 'A dashboard with stats cards and analytics chart', profile: 'A user profile card with avatar and stats', navbar: 'A navigation bar with logo and menu links' };
+            document.getElementById('prompt').value = prompts[type] || '';
+        }
+        function generate() {
+            const prompt = document.getElementById('prompt').value.toLowerCase();
+            document.getElementById('loading').classList.add('active');
+            document.getElementById('previewFrame').style.display = 'none';
+            setTimeout(() => {
+                document.getElementById('loading').classList.remove('active');
+                document.getElementById('previewFrame').style.display = 'block';
+                let html = templates.login;
+                if (prompt.includes('pricing') || prompt.includes('card')) html = templates.pricing;
+                else if (prompt.includes('dashboard') || prompt.includes('stat')) html = templates.dashboard;
+                else if (prompt.includes('profile') || prompt.includes('avatar')) html = templates.profile;
+                else if (prompt.includes('nav') || prompt.includes('menu')) html = templates.navbar;
+                document.getElementById('preview').srcdoc = html;
+            }, 1500);
+        }
+        function copyCode() { navigator.clipboard.writeText(document.getElementById('preview').srcdoc); alert('Copied!'); }
+        function download() { const blob = new Blob([document.getElementById('preview').srcdoc], {type:'text/html'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'generated-ui.html'; a.click(); }
+        generate();
+    </script>
+</body>
+</html>

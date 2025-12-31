@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NL Code Search | Prismcode</title>
+    <style>
+        :root { --bg: #0f172a; --card: #1e293b; --sky: #0ea5e9; --violet: #8b5cf6; --text: #f1f5f9; --muted: #94a3b8; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: system-ui, sans-serif; background: var(--bg); min-height: 100vh; color: var(--text); }
+        .hero { text-align: center; padding: 4rem 2rem 2rem; }
+        h1 { font-size: 2rem; background: linear-gradient(135deg, var(--sky), var(--violet)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 1rem; }
+        .search-box { max-width: 700px; margin: 0 auto; display: flex; gap: 1rem; background: var(--card); border: 2px solid #475569; border-radius: 1rem; padding: 0.5rem; }
+        .search-box:focus-within { border-color: var(--sky); box-shadow: 0 0 30px rgba(14,165,233,0.2); }
+        .search-input { flex: 1; background: transparent; border: none; padding: 1rem; font-size: 1rem; color: var(--text); outline: none; }
+        .search-btn { padding: 1rem 1.5rem; background: linear-gradient(135deg, var(--sky), var(--violet)); border: none; border-radius: 0.75rem; color: white; font-weight: 600; cursor: pointer; }
+        .suggestions { display: flex; flex-wrap: wrap; gap: 0.5rem; justify-content: center; margin-top: 1rem; max-width: 700px; margin-left: auto; margin-right: auto; }
+        .chip { padding: 0.5rem 1rem; background: rgba(255,255,255,0.05); border: 1px solid #475569; border-radius: 2rem; font-size: 0.85rem; color: var(--muted); cursor: pointer; }
+        .chip:hover { border-color: var(--sky); color: var(--sky); }
+        .results { max-width: 900px; margin: 2rem auto; padding: 0 2rem; }
+        .result-card { background: var(--card); border-radius: 1rem; padding: 1.5rem; margin-bottom: 1rem; border: 1px solid #475569; }
+        .result-card:hover { border-color: var(--sky); transform: translateY(-2px); }
+        .result-header { display: flex; justify-content: space-between; margin-bottom: 1rem; }
+        .file-icon { width: 28px; height: 28px; background: #3178c6; border-radius: 0.4rem; display: inline-flex; align-items: center; justify-content: center; font-size: 0.75rem; margin-right: 0.5rem; }
+        .score { padding: 0.25rem 0.6rem; background: rgba(16,185,129,0.15); color: #10b981; border-radius: 1rem; font-size: 0.8rem; }
+        .code-preview { background: var(--bg); border-radius: 0.5rem; padding: 1rem; font-family: monospace; font-size: 0.85rem; overflow-x: auto; }
+        .highlight { background: rgba(139,92,246,0.3); padding: 0.1rem 0.3rem; border-radius: 0.25rem; }
+        .loading { text-align: center; padding: 2rem; display: none; }
+        .spinner { width: 40px; height: 40px; border: 3px solid #475569; border-top-color: var(--sky); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 1rem; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+    </style>
+</head>
+<body>
+    <div class="hero">
+        <h1>🔍 Natural Language Code Search</h1>
+        <p style="color: var(--muted); margin-bottom: 2rem;">Search your codebase using plain English</p>
+        <div class="search-box">
+            <input type="text" class="search-input" id="searchInput" placeholder="function that validates email" onkeypress="if(event.key==='Enter')search()">
+            <button class="search-btn" onclick="search()">Search</button>
+        </div>
+        <div class="suggestions">
+            <span class="chip" onclick="setQuery('auth middleware')">auth middleware</span>
+            <span class="chip" onclick="setQuery('database connection')">database connection</span>
+            <span class="chip" onclick="setQuery('error handling')">error handling</span>
+        </div>
+    </div>
+    <div class="loading" id="loading"><div class="spinner"></div><p>Searching...</p></div>
+    <div class="results" id="results"></div>
+    <script>
+        const results = [
+            { file: 'src/utils/validators.ts', line: 42, score: 98, code: 'function <span class="highlight">validateEmail</span>(email: string): boolean {\n  return /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email);\n}' },
+            { file: 'src/auth/validation.ts', line: 15, score: 87, code: 'export function <span class="highlight">isValidEmailFormat</span>(input: string) {\n  return EMAIL_PATTERN.test(input);\n}' },
+            { file: 'src/forms/FormValidator.ts', line: 78, score: 75, code: 'class FormValidator {\n  <span class="highlight">validateEmailField</span>(field) {\n    return field.value.includes("@");\n  }\n}' }
+        ];
+        function setQuery(q) { document.getElementById('searchInput').value = q; search(); }
+        function search() {
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('results').innerHTML = '';
+            setTimeout(() => {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('results').innerHTML = results.map(r => 
+                    `<div class="result-card"><div class="result-header"><span><span class="file-icon">TS</span>${r.file}:${r.line}</span><span class="score">${r.score}%</span></div><div class="code-preview">${r.code}</div></div>`
+                ).join('');
+            }, 1000);
+        }
+    </script>
+</body>
+</html>

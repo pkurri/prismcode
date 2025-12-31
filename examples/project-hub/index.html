@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Management Hub | Prismcode</title>
+    <style>
+        :root {
+            --bg-primary: #0d1117;
+            --bg-secondary: #161b22;
+            --bg-card: #21262d;
+            --jira-blue: #0052cc;
+            --linear-purple: #5e6ad2;
+            --accent-green: #3fb950;
+            --accent-yellow: #d29922;
+            --accent-red: #f85149;
+            --accent-cyan: #58a6ff;
+            --text-primary: #f0f6fc;
+            --text-secondary: #8b949e;
+            --border-color: #30363d;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: var(--bg-primary);
+            min-height: 100vh;
+            color: var(--text-primary);
+        }
+        .header {
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .header h1 {
+            font-size: 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        .integrations {
+            display: flex;
+            gap: 0.75rem;
+        }
+        .integration-badge {
+            padding: 0.4rem 0.8rem;
+            border-radius: 2rem;
+            font-size: 0.8rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .jira-badge { background: rgba(0,82,204,0.2); color: #4c9aff; border: 1px solid rgba(0,82,204,0.4); }
+        .linear-badge { background: rgba(94,106,210,0.2); color: #a5a9f7; border: 1px solid rgba(94,106,210,0.4); }
+        .container { padding: 2rem; max-width: 1600px; margin: 0 auto; }
+        .board-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        .board-header h2 { font-size: 1.1rem; }
+        .filters {
+            display: flex;
+            gap: 0.5rem;
+        }
+        .filter-btn {
+            padding: 0.4rem 0.8rem;
+            border-radius: 0.4rem;
+            border: 1px solid var(--border-color);
+            background: transparent;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+        .filter-btn:hover, .filter-btn.active {
+            background: var(--bg-card);
+            color: var(--text-primary);
+            border-color: var(--accent-cyan);
+        }
+        .board {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+        }
+        .column {
+            background: var(--bg-secondary);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            border: 1px solid var(--border-color);
+        }
+        .column-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .column-title {
+            font-weight: 600;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .column-count {
+            background: var(--bg-card);
+            padding: 0.2rem 0.5rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+        .issue-card {
+            background: var(--bg-card);
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: 1px solid transparent;
+        }
+        .issue-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            border-color: var(--border-color);
+        }
+        .issue-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 0.5rem;
+        }
+        .issue-id {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+        .issue-source {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+        }
+        .source-jira { background: var(--jira-blue); }
+        .source-linear { background: var(--linear-purple); }
+        .issue-title {
+            font-size: 0.9rem;
+            margin-bottom: 0.75rem;
+            line-height: 1.4;
+        }
+        .issue-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .issue-tags { display: flex; gap: 0.4rem; }
+        .tag {
+            padding: 0.2rem 0.5rem;
+            border-radius: 0.3rem;
+            font-size: 0.7rem;
+            font-weight: 500;
+        }
+        .tag-bug { background: rgba(248,81,73,0.2); color: var(--accent-red); }
+        .tag-feature { background: rgba(88,166,255,0.2); color: var(--accent-cyan); }
+        .tag-enhancement { background: rgba(63,185,80,0.2); color: var(--accent-green); }
+        .tag-urgent { background: rgba(210,153,34,0.2); color: var(--accent-yellow); }
+        .assignee {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--jira-blue), var(--linear-purple));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+        .decomposition-panel {
+            margin-top: 2rem;
+            background: var(--bg-secondary);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            border: 1px solid var(--border-color);
+        }
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        .panel-header h2 { font-size: 1.1rem; }
+        .decompose-btn {
+            padding: 0.5rem 1rem;
+            background: linear-gradient(135deg, var(--jira-blue), var(--linear-purple));
+            border: none;
+            border-radius: 0.5rem;
+            color: white;
+            cursor: pointer;
+            font-weight: 500;
+            transition: transform 0.2s;
+        }
+        .decompose-btn:hover { transform: translateY(-2px); }
+        .task-tree {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .task-node {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1rem;
+            background: var(--bg-card);
+            border-radius: 0.5rem;
+            margin-left: var(--indent, 0);
+        }
+        .task-node.parent { font-weight: 600; }
+        .task-status {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            border: 2px solid var(--text-secondary);
+        }
+        .task-status.done {
+            background: var(--accent-green);
+            border-color: var(--accent-green);
+        }
+        .task-status.progress {
+            border-color: var(--accent-cyan);
+            position: relative;
+        }
+        .task-status.progress::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 6px;
+            height: 6px;
+            background: var(--accent-cyan);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+        }
+        .task-complexity {
+            margin-left: auto;
+            padding: 0.2rem 0.5rem;
+            background: rgba(88,166,255,0.2);
+            border-radius: 0.3rem;
+            font-size: 0.75rem;
+            color: var(--accent-cyan);
+        }
+        .sync-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--accent-green);
+            font-size: 0.85rem;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        .syncing { animation: spin 1s linear infinite; }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <h1>📋 Project Management Hub</h1>
+        <div class="integrations">
+            <span class="integration-badge jira-badge">
+                <span>🔵</span> Jira Connected
+            </span>
+            <span class="integration-badge linear-badge">
+                <span>🟣</span> Linear Connected
+            </span>
+            <span class="sync-status" id="syncStatus">
+                <span>🔄</span> Synced
+            </span>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="board-header">
+            <h2>Sprint Board</h2>
+            <div class="filters">
+                <button class="filter-btn active">All</button>
+                <button class="filter-btn">Jira</button>
+                <button class="filter-btn">Linear</button>
+                <button class="filter-btn">My Issues</button>
+            </div>
+        </div>
+
+        <div class="board">
+            <div class="column">
+                <div class="column-header">
+                    <span class="column-title">📥 Backlog</span>
+                    <span class="column-count">5</span>
+                </div>
+                <div class="issue-card">
+                    <div class="issue-header">
+                        <span class="issue-id">PRISM-142</span>
+                        <div class="issue-source source-jira">J</div>
+                    </div>
+                    <div class="issue-title">Implement dark mode toggle</div>
+                    <div class="issue-meta">
+                        <div class="issue-tags">
+                            <span class="tag tag-feature">feature</span>
+                        </div>
+                        <div class="assignee">JD</div>
+                    </div>
+                </div>
+                <div class="issue-card">
+                    <div class="issue-header">
+                        <span class="issue-id">LIN-089</span>
+                        <div class="issue-source source-linear">L</div>
+                    </div>
+                    <div class="issue-title">Add keyboard shortcuts</div>
+                    <div class="issue-meta">
+                        <div class="issue-tags">
+                            <span class="tag tag-enhancement">enhancement</span>
+                        </div>
+                        <div class="assignee">SK</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="column">
+                <div class="column-header">
+                    <span class="column-title">📝 To Do</span>
+                    <span class="column-count">3</span>
+                </div>
+                <div class="issue-card">
+                    <div class="issue-header">
+                        <span class="issue-id">PRISM-139</span>
+                        <div class="issue-source source-jira">J</div>
+                    </div>
+                    <div class="issue-title">Fix login timeout issue</div>
+                    <div class="issue-meta">
+                        <div class="issue-tags">
+                            <span class="tag tag-bug">bug</span>
+                            <span class="tag tag-urgent">urgent</span>
+                        </div>
+                        <div class="assignee">MK</div>
+                    </div>
+                </div>
+                <div class="issue-card">
+                    <div class="issue-header">
+                        <span class="issue-id">LIN-091</span>
+                        <div class="issue-source source-linear">L</div>
+                    </div>
+                    <div class="issue-title">Update API documentation</div>
+                    <div class="issue-meta">
+                        <div class="issue-tags">
+                            <span class="tag tag-enhancement">docs</span>
+                        </div>
+                        <div class="assignee">AR</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="column">
+                <div class="column-header">
+                    <span class="column-title">🔧 In Progress</span>
+                    <span class="column-count">4</span>
+                </div>
+                <div class="issue-card">
+                    <div class="issue-header">
+                        <span class="issue-id">PRISM-135</span>
+                        <div class="issue-source source-jira">J</div>
+                    </div>
+                    <div class="issue-title">Implement user authentication flow</div>
+                    <div class="issue-meta">
+                        <div class="issue-tags">
+                            <span class="tag tag-feature">feature</span>
+                        </div>
+                        <div class="assignee">RP</div>
+                    </div>
+                </div>
+                <div class="issue-card">
+                    <div class="issue-header">
+                        <span class="issue-id">LIN-087</span>
+                        <div class="issue-source source-linear">L</div>
+                    </div>
+                    <div class="issue-title">Optimize database queries</div>
+                    <div class="issue-meta">
+                        <div class="issue-tags">
+                            <span class="tag tag-enhancement">perf</span>
+                        </div>
+                        <div class="assignee">JD</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="column">
+                <div class="column-header">
+                    <span class="column-title">✅ Done</span>
+                    <span class="column-count">8</span>
+                </div>
+                <div class="issue-card" style="opacity: 0.7;">
+                    <div class="issue-header">
+                        <span class="issue-id">PRISM-130</span>
+                        <div class="issue-source source-jira">J</div>
+                    </div>
+                    <div class="issue-title">Set up CI/CD pipeline</div>
+                    <div class="issue-meta">
+                        <div class="issue-tags">
+                            <span class="tag tag-feature">infra</span>
+                        </div>
+                        <div class="assignee">SK</div>
+                    </div>
+                </div>
+                <div class="issue-card" style="opacity: 0.7;">
+                    <div class="issue-header">
+                        <span class="issue-id">LIN-082</span>
+                        <div class="issue-source source-linear">L</div>
+                    </div>
+                    <div class="issue-title">Add unit tests for auth</div>
+                    <div class="issue-meta">
+                        <div class="issue-tags">
+                            <span class="tag tag-enhancement">tests</span>
+                        </div>
+                        <div class="assignee">MK</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="decomposition-panel">
+            <div class="panel-header">
+                <h2>🧩 Task Decomposition</h2>
+                <button class="decompose-btn" onclick="decompose()">⚡ Decompose Selected</button>
+            </div>
+            <div class="task-tree" id="taskTree">
+                <div class="task-node parent">
+                    <span class="task-status progress"></span>
+                    <span>Implement user authentication flow</span>
+                    <span class="task-complexity">8 pts</span>
+                </div>
+                <div class="task-node" style="--indent: 30px;">
+                    <span class="task-status done"></span>
+                    <span>Set up authentication database schema</span>
+                    <span class="task-complexity">2 pts</span>
+                </div>
+                <div class="task-node" style="--indent: 30px;">
+                    <span class="task-status done"></span>
+                    <span>Implement JWT token generation</span>
+                    <span class="task-complexity">2 pts</span>
+                </div>
+                <div class="task-node" style="--indent: 30px;">
+                    <span class="task-status progress"></span>
+                    <span>Create login/register UI components</span>
+                    <span class="task-complexity">2 pts</span>
+                </div>
+                <div class="task-node" style="--indent: 30px;">
+                    <span class="task-status"></span>
+                    <span>Add OAuth2 social login</span>
+                    <span class="task-complexity">2 pts</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function decompose() {
+            const tree = document.getElementById('taskTree');
+            const newTask = document.createElement('div');
+            newTask.className = 'task-node parent';
+            newTask.style.cssText = 'opacity: 0; transform: translateY(-10px); transition: all 0.3s;';
+            newTask.innerHTML = `
+                <span class="task-status"></span>
+                <span>New decomposed task</span>
+                <span class="task-complexity">? pts</span>
+            `;
+            tree.appendChild(newTask);
+            
+            setTimeout(() => {
+                newTask.style.opacity = '1';
+                newTask.style.transform = 'translateY(0)';
+            }, 100);
+
+            // Add subtasks
+            const subtasks = ['Analyze requirements', 'Design solution', 'Implement', 'Test'];
+            subtasks.forEach((task, i) => {
+                setTimeout(() => {
+                    const subtask = document.createElement('div');
+                    subtask.className = 'task-node';
+                    subtask.style.cssText = `--indent: 30px; opacity: 0; transform: translateY(-10px); transition: all 0.3s;`;
+                    subtask.innerHTML = `
+                        <span class="task-status"></span>
+                        <span>${task}</span>
+                        <span class="task-complexity">1 pt</span>
+                    `;
+                    tree.appendChild(subtask);
+                    setTimeout(() => {
+                        subtask.style.opacity = '1';
+                        subtask.style.transform = 'translateY(0)';
+                    }, 100);
+                }, (i + 1) * 200);
+            });
+        }
+
+        // Simulate sync
+        setInterval(() => {
+            const status = document.getElementById('syncStatus');
+            status.innerHTML = '<span class="syncing">🔄</span> Syncing...';
+            setTimeout(() => {
+                status.innerHTML = '<span>✅</span> Synced';
+            }, 1000);
+        }, 10000);
+
+        // Filter buttons
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>

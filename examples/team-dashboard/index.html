@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Team Dashboard | Prismcode</title>
+    <style>
+        :root { --bg: #0a0a0f; --card: #13131a; --purple: #8b5cf6; --blue: #3b82f6; --green: #22c55e; --text: #fff; --muted: #6b7280; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: system-ui, sans-serif; background: var(--bg); min-height: 100vh; color: var(--text); display: grid; grid-template-columns: 240px 1fr; }
+        .sidebar { background: var(--card); padding: 1.5rem; border-right: 1px solid #222; }
+        .logo { font-size: 1.25rem; font-weight: 700; margin-bottom: 2rem; background: linear-gradient(135deg, var(--purple), var(--blue)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .nav-item { padding: 0.75rem 1rem; border-radius: 0.5rem; margin-bottom: 0.25rem; cursor: pointer; color: var(--muted); }
+        .nav-item:hover, .nav-item.active { background: rgba(139,92,246,0.1); color: var(--purple); }
+        .main { padding: 2rem; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+        h1 { font-size: 1.5rem; }
+        .invite-btn { padding: 0.75rem 1.5rem; background: var(--purple); border: none; border-radius: 0.5rem; color: white; font-weight: 600; cursor: pointer; }
+        .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 2rem; }
+        .stat-card { background: var(--card); padding: 1.25rem; border-radius: 0.75rem; border: 1px solid #222; }
+        .stat-label { color: var(--muted); font-size: 0.85rem; margin-bottom: 0.5rem; }
+        .stat-value { font-size: 1.75rem; font-weight: 600; }
+        .grid { display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; }
+        .panel { background: var(--card); border-radius: 0.75rem; padding: 1.5rem; border: 1px solid #222; }
+        .panel-header { display: flex; justify-content: space-between; margin-bottom: 1rem; }
+        .panel-title { font-weight: 600; }
+        .member-row { display: flex; align-items: center; padding: 0.75rem; border-radius: 0.5rem; margin-bottom: 0.5rem; background: rgba(0,0,0,0.2); }
+        .avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, var(--purple), var(--blue)); display: flex; align-items: center; justify-content: center; font-weight: 600; margin-right: 1rem; }
+        .member-info { flex: 1; }
+        .member-name { font-weight: 500; }
+        .member-role { font-size: 0.8rem; color: var(--muted); }
+        .role-badge { padding: 0.25rem 0.6rem; border-radius: 0.4rem; font-size: 0.75rem; font-weight: 500; }
+        .role-admin { background: rgba(139,92,246,0.2); color: var(--purple); }
+        .role-dev { background: rgba(59,130,246,0.2); color: var(--blue); }
+        .role-viewer { background: rgba(107,114,128,0.2); color: var(--muted); }
+        .activity-item { display: flex; gap: 1rem; padding: 0.75rem 0; border-bottom: 1px solid #222; }
+        .activity-icon { width: 32px; height: 32px; border-radius: 50%; background: #1a1a24; display: flex; align-items: center; justify-content: center; }
+        .activity-text { flex: 1; font-size: 0.9rem; }
+        .activity-time { color: var(--muted); font-size: 0.8rem; }
+        .permission-row { display: flex; justify-content: space-between; padding: 0.75rem; background: rgba(0,0,0,0.2); border-radius: 0.5rem; margin-bottom: 0.5rem; }
+        .toggle { width: 44px; height: 24px; background: #333; border-radius: 12px; position: relative; cursor: pointer; }
+        .toggle.on { background: var(--green); }
+        .toggle::after { content: ''; position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; background: white; border-radius: 50%; transition: 0.2s; }
+        .toggle.on::after { left: 22px; }
+    </style>
+</head>
+<body>
+    <aside class="sidebar">
+        <div class="logo">👥 Team</div>
+        <nav>
+            <div class="nav-item active">📊 Overview</div>
+            <div class="nav-item">👤 Members</div>
+            <div class="nav-item">🔐 Permissions</div>
+            <div class="nav-item">💬 Slack</div>
+            <div class="nav-item">🎮 Discord</div>
+            <div class="nav-item">📈 Usage</div>
+            <div class="nav-item">⚙️ Settings</div>
+        </nav>
+    </aside>
+    <main class="main">
+        <div class="header">
+            <h1>Team Dashboard</h1>
+            <button class="invite-btn" onclick="invite()">+ Invite Member</button>
+        </div>
+        <div class="stats">
+            <div class="stat-card"><div class="stat-label">Team Members</div><div class="stat-value">12</div></div>
+            <div class="stat-card"><div class="stat-label">Active Today</div><div class="stat-value" style="color: var(--green)">8</div></div>
+            <div class="stat-card"><div class="stat-label">Projects</div><div class="stat-value">24</div></div>
+            <div class="stat-card"><div class="stat-label">API Calls</div><div class="stat-value" style="color: var(--blue)">1.2M</div></div>
+        </div>
+        <div class="grid">
+            <div class="panel">
+                <div class="panel-header"><span class="panel-title">Team Members</span></div>
+                <div id="members">
+                    <div class="member-row"><div class="avatar">JD</div><div class="member-info"><div class="member-name">John Doe</div><div class="member-role">john@prismcode.dev</div></div><span class="role-badge role-admin">Admin</span></div>
+                    <div class="member-row"><div class="avatar">SK</div><div class="member-info"><div class="member-name">Sarah Kim</div><div class="member-role">sarah@prismcode.dev</div></div><span class="role-badge role-dev">Developer</span></div>
+                    <div class="member-row"><div class="avatar">MJ</div><div class="member-info"><div class="member-name">Mike Johnson</div><div class="member-role">mike@prismcode.dev</div></div><span class="role-badge role-dev">Developer</span></div>
+                    <div class="member-row"><div class="avatar">AL</div><div class="member-info"><div class="member-name">Amy Lee</div><div class="member-role">amy@prismcode.dev</div></div><span class="role-badge role-viewer">Viewer</span></div>
+                </div>
+            </div>
+            <div>
+                <div class="panel" style="margin-bottom: 1rem;">
+                    <div class="panel-header"><span class="panel-title">RBAC Permissions</span></div>
+                    <div class="permission-row"><span>Deploy to Production</span><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+                    <div class="permission-row"><span>Manage Team</span><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+                    <div class="permission-row"><span>View Analytics</span><div class="toggle on" onclick="this.classList.toggle('on')"></div></div>
+                    <div class="permission-row"><span>API Access</span><div class="toggle" onclick="this.classList.toggle('on')"></div></div>
+                </div>
+                <div class="panel">
+                    <div class="panel-header"><span class="panel-title">Activity</span></div>
+                    <div class="activity-item"><div class="activity-icon">🚀</div><div class="activity-text">Sarah deployed to production</div><div class="activity-time">2m ago</div></div>
+                    <div class="activity-item"><div class="activity-icon">💬</div><div class="activity-text">Slack notification sent</div><div class="activity-time">15m ago</div></div>
+                    <div class="activity-item"><div class="activity-icon">👤</div><div class="activity-text">Mike joined the team</div><div class="activity-time">1h ago</div></div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <script>
+        function invite() {
+            const name = prompt('Enter member email:');
+            if (name) {
+                const initials = name.split('@')[0].slice(0,2).toUpperCase();
+                const members = document.getElementById('members');
+                members.insertAdjacentHTML('beforeend', `<div class="member-row"><div class="avatar">${initials}</div><div class="member-info"><div class="member-name">${name}</div><div class="member-role">Pending invitation</div></div><span class="role-badge role-viewer">Pending</span></div>`);
+            }
+        }
+    </script>
+</body>
+</html>

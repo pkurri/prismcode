@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deployment Manager | Prismcode</title>
+    <style>
+        :root {
+            --bg-primary: #0a0a1a;
+            --bg-secondary: #12122a;
+            --bg-card: #1a1a3e;
+            --vercel-primary: #000000;
+            --accent-cyan: #00d4ff;
+            --accent-green: #00ff88;
+            --accent-purple: #9945ff;
+            --accent-yellow: #ffcc00;
+            --accent-red: #ff4757;
+            --text-primary: #ffffff;
+            --text-secondary: #8b8b9a;
+            --border-color: rgba(255,255,255,0.08);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg-primary);
+            min-height: 100vh;
+            color: var(--text-primary);
+        }
+        .layout {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            min-height: 100vh;
+        }
+        .sidebar {
+            background: var(--bg-secondary);
+            padding: 1.5rem;
+            border-right: 1px solid var(--border-color);
+        }
+        .logo {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .logo span {
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .nav-section {
+            margin-bottom: 2rem;
+        }
+        .nav-title {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: var(--text-secondary);
+            margin-bottom: 0.75rem;
+        }
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-bottom: 0.25rem;
+        }
+        .nav-item:hover { background: rgba(255,255,255,0.05); }
+        .nav-item.active {
+            background: linear-gradient(135deg, rgba(0,212,255,0.15), rgba(153,69,255,0.15));
+            border: 1px solid rgba(0,212,255,0.3);
+        }
+        .main { padding: 2rem; }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        h1 { font-size: 1.75rem; font-weight: 600; }
+        .deploy-btn {
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+            border: none;
+            border-radius: 0.5rem;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .deploy-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(0,212,255,0.3);
+        }
+        .deployments-grid {
+            display: grid;
+            gap: 1rem;
+        }
+        .deployment-card {
+            background: var(--bg-card);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            border: 1px solid var(--border-color);
+            display: grid;
+            grid-template-columns: auto 1fr auto auto;
+            align-items: center;
+            gap: 1.5rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .deployment-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        .status-ready { background: var(--accent-green); box-shadow: 0 0 15px var(--accent-green); }
+        .status-building { background: var(--accent-yellow); box-shadow: 0 0 15px var(--accent-yellow); animation: pulse 1s infinite; }
+        .status-error { background: var(--accent-red); box-shadow: 0 0 15px var(--accent-red); }
+        .deployment-info h3 { margin-bottom: 0.25rem; font-weight: 500; }
+        .deployment-info p { color: var(--text-secondary); font-size: 0.85rem; }
+        .deployment-meta {
+            display: flex;
+            gap: 2rem;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+        .deployment-meta span { display: flex; align-items: center; gap: 0.5rem; }
+        .action-btns { display: flex; gap: 0.5rem; }
+        .action-btn {
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            border: 1px solid var(--border-color);
+            background: transparent;
+            color: var(--text-primary);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .action-btn:hover { background: rgba(255,255,255,0.1); }
+        .action-btn.rollback { 
+            border-color: var(--accent-yellow);
+            color: var(--accent-yellow);
+        }
+        .action-btn.rollback:hover { background: rgba(255,204,0,0.1); }
+        .checkpoint-panel {
+            background: var(--bg-card);
+            border-radius: 1rem;
+            padding: 1.5rem;
+            border: 1px solid var(--border-color);
+            margin-top: 2rem;
+        }
+        .checkpoint-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        .checkpoint-header h2 { font-size: 1.1rem; font-weight: 600; }
+        .checkpoint-list { display: flex; flex-direction: column; gap: 0.75rem; }
+        .checkpoint-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem;
+            background: rgba(0,0,0,0.2);
+            border-radius: 0.75rem;
+            border-left: 3px solid var(--accent-cyan);
+        }
+        .checkpoint-time {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+        }
+        .restore-btn {
+            padding: 0.4rem 0.75rem;
+            background: transparent;
+            border: 1px solid var(--accent-cyan);
+            color: var(--accent-cyan);
+            border-radius: 0.4rem;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.2s;
+        }
+        .restore-btn:hover {
+            background: rgba(0,212,255,0.1);
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+        .modal.active { display: flex; }
+        .modal-content {
+            background: var(--bg-card);
+            border-radius: 1rem;
+            padding: 2rem;
+            width: 500px;
+            max-width: 90%;
+            border: 1px solid var(--border-color);
+        }
+        .modal-content h2 { margin-bottom: 1.5rem; }
+        .form-group { margin-bottom: 1.25rem; }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            color: white;
+            font-size: 1rem;
+        }
+        .modal-actions { display: flex; gap: 1rem; justify-content: flex-end; margin-top: 1.5rem; }
+        .btn-cancel {
+            padding: 0.75rem 1.5rem;
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: white;
+            border-radius: 0.5rem;
+            cursor: pointer;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .progress-bar {
+            height: 4px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 2px;
+            margin-top: 1rem;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-cyan), var(--accent-purple));
+            border-radius: 2px;
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="layout">
+        <aside class="sidebar">
+            <div class="logo">🚀 <span>Prismcode</span></div>
+            <nav>
+                <div class="nav-section">
+                    <div class="nav-title">Overview</div>
+                    <div class="nav-item active">📊 Dashboard</div>
+                    <div class="nav-item">📈 Analytics</div>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-title">Deployments</div>
+                    <div class="nav-item">🌐 Production</div>
+                    <div class="nav-item">🔧 Preview</div>
+                    <div class="nav-item">📜 History</div>
+                </div>
+                <div class="nav-section">
+                    <div class="nav-title">Settings</div>
+                    <div class="nav-item">⚙️ Configuration</div>
+                    <div class="nav-item">🔑 Environment</div>
+                    <div class="nav-item">👥 Team</div>
+                </div>
+            </nav>
+        </aside>
+
+        <main class="main">
+            <div class="header">
+                <h1>Deployments</h1>
+                <button class="deploy-btn" onclick="openDeployModal()">
+                    ⚡ New Deployment
+                </button>
+            </div>
+
+            <div class="deployments-grid" id="deployments">
+                <div class="deployment-card">
+                    <div class="status-indicator status-ready"></div>
+                    <div class="deployment-info">
+                        <h3>my-app-production</h3>
+                        <p>prismcode-app.vercel.app</p>
+                    </div>
+                    <div class="deployment-meta">
+                        <span>🌿 main</span>
+                        <span>⏱️ 2m ago</span>
+                        <span>📦 Next.js</span>
+                    </div>
+                    <div class="action-btns">
+                        <button class="action-btn">Visit</button>
+                        <button class="action-btn rollback" onclick="rollback('dep-001')">Rollback</button>
+                    </div>
+                </div>
+
+                <div class="deployment-card">
+                    <div class="status-indicator status-building"></div>
+                    <div class="deployment-info">
+                        <h3>my-app-preview</h3>
+                        <p>prismcode-app-git-feature-xyz.vercel.app</p>
+                    </div>
+                    <div class="deployment-meta">
+                        <span>🌿 feature/xyz</span>
+                        <span>⏱️ Building...</span>
+                        <span>📦 Next.js</span>
+                    </div>
+                    <div class="action-btns">
+                        <button class="action-btn" disabled>Visit</button>
+                        <button class="action-btn">Cancel</button>
+                    </div>
+                </div>
+
+                <div class="deployment-card">
+                    <div class="status-indicator status-ready"></div>
+                    <div class="deployment-info">
+                        <h3>api-server</h3>
+                        <p>api.prismcode.dev</p>
+                    </div>
+                    <div class="deployment-meta">
+                        <span>🌿 main</span>
+                        <span>⏱️ 1h ago</span>
+                        <span>📦 Node.js</span>
+                    </div>
+                    <div class="action-btns">
+                        <button class="action-btn">Visit</button>
+                        <button class="action-btn rollback" onclick="rollback('dep-002')">Rollback</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="checkpoint-panel">
+                <div class="checkpoint-header">
+                    <h2>💾 Checkpoints & Rollback</h2>
+                    <button class="action-btn" onclick="createCheckpoint()">+ Create Checkpoint</button>
+                </div>
+                <div class="checkpoint-list" id="checkpoints">
+                    <div class="checkpoint-item">
+                        <div>
+                            <strong>v1.2.3 - Production Release</strong>
+                            <div class="checkpoint-time">Dec 31, 2025 • 2:00 PM</div>
+                        </div>
+                        <button class="restore-btn" onclick="restoreCheckpoint('cp-001')">Restore</button>
+                    </div>
+                    <div class="checkpoint-item">
+                        <div>
+                            <strong>v1.2.2 - Bug fixes</strong>
+                            <div class="checkpoint-time">Dec 30, 2025 • 4:30 PM</div>
+                        </div>
+                        <button class="restore-btn" onclick="restoreCheckpoint('cp-002')">Restore</button>
+                    </div>
+                    <div class="checkpoint-item">
+                        <div>
+                            <strong>v1.2.1 - Feature update</strong>
+                            <div class="checkpoint-time">Dec 29, 2025 • 11:00 AM</div>
+                        </div>
+                        <button class="restore-btn" onclick="restoreCheckpoint('cp-003')">Restore</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div class="modal" id="deployModal">
+        <div class="modal-content">
+            <h2>⚡ New Deployment</h2>
+            <div class="form-group">
+                <label>Project</label>
+                <select>
+                    <option>my-app-production</option>
+                    <option>api-server</option>
+                    <option>docs-site</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Git Branch</label>
+                <input type="text" placeholder="main" value="main">
+            </div>
+            <div class="form-group">
+                <label>Target Environment</label>
+                <select>
+                    <option>Production</option>
+                    <option>Preview</option>
+                </select>
+            </div>
+            <div class="progress-bar" id="deployProgress" style="display: none;">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-cancel" onclick="closeDeployModal()">Cancel</button>
+                <button class="deploy-btn" onclick="startDeploy()">Deploy</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openDeployModal() {
+            document.getElementById('deployModal').classList.add('active');
+        }
+
+        function closeDeployModal() {
+            document.getElementById('deployModal').classList.remove('active');
+            document.getElementById('deployProgress').style.display = 'none';
+            document.getElementById('progressFill').style.width = '0%';
+        }
+
+        function startDeploy() {
+            const progress = document.getElementById('deployProgress');
+            const fill = document.getElementById('progressFill');
+            progress.style.display = 'block';
+            
+            let width = 0;
+            const interval = setInterval(() => {
+                width += Math.random() * 20;
+                if (width >= 100) {
+                    width = 100;
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        closeDeployModal();
+                        addNewDeployment();
+                    }, 500);
+                }
+                fill.style.width = width + '%';
+            }, 300);
+        }
+
+        function addNewDeployment() {
+            const grid = document.getElementById('deployments');
+            const newCard = document.createElement('div');
+            newCard.className = 'deployment-card';
+            newCard.innerHTML = `
+                <div class="status-indicator status-building"></div>
+                <div class="deployment-info">
+                    <h3>my-app-production</h3>
+                    <p>prismcode-app.vercel.app</p>
+                </div>
+                <div class="deployment-meta">
+                    <span>🌿 main</span>
+                    <span>⏱️ Just now</span>
+                    <span>📦 Next.js</span>
+                </div>
+                <div class="action-btns">
+                    <button class="action-btn" disabled>Visit</button>
+                    <button class="action-btn">Cancel</button>
+                </div>
+            `;
+            grid.insertBefore(newCard, grid.firstChild);
+            
+            setTimeout(() => {
+                newCard.querySelector('.status-indicator').className = 'status-indicator status-ready';
+                newCard.querySelector('.action-btn').disabled = false;
+            }, 3000);
+        }
+
+        function rollback(deploymentId) {
+            if (confirm('Are you sure you want to rollback this deployment?')) {
+                alert('Rollback initiated for ' + deploymentId);
+            }
+        }
+
+        function restoreCheckpoint(checkpointId) {
+            if (confirm('Restore to this checkpoint? Current changes will be saved.')) {
+                alert('Restoring checkpoint ' + checkpointId + '...');
+            }
+        }
+
+        function createCheckpoint() {
+            const name = prompt('Enter checkpoint name:');
+            if (name) {
+                const list = document.getElementById('checkpoints');
+                const item = document.createElement('div');
+                item.className = 'checkpoint-item';
+                item.innerHTML = `
+                    <div>
+                        <strong>${name}</strong>
+                        <div class="checkpoint-time">Just now</div>
+                    </div>
+                    <button class="restore-btn" onclick="restoreCheckpoint('cp-new')">Restore</button>
+                `;
+                list.insertBefore(item, list.firstChild);
+            }
+        }
+    </script>
+</body>
+</html>
