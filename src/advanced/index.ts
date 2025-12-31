@@ -245,6 +245,17 @@ export type {
   RefactoringConfig,
 } from './refactoring-pr';
 
+// License Compliance Scanner (#211)
+export { LicenseScanner, licenseScanner } from './license-scanner';
+export type {
+  SBOMEntry,
+  SBOM,
+  LicensePolicy,
+  LicenseViolation,
+  CopyleftFlag,
+  CompatibilityResult,
+} from './license-scanner';
+
 // ============================================
 // Phase 4-5: Autonomous Task & Code Intelligence
 // ============================================
