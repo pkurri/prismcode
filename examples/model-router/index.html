@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Model Router | Prismcode</title>
+    <style>
+        :root { --bg: #0c1222; --card: #131c31; --cyan: #06b6d4; --purple: #a855f7; --green: #22c55e; --yellow: #eab308; --text: #fff; --muted: #64748b; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: system-ui, sans-serif; background: var(--bg); min-height: 100vh; color: var(--text); padding: 2rem; }
+        .container { max-width: 1200px; margin: 0 auto; }
+        header { text-align: center; margin-bottom: 2rem; }
+        h1 { font-size: 2rem; background: linear-gradient(135deg, var(--cyan), var(--purple)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 0.5rem; }
+        .subtitle { color: var(--muted); }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem; }
+        .panel { background: var(--card); border-radius: 1rem; padding: 1.5rem; border: 1px solid #1e3a5f; }
+        .panel-title { font-weight: 600; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+        .task-input { width: 100%; padding: 1rem; background: rgba(0,0,0,0.3); border: 1px solid #1e3a5f; border-radius: 0.5rem; color: var(--text); font-size: 1rem; margin-bottom: 1rem; resize: vertical; min-height: 100px; }
+        .task-input:focus { outline: none; border-color: var(--cyan); }
+        .route-btn { width: 100%; padding: 1rem; background: linear-gradient(135deg, var(--cyan), var(--purple)); border: none; border-radius: 0.5rem; color: white; font-weight: 600; cursor: pointer; }
+        .route-btn:hover { transform: scale(1.02); }
+        .model-card { padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 0.75rem; margin-bottom: 0.75rem; border: 2px solid transparent; cursor: pointer; transition: all 0.2s; }
+        .model-card:hover { border-color: var(--cyan); }
+        .model-card.selected { border-color: var(--green); background: rgba(34,197,94,0.1); }
+        .model-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
+        .model-name { font-weight: 600; }
+        .model-badge { padding: 0.2rem 0.5rem; border-radius: 0.3rem; font-size: 0.7rem; font-weight: 600; }
+        .badge-fast { background: rgba(6,182,212,0.2); color: var(--cyan); }
+        .badge-smart { background: rgba(168,85,247,0.2); color: var(--purple); }
+        .badge-cheap { background: rgba(34,197,94,0.2); color: var(--green); }
+        .model-stats { display: flex; gap: 1rem; font-size: 0.8rem; color: var(--muted); }
+        .cost-panel { background: linear-gradient(135deg, rgba(6,182,212,0.1), rgba(168,85,247,0.1)); border: 1px solid rgba(6,182,212,0.3); }
+        .cost-row { display: flex; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .cost-row:last-child { border: none; font-weight: 600; font-size: 1.1rem; }
+        .bar-chart { display: flex; align-items: flex-end; height: 120px; gap: 0.5rem; padding: 1rem 0; }
+        .bar { flex: 1; border-radius: 4px 4px 0 0; transition: height 0.5s; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; }
+        .bar span { font-size: 0.7rem; color: var(--muted); margin-top: 0.5rem; }
+        .routing-viz { padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 0.5rem; margin-top: 1rem; }
+        .route-path { display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; }
+        .route-arrow { color: var(--cyan); }
+        .rate-limit { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; background: rgba(234,179,8,0.1); border: 1px solid rgba(234,179,8,0.3); border-radius: 0.5rem; margin-top: 1rem; }
+        .rate-bar { width: 100px; height: 8px; background: #1e3a5f; border-radius: 4px; overflow: hidden; }
+        .rate-fill { height: 100%; background: var(--yellow); transition: width 0.3s; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🤖 AI Model Router</h1>
+            <p class="subtitle">Smart routing to optimal AI models based on task, cost, and performance</p>
+        </header>
+        <div class="grid">
+            <div class="panel">
+                <div class="panel-title">📝 Task Input</div>
+                <textarea class="task-input" id="taskInput" placeholder="Describe your task...">Generate a complex SQL query with multiple joins and aggregations to analyze user behavior patterns over the last 30 days.</textarea>
+                <button class="route-btn" onclick="route()">⚡ Route Task</button>
+                <div class="routing-viz" id="routeResult" style="display: none;">
+                    <div class="route-path">
+                        <span>📝 Task</span>
+                        <span class="route-arrow">→</span>
+                        <span>🧠 Analyzer</span>
+                        <span class="route-arrow">→</span>
+                        <span id="selectedModel">GPT-4</span>
+                        <span class="route-arrow">→</span>
+                        <span style="color: var(--green)">✓ Complete</span>
+                    </div>
+                </div>
+            </div>
+            <div class="panel">
+                <div class="panel-title">🎯 Available Models</div>
+                <div id="models">
+                    <div class="model-card" onclick="selectModel(this, 'GPT-4')">
+                        <div class="model-header"><span class="model-name">GPT-4 Turbo</span><span class="model-badge badge-smart">Best Quality</span></div>
+                        <div class="model-stats"><span>💰 $0.03/1K</span><span>⚡ 800ms</span><span>🎯 95%</span></div>
+                    </div>
+                    <div class="model-card" onclick="selectModel(this, 'Claude-3')">
+                        <div class="model-header"><span class="model-name">Claude 3 Opus</span><span class="model-badge badge-smart">Reasoning</span></div>
+                        <div class="model-stats"><span>💰 $0.015/1K</span><span>⚡ 600ms</span><span>🎯 92%</span></div>
+                    </div>
+                    <div class="model-card" onclick="selectModel(this, 'GPT-3.5')">
+                        <div class="model-header"><span class="model-name">GPT-3.5 Turbo</span><span class="model-badge badge-fast">Fast</span></div>
+                        <div class="model-stats"><span>💰 $0.002/1K</span><span>⚡ 200ms</span><span>🎯 85%</span></div>
+                    </div>
+                    <div class="model-card" onclick="selectModel(this, 'Gemini')">
+                        <div class="model-header"><span class="model-name">Gemini Pro</span><span class="model-badge badge-cheap">Cost-Effective</span></div>
+                        <div class="model-stats"><span>💰 $0.001/1K</span><span>⚡ 300ms</span><span>🎯 88%</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="grid">
+            <div class="panel cost-panel">
+                <div class="panel-title">💰 Cost Tracking</div>
+                <div class="cost-row"><span>Today's Usage</span><span>$12.45</span></div>
+                <div class="cost-row"><span>This Week</span><span>$67.80</span></div>
+                <div class="cost-row"><span>This Month</span><span>$234.50</span></div>
+                <div class="cost-row"><span>Budget Remaining</span><span style="color: var(--green)">$765.50</span></div>
+            </div>
+            <div class="panel">
+                <div class="panel-title">📊 Request Distribution</div>
+                <div class="bar-chart">
+                    <div class="bar" style="height: 80%; background: var(--purple);"><span>GPT-4</span></div>
+                    <div class="bar" style="height: 60%; background: var(--cyan);"><span>Claude</span></div>
+                    <div class="bar" style="height: 100%; background: var(--green);"><span>3.5</span></div>
+                    <div class="bar" style="height: 40%; background: var(--yellow);"><span>Gemini</span></div>
+                </div>
+                <div class="rate-limit">
+                    <span>⚠️ Rate Limit: 450/500 requests</span>
+                    <div class="rate-bar"><div class="rate-fill" style="width: 90%"></div></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        function selectModel(el, name) {
+            document.querySelectorAll('.model-card').forEach(c => c.classList.remove('selected'));
+            el.classList.add('selected');
+        }
+        function route() {
+            const result = document.getElementById('routeResult');
+            result.style.display = 'none';
+            setTimeout(() => {
+                const models = ['GPT-4', 'Claude-3', 'GPT-3.5', 'Gemini'];
+                const selected = models[Math.floor(Math.random() * 2)];
+                document.getElementById('selectedModel').textContent = selected;
+                document.querySelectorAll('.model-card')[models.indexOf(selected)].classList.add('selected');
+                result.style.display = 'block';
+            }, 500);
+        }
+    </script>
+</body>
+</html>

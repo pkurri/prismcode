@@ -1,0 +1,499 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Security Scanner Dashboard | Prismcode</title>
+    <style>
+      :root {
+        --bg-primary: #0f0f23;
+        --bg-secondary: #1a1a2e;
+        --bg-card: #16213e;
+        --accent-red: #ff6b6b;
+        --accent-orange: #ffa502;
+        --accent-yellow: #ffd43b;
+        --accent-green: #51cf66;
+        --accent-blue: #4dabf7;
+        --accent-purple: #9775fa;
+        --text-primary: #ffffff;
+        --text-secondary: #a0aec0;
+        --border-color: rgba(255, 255, 255, 0.1);
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family:
+          'Inter',
+          -apple-system,
+          BlinkMacSystemFont,
+          'Segoe UI',
+          sans-serif;
+        background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 100%);
+        min-height: 100vh;
+        color: var(--text-primary);
+        padding: 2rem;
+      }
+      .container {
+        max-width: 1400px;
+        margin: 0 auto;
+      }
+      header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid var(--border-color);
+      }
+      h1 {
+        font-size: 1.75rem;
+        background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+      .status-badge {
+        padding: 0.5rem 1rem;
+        border-radius: 2rem;
+        font-size: 0.85rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+      .status-protected {
+        background: rgba(81, 207, 102, 0.15);
+        color: var(--accent-green);
+        border: 1px solid rgba(81, 207, 102, 0.3);
+      }
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+      }
+      .stat-card {
+        background: var(--bg-card);
+        border-radius: 1rem;
+        padding: 1.5rem;
+        border: 1px solid var(--border-color);
+        transition:
+          transform 0.3s ease,
+          box-shadow 0.3s ease;
+      }
+      .stat-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+      }
+      .stat-card h3 {
+        color: var(--text-secondary);
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 0.5rem;
+      }
+      .stat-value {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+      }
+      .stat-change {
+        font-size: 0.85rem;
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+      }
+      .stat-change.positive {
+        color: var(--accent-green);
+      }
+      .stat-change.negative {
+        color: var(--accent-red);
+      }
+      .main-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 1.5rem;
+      }
+      .card {
+        background: var(--bg-card);
+        border-radius: 1rem;
+        padding: 1.5rem;
+        border: 1px solid var(--border-color);
+      }
+      .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+      }
+      .card-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+      }
+      .vulnerabilities-list {
+        list-style: none;
+      }
+      .vuln-item {
+        display: flex;
+        align-items: center;
+        padding: 1rem;
+        border-radius: 0.75rem;
+        margin-bottom: 0.75rem;
+        background: rgba(0, 0, 0, 0.2);
+        transition: background 0.2s ease;
+      }
+      .vuln-item:hover {
+        background: rgba(0, 0, 0, 0.3);
+      }
+      .severity-badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 0.5rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        margin-right: 1rem;
+        min-width: 70px;
+        text-align: center;
+      }
+      .severity-critical {
+        background: rgba(255, 107, 107, 0.2);
+        color: var(--accent-red);
+      }
+      .severity-high {
+        background: rgba(255, 165, 2, 0.2);
+        color: var(--accent-orange);
+      }
+      .severity-medium {
+        background: rgba(255, 212, 59, 0.2);
+        color: var(--accent-yellow);
+      }
+      .severity-low {
+        background: rgba(77, 171, 247, 0.2);
+        color: var(--accent-blue);
+      }
+      .vuln-details {
+        flex: 1;
+      }
+      .vuln-title {
+        font-weight: 500;
+        margin-bottom: 0.25rem;
+      }
+      .vuln-package {
+        color: var(--text-secondary);
+        font-size: 0.85rem;
+      }
+      .fix-btn {
+        padding: 0.5rem 1rem;
+        background: linear-gradient(135deg, var(--accent-purple), var(--accent-blue));
+        border: none;
+        border-radius: 0.5rem;
+        color: white;
+        font-weight: 500;
+        cursor: pointer;
+        transition:
+          transform 0.2s ease,
+          box-shadow 0.2s ease;
+      }
+      .fix-btn:hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 15px rgba(151, 117, 250, 0.4);
+      }
+      .chart-container {
+        height: 200px;
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-around;
+        padding: 1rem 0;
+      }
+      .chart-bar {
+        width: 40px;
+        border-radius: 0.5rem 0.5rem 0 0;
+        transition: height 0.5s ease;
+        position: relative;
+      }
+      .chart-bar::after {
+        content: attr(data-value);
+        position: absolute;
+        top: -25px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 0.75rem;
+        font-weight: 600;
+      }
+      .chart-label {
+        text-align: center;
+        margin-top: 1rem;
+        font-size: 0.75rem;
+        color: var(--text-secondary);
+      }
+      .compliance-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem;
+        border-radius: 0.75rem;
+        background: rgba(0, 0, 0, 0.2);
+        margin-bottom: 0.75rem;
+      }
+      .compliance-status {
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+      }
+      .compliance-pass {
+        background: var(--accent-green);
+        box-shadow: 0 0 10px var(--accent-green);
+      }
+      .compliance-fail {
+        background: var(--accent-red);
+        box-shadow: 0 0 10px var(--accent-red);
+      }
+      .scan-btn {
+        width: 100%;
+        padding: 1rem;
+        background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+        border: none;
+        border-radius: 0.75rem;
+        color: white;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        transition:
+          transform 0.2s ease,
+          box-shadow 0.2s ease;
+        margin-top: 1rem;
+      }
+      .scan-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(77, 171, 247, 0.3);
+      }
+      .pii-alert {
+        background: linear-gradient(135deg, rgba(255, 107, 107, 0.1), rgba(255, 165, 2, 0.1));
+        border: 1px solid rgba(255, 107, 107, 0.3);
+        border-radius: 0.75rem;
+        padding: 1rem;
+        margin-top: 1rem;
+      }
+      .pii-alert h4 {
+        color: var(--accent-orange);
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.5;
+        }
+      }
+      .scanning {
+        animation: pulse 1s infinite;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>🛡️ Security Scanner Dashboard</h1>
+        <div class="status-badge status-protected">
+          <span class="compliance-status compliance-pass"></span>
+          Protected
+        </div>
+      </header>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <h3>Total Vulnerabilities</h3>
+          <div class="stat-value" id="total-vulns">12</div>
+          <div class="stat-change negative">↑ 3 from last scan</div>
+        </div>
+        <div class="stat-card">
+          <h3>Critical Issues</h3>
+          <div class="stat-value" style="color: var(--accent-red)" id="critical-count">2</div>
+          <div class="stat-change positive">↓ 1 fixed</div>
+        </div>
+        <div class="stat-card">
+          <h3>License Violations</h3>
+          <div class="stat-value" style="color: var(--accent-orange)" id="license-count">1</div>
+          <div class="stat-change">GPL-3.0 detected</div>
+        </div>
+        <div class="stat-card">
+          <h3>PII Findings</h3>
+          <div class="stat-value" style="color: var(--accent-yellow)" id="pii-count">3</div>
+          <div class="stat-change">Emails, API keys</div>
+        </div>
+      </div>
+
+      <div class="main-grid">
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">🔍 Vulnerability Scanner (Snyk)</h2>
+            <button class="fix-btn" onclick="autoFix()">Auto-Fix All</button>
+          </div>
+          <ul class="vulnerabilities-list" id="vuln-list">
+            <li class="vuln-item">
+              <span class="severity-badge severity-critical">Critical</span>
+              <div class="vuln-details">
+                <div class="vuln-title">Prototype Pollution in lodash</div>
+                <div class="vuln-package">lodash@4.17.15 → Fix: 4.17.21</div>
+              </div>
+              <button class="fix-btn">Fix</button>
+            </li>
+            <li class="vuln-item">
+              <span class="severity-badge severity-critical">Critical</span>
+              <div class="vuln-details">
+                <div class="vuln-title">Remote Code Execution in node-fetch</div>
+                <div class="vuln-package">node-fetch@2.6.0 → Fix: 2.6.7</div>
+              </div>
+              <button class="fix-btn">Fix</button>
+            </li>
+            <li class="vuln-item">
+              <span class="severity-badge severity-high">High</span>
+              <div class="vuln-details">
+                <div class="vuln-title">Regular Expression DoS</div>
+                <div class="vuln-package">axios@0.21.0 → Fix: 0.21.4</div>
+              </div>
+              <button class="fix-btn">Fix</button>
+            </li>
+            <li class="vuln-item">
+              <span class="severity-badge severity-medium">Medium</span>
+              <div class="vuln-details">
+                <div class="vuln-title">Information Exposure</div>
+                <div class="vuln-package">express@4.17.1 → Fix: 4.18.2</div>
+              </div>
+              <button class="fix-btn">Fix</button>
+            </li>
+          </ul>
+          <button class="scan-btn" onclick="runScan()">🔄 Run Full Security Scan</button>
+        </div>
+
+        <div>
+          <div class="card" style="margin-bottom: 1.5rem">
+            <div class="card-header">
+              <h2 class="card-title">📊 SonarQube Quality Gate</h2>
+            </div>
+            <div class="chart-container">
+              <div>
+                <div
+                  class="chart-bar"
+                  style="height: 60px; background: var(--accent-red)"
+                  data-value="2"
+                ></div>
+                <div class="chart-label">Bugs</div>
+              </div>
+              <div>
+                <div
+                  class="chart-bar"
+                  style="height: 120px; background: var(--accent-orange)"
+                  data-value="8"
+                ></div>
+                <div class="chart-label">Smells</div>
+              </div>
+              <div>
+                <div
+                  class="chart-bar"
+                  style="height: 40px; background: var(--accent-yellow)"
+                  data-value="1"
+                ></div>
+                <div class="chart-label">Vulnerabilities</div>
+              </div>
+              <div>
+                <div
+                  class="chart-bar"
+                  style="height: 160px; background: var(--accent-green)"
+                  data-value="87%"
+                ></div>
+                <div class="chart-label">Coverage</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h2 class="card-title">📜 License Compliance</h2>
+            </div>
+            <div class="compliance-item">
+              <span>MIT License</span>
+              <span class="compliance-status compliance-pass"></span>
+            </div>
+            <div class="compliance-item">
+              <span>Apache-2.0</span>
+              <span class="compliance-status compliance-pass"></span>
+            </div>
+            <div class="compliance-item">
+              <span>GPL-3.0</span>
+              <span class="compliance-status compliance-fail"></span>
+            </div>
+            <div class="compliance-item">
+              <span>BSD-3-Clause</span>
+              <span class="compliance-status compliance-pass"></span>
+            </div>
+
+            <div class="pii-alert">
+              <h4>⚠️ PII Detected</h4>
+              <p style="color: var(--text-secondary); font-size: 0.9rem">
+                3 potential PII exposures found: 2 email addresses, 1 API key in config.js
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function runScan() {
+        const btn = document.querySelector('.scan-btn');
+        btn.innerHTML = '🔄 Scanning...';
+        btn.classList.add('scanning');
+
+        setTimeout(() => {
+          btn.innerHTML = '✅ Scan Complete!';
+          btn.classList.remove('scanning');
+          document.getElementById('total-vulns').textContent = '10';
+
+          setTimeout(() => {
+            btn.innerHTML = '🔄 Run Full Security Scan';
+          }, 2000);
+        }, 2000);
+      }
+
+      function autoFix() {
+        const items = document.querySelectorAll('.vuln-item');
+        items.forEach((item, index) => {
+          setTimeout(() => {
+            item.style.opacity = '0.5';
+            item.style.textDecoration = 'line-through';
+          }, index * 500);
+        });
+
+        setTimeout(() => {
+          document.getElementById('total-vulns').textContent = '0';
+          document.getElementById('critical-count').textContent = '0';
+        }, items.length * 500);
+      }
+
+      // Animate stats on load
+      document.addEventListener('DOMContentLoaded', () => {
+        const statCards = document.querySelectorAll('.stat-card');
+        statCards.forEach((card, index) => {
+          card.style.opacity = '0';
+          card.style.transform = 'translateY(20px)';
+          setTimeout(() => {
+            card.style.transition = 'all 0.5s ease';
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+          }, index * 100);
+        });
+      });
+    </script>
+  </body>
+</html>

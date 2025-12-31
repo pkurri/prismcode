@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Quality Analyzer | Prismcode</title>
+    <style>
+        :root {
+            --bg-primary: #1a1b26;
+            --bg-secondary: #24283b;
+            --bg-card: #1f2335;
+            --accent-green: #9ece6a;
+            --accent-yellow: #e0af68;
+            --accent-orange: #ff9e64;
+            --accent-red: #f7768e;
+            --accent-blue: #7aa2f7;
+            --accent-purple: #bb9af7;
+            --accent-cyan: #7dcfff;
+            --text-primary: #c0caf5;
+            --text-secondary: #565f89;
+            --border-color: #3b4261;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'JetBrains Mono', 'Fira Code', monospace;
+            background: var(--bg-primary);
+            min-height: 100vh;
+            color: var(--text-primary);
+            padding: 2rem;
+        }
+        .container { max-width: 1400px; margin: 0 auto; }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        h1 {
+            font-size: 1.5rem;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .analyze-btn {
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            border: none;
+            border-radius: 0.5rem;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .analyze-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(122, 162, 247, 0.3);
+        }
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 1.5rem;
+        }
+        .editor-panel {
+            background: var(--bg-secondary);
+            border-radius: 1rem;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+        .editor-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            background: var(--bg-card);
+            border-bottom: 1px solid var(--border-color);
+        }
+        .file-tabs { display: flex; gap: 0.5rem; }
+        .file-tab {
+            padding: 0.4rem 0.8rem;
+            border-radius: 0.4rem;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .file-tab:hover { background: rgba(255,255,255,0.05); }
+        .file-tab.active {
+            background: var(--bg-primary);
+            color: var(--accent-blue);
+        }
+        .editor-content {
+            padding: 1rem;
+            min-height: 400px;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+        .code-area {
+            width: 100%;
+            min-height: 400px;
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            resize: none;
+            outline: none;
+        }
+        .metrics-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .metric-card {
+            background: var(--bg-secondary);
+            border-radius: 0.75rem;
+            padding: 1.25rem;
+            border: 1px solid var(--border-color);
+        }
+        .metric-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        .metric-title {
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+        .metric-value {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+        .metric-bar {
+            height: 8px;
+            background: var(--bg-card);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 0.75rem;
+        }
+        .metric-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+        .complexity-low { background: var(--accent-green); }
+        .complexity-medium { background: var(--accent-yellow); }
+        .complexity-high { background: var(--accent-orange); }
+        .complexity-critical { background: var(--accent-red); }
+        .suggestions-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        .suggestion-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            background: var(--bg-card);
+            border-radius: 0.5rem;
+            font-size: 0.85rem;
+            border-left: 3px solid var(--accent-blue);
+        }
+        .suggestion-icon { font-size: 1rem; }
+        .refactoring-card {
+            background: linear-gradient(135deg, rgba(122,162,247,0.1), rgba(187,154,247,0.1));
+            border: 1px solid rgba(122,162,247,0.3);
+        }
+        .refactor-action {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem;
+            background: var(--bg-card);
+            border-radius: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .refactor-btn {
+            padding: 0.4rem 0.8rem;
+            background: var(--accent-purple);
+            border: none;
+            border-radius: 0.4rem;
+            color: white;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        .refactor-btn:hover { opacity: 0.8; }
+        .chart-container {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-around;
+            height: 100px;
+            padding: 1rem 0;
+        }
+        .chart-item { text-align: center; }
+        .chart-bar {
+            width: 30px;
+            border-radius: 4px 4px 0 0;
+            margin-bottom: 0.5rem;
+            transition: height 0.5s ease;
+        }
+        .chart-label {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+        }
+        .score-ring {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        .grade-a { background: conic-gradient(var(--accent-green) 85%, var(--bg-card) 0); }
+        .grade-b { background: conic-gradient(var(--accent-yellow) 70%, var(--bg-card) 0); }
+        .grade-c { background: conic-gradient(var(--accent-orange) 50%, var(--bg-card) 0); }
+        .inner-ring {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--bg-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .audit-list {
+            max-height: 200px;
+            overflow-y: auto;
+            font-size: 0.8rem;
+        }
+        .audit-item {
+            padding: 0.5rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+        }
+        .audit-time { color: var(--text-secondary); }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📊 Code Quality Analyzer</h1>
+            <button class="analyze-btn" onclick="analyzeCode()">⚡ Analyze Code</button>
+        </header>
+
+        <div class="main-grid">
+            <div class="editor-panel">
+                <div class="editor-header">
+                    <div class="file-tabs">
+                        <div class="file-tab active">main.ts</div>
+                        <div class="file-tab">utils.ts</div>
+                        <div class="file-tab">api.ts</div>
+                    </div>
+                    <span style="color: var(--text-secondary); font-size: 0.8rem;">Lines: 45</span>
+                </div>
+                <div class="editor-content">
+                    <textarea class="code-area" id="codeInput">function processUserData(data: any) {
+  let result = [];
+  for (let i = 0; i < data.length; i++) {
+    for (let j = 0; j < data[i].items.length; j++) {
+      for (let k = 0; k < data[i].items[j].values.length; k++) {
+        if (data[i].items[j].values[k] !== null) {
+          if (data[i].items[j].values[k] !== undefined) {
+            if (typeof data[i].items[j].values[k] === 'string') {
+              result.push(data[i].items[j].values[k].trim());
+            } else if (typeof data[i].items[j].values[k] === 'number') {
+              result.push(data[i].items[j].values[k].toString());
+            }
+          }
+        }
+      }
+    }
+  }
+  return result;
+}
+
+function validateEmail(email) {
+  var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+  return re.test(email);
+}
+
+class UserManager {
+  users = [];
+  
+  addUser(user) {
+    this.users.push(user);
+  }
+  
+  getUser(id) {
+    for (var i = 0; i < this.users.length; i++) {
+      if (this.users[i].id == id) {
+        return this.users[i];
+      }
+    }
+    return null;
+  }
+}</textarea>
+                </div>
+            </div>
+
+            <div class="metrics-panel">
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <span class="metric-title">🎯 Cyclomatic Complexity</span>
+                        <div class="score-ring grade-c">
+                            <div class="inner-ring" id="complexityScore">12</div>
+                        </div>
+                    </div>
+                    <div class="metric-bar">
+                        <div class="metric-fill complexity-high" id="complexityBar" style="width: 60%"></div>
+                    </div>
+                    <p style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.5rem;">
+                        Target: &lt; 10 | Current: 12 (High)
+                    </p>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <span class="metric-title">📈 Code Metrics</span>
+                    </div>
+                    <div class="chart-container">
+                        <div class="chart-item">
+                            <div class="chart-bar" style="height: 70px; background: var(--accent-blue);" id="linesBar"></div>
+                            <div class="chart-label">Lines</div>
+                        </div>
+                        <div class="chart-item">
+                            <div class="chart-bar" style="height: 50px; background: var(--accent-purple);" id="funcsBar"></div>
+                            <div class="chart-label">Functions</div>
+                        </div>
+                        <div class="chart-item">
+                            <div class="chart-bar" style="height: 30px; background: var(--accent-cyan);" id="classesBar"></div>
+                            <div class="chart-label">Classes</div>
+                        </div>
+                        <div class="chart-item">
+                            <div class="chart-bar" style="height: 80px; background: var(--accent-orange);" id="nestingBar"></div>
+                            <div class="chart-label">Nesting</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="metric-card refactoring-card">
+                    <div class="metric-header">
+                        <span class="metric-title">🔧 Refactoring Suggestions</span>
+                    </div>
+                    <div class="refactor-action">
+                        <span>Extract nested loops to separate function</span>
+                        <button class="refactor-btn" onclick="applyRefactor('loops')">Apply</button>
+                    </div>
+                    <div class="refactor-action">
+                        <span>Use Array.find() instead of for loop</span>
+                        <button class="refactor-btn" onclick="applyRefactor('find')">Apply</button>
+                    </div>
+                    <div class="refactor-action">
+                        <span>Add TypeScript type annotations</span>
+                        <button class="refactor-btn" onclick="applyRefactor('types')">Apply</button>
+                    </div>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-header">
+                        <span class="metric-title">📋 Audit Log</span>
+                    </div>
+                    <div class="audit-list" id="auditLog">
+                        <div class="audit-item">
+                            <span>Analysis started</span>
+                            <span class="audit-time">2:15:30 PM</span>
+                        </div>
+                        <div class="audit-item">
+                            <span>Complexity check passed</span>
+                            <span class="audit-time">2:15:31 PM</span>
+                        </div>
+                        <div class="audit-item">
+                            <span>3 refactoring opportunities found</span>
+                            <span class="audit-time">2:15:32 PM</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function analyzeCode() {
+            const code = document.getElementById('codeInput').value;
+            const lines = code.split('\n').length;
+            const funcs = (code.match(/function\s/g) || []).length;
+            const classes = (code.match(/class\s/g) || []).length;
+            const nesting = Math.max(...(code.match(/^\s*/gm) || []).map(s => s.length / 2));
+            
+            // Animate metrics
+            document.getElementById('complexityScore').textContent = Math.floor(8 + Math.random() * 8);
+            document.getElementById('linesBar').style.height = Math.min(lines * 2, 100) + 'px';
+            document.getElementById('funcsBar').style.height = (funcs * 25) + 'px';
+            document.getElementById('classesBar').style.height = (classes * 30) + 'px';
+            document.getElementById('nestingBar').style.height = (nesting * 15) + 'px';
+
+            addAuditEntry('Code re-analyzed');
+        }
+
+        function applyRefactor(type) {
+            const codeArea = document.getElementById('codeInput');
+            let code = codeArea.value;
+            
+            if (type === 'find') {
+                code = code.replace(
+                    /for \(var i = 0; i < this\.users\.length; i\+\+\) \{\s*if \(this\.users\[i\]\.id == id\) \{\s*return this\.users\[i\];\s*\}\s*\}\s*return null;/,
+                    'return this.users.find(user => user.id === id) || null;'
+                );
+            }
+            
+            codeArea.value = code;
+            addAuditEntry('Applied refactoring: ' + type);
+        }
+
+        function addAuditEntry(message) {
+            const log = document.getElementById('auditLog');
+            const time = new Date().toLocaleTimeString();
+            const entry = document.createElement('div');
+            entry.className = 'audit-item';
+            entry.innerHTML = `<span>${message}</span><span class="audit-time">${time}</span>`;
+            log.insertBefore(entry, log.firstChild);
+        }
+    </script>
+</body>
+</html>
