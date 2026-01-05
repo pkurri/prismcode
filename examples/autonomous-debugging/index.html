@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Autonomous Debugging Agent | Prismcode</title>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --card: #1e293b;
+            --border: #334155;
+            --accent: #3b82f6;
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+            --success: #22c55e;
+            --danger: #ef4444;
+            --warning: #eab308;
+            --purple: #a855f7;
+            --code-bg: #0f172a;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        .header {
+            padding: 1rem 2rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--card);
+        }
+        .brand {
+            font-size: 1.25rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--purple);
+        }
+        .main-container {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            flex: 1;
+            overflow: hidden;
+        }
+        .code-panel {
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+        }
+        .panel-header {
+            padding: 0.75rem 1rem;
+            background: var(--card);
+            border-bottom: 1px solid var(--border);
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .code-editor {
+            flex: 1;
+            padding: 1.5rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            background: var(--code-bg);
+            color: var(--text-muted);
+            overflow: auto;
+            white-space: pre;
+        }
+        .line-highlight {
+            background: rgba(239, 68, 68, 0.15);
+            display: inline-block;
+            width: 100%;
+            border-left: 2px solid var(--danger);
+        }
+        .debug-panel {
+            background: var(--card);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .debug-content {
+            flex: 1;
+            padding: 1.5rem;
+            overflow-y: auto;
+        }
+        .stack-trace {
+            background: #0f172a;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            border: 1px solid var(--danger);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            color: var(--danger);
+            margin-bottom: 1.5rem;
+            white-space: pre-wrap;
+        }
+        .ai-analysis {
+            margin-bottom: 2rem;
+        }
+        .ai-message {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        .ai-avatar {
+            width: 32px;
+            height: 32px;
+            background: var(--purple);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+        }
+        .message-box {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 1rem;
+            border-radius: 0 0.75rem 0.75rem 0.75rem;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        .fix-card {
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid var(--success);
+            border-radius: 0.75rem;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+        .fix-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+        .fix-title {
+            font-weight: 600;
+            color: var(--success);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .fix-code {
+            background: #0f172a;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            margin-bottom: 0.75rem;
+        }
+        .btn {
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+        }
+        .btn-primary {
+            background: var(--success);
+            color: white;
+        }
+        .btn-primary:hover {
+            opacity: 0.9;
+        }
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text);
+        }
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        .confidence-badge {
+            font-size: 0.75rem;
+            background: var(--success);
+            color: white;
+            padding: 0.1rem 0.4rem;
+            border-radius: 1rem;
+        }
+        .typing-indicator span {
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            background: var(--text-muted);
+            border-radius: 50%;
+            margin: 0 2px;
+            animation: bounce 1.4s infinite ease-in-out;
+        }
+        .typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
+        .typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+        .step-list {
+            margin-top: 1rem;
+            list-style: none;
+        }
+        .step-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+            font-size: 0.85rem;
+            opacity: 0;
+            transform: translateX(-10px);
+            transition: all 0.3s;
+        }
+        .step-item.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        .step-check {
+            color: var(--success);
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="brand">
+            <span>🤖</span> Autonomous Debugging Agent
+        </div>
+        <button class="btn btn-secondary">History</button>
+    </header>
+
+    <div class="main-container">
+        <div class="code-panel">
+            <div class="panel-header">
+                <span>user-service/controllers/UserController.ts</span>
+                <span style="font-size: 0.8rem; color: var(--text-muted);">Last edited: 2 mins ago</span>
+            </div>
+            <div class="code-editor" id="codeEditor">import { Request, Response } from 'express';
+import { UserService } from '../services/UserService';
+import { Analytics } from '../utils/Analytics';
+
+export class UserController {
+  constructor(private userService: UserService) {}
+
+  async getUserProfile(req: Request, res: Response) {
+    try {
+      const userId = req.params.id;
+      const user = await this.userService.findById(userId);
+      
+<span class="line-highlight" id="errorLine">      // Bug: Accessing property of potentially null user
+      const userRank = user.stats.rank;</span>
+      
+      await Analytics.track('profile_view', { userId, rank: userRank });
+      
+      return res.json({
+        id: user.id,
+        name: user.name,
+        rank: userRank,
+        createdAt: user.createdAt
+      });
+    } catch (error) {
+      console.error('Error fetching profile:', error);
+      return res.status(500).json({ error: 'Internal Server Error' });
+    }
+  }
+}</div>
+        </div>
+
+        <div class="debug-panel">
+            <div class="panel-header">
+                <span>Agent Analysis</span>
+                <div class="confidence-badge">Confidence: 94%</div>
+            </div>
+            <div class="debug-content">
+                <div class="stack-trace">TypeError: Cannot read properties of null (reading 'stats')
+    at UserController.getUserProfile (/app/controllers/UserController.ts:14:27)
+    at Layer.handle [as handle_request] (/app/node_modules/express/lib/router/layer.js:95:5)
+    at next (/app/node_modules/express/lib/router/route.js:137:13)</div>
+
+                <div class="ai-analysis">
+                    <div class="ai-message">
+                        <div class="ai-avatar">🤖</div>
+                        <div class="message-box">
+                            <p>I've detected a critical <strong>TypeError</strong> in production.</p>
+                            <p style="margin-top: 0.5rem;">Root cause: The <code>user</code> object returned from <code>userService.findById(userId)</code> is null, but the code attempts to access <code>user.stats.rank</code> immediately.</p>
+                            
+                            <ul class="step-list" id="reasoningSteps">
+                                <li class="step-item"><span class="step-check">✓</span> Analyzed stack trace context</li>
+                                <li class="step-item"><span class="step-check">✓</span> Traced data flow from <code>req.params.id</code></li>
+                                <li class="step-item"><span class="step-check">✓</span> Identified missing null check for <code>user</code></li>
+                                <li class="step-item"><span class="step-check">✓</span> Validated against previous patterns</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="ai-message" id="fixContainer" style="display: none;">
+                        <div class="ai-avatar">🤖</div>
+                        <div style="flex: 1;">
+                            <div class="message-box">
+                                <p>I've generated a fix that handles the null case gracefully.</p>
+                            </div>
+                            <div class="fix-card">
+                                <div class="fix-header">
+                                    <div class="fix-title">⚡ Proposed Fix</div>
+                                </div>
+                                <div class="fix-code">
+      const user = await this.userService.findById(userId);
+      
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+
+      const userRank = user.stats?.rank || 'unranked';
+                                </div>
+                                <div style="display: flex; gap: 0.5rem;">
+                                    <button class="btn btn-primary" onclick="applyFix()">Apply Fix & Deploy</button>
+                                    <button class="btn btn-secondary">Edit</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="typing-indicator" id="typing" style="margin-left: 3rem; margin-top: 1rem;">
+                        <span></span><span></span><span></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Simulate Agent Thinking Process
+        document.addEventListener('DOMContentLoaded', () => {
+            const steps = document.querySelectorAll('.step-item');
+            const fixContainer = document.getElementById('fixContainer');
+            const typing = document.getElementById('typing');
+            
+            // Animate reasoning steps
+            steps.forEach((step, index) => {
+                setTimeout(() => {
+                    step.classList.add('show');
+                }, index * 800);
+            });
+
+            // Show fix proposal
+            setTimeout(() => {
+                typing.style.display = 'none';
+                fixContainer.style.display = 'flex';
+                fixContainer.style.opacity = '0';
+                fixContainer.style.transform = 'translateY(10px)';
+                fixContainer.style.transition = 'all 0.5s';
+                
+                requestAnimationFrame(() => {
+                    fixContainer.style.opacity = '1';
+                    fixContainer.style.transform = 'translateY(0)';
+                });
+            }, 3500);
+        });
+
+        function applyFix() {
+            const codeEditor = document.getElementById('codeEditor');
+            const errorLine = document.getElementById('errorLine');
+            const btn = document.querySelector('.btn-primary');
+            
+            btn.innerHTML = 'Applying Fix...';
+            btn.disabled = true;
+            
+            setTimeout(() => {
+                const originalCode = codeEditor.innerHTML;
+                const fixedSnippet = `<span style="color: var(--success);">      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+
+      // Safe access with optional chaining and default
+      const userRank = user.stats?.rank || 'unranked';</span>`;
+                
+                // Replace the error line logic (simplified for demo)
+                const newCode = originalCode.replace(
+                    /<span class="line-highlight" id="errorLine">[\s\S]*?<\/span>/, 
+                    fixedSnippet
+                );
+                
+                codeEditor.innerHTML = newCode;
+                btn.innerHTML = '✓ Fix Applied';
+                btn.style.background = '#059669';
+                
+                // Flash success
+                const container = document.querySelector('.code-panel');
+                container.style.boxShadow = 'inset 0 0 50px rgba(34, 197, 94, 0.1)';
+                setTimeout(() => {
+                    container.style.boxShadow = 'none';
+                }, 1000);
+            }, 1000);
+        }
+    </script>
+</body>
+</html>

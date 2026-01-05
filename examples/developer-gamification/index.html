@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Developer Gamification | Prismcode</title>
+    <style>
+        :root {
+            --bg: #0f1030; /* Deep purple/blue bg */
+            --card-bg: #1c1d42;
+            --primary: #6366f1;
+            --accent: #d946ef; /* Magenta */
+            --gold: #f59e0b;
+            --silver: #94a3b8;
+            --bronze: #78350f;
+            --text: #f8fafc;
+        }
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            margin: 0;
+            min-height: 100vh;
+        }
+        .header {
+            padding: 2rem;
+            text-align: center;
+            background: linear-gradient(180deg, rgba(99,102,241,0.2) 0%, rgba(15,16,48,0) 100%);
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 2rem;
+        }
+        .profile-card {
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+            border: 2px solid rgba(255,255,255,0.05);
+            position: relative;
+            overflow: hidden;
+        }
+        .profile-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 100px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            opacity: 0.3;
+        }
+        .avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: #333;
+            margin: 0 auto 1.5rem;
+            border: 4px solid var(--bg);
+            position: relative;
+            z-index: 1;
+            overflow: hidden;
+        }
+        .avatar img { width: 100%; height: 100%; object-fit: cover; }
+        .level-badge {
+            background: var(--gold);
+            color: black;
+            font-weight: 800;
+            padding: 0.25rem 1rem;
+            border-radius: 99px;
+            display: inline-block;
+            margin-bottom: 1rem;
+            box-shadow: 0 0 20px rgba(245, 158, 11, 0.4);
+        }
+        .progress-container {
+            background: rgba(255,255,255,0.1);
+            height: 10px;
+            border-radius: 5px;
+            margin: 1rem 0 0.5rem;
+            overflow: hidden;
+        }
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            width: 75%;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        .stat-item {
+            background: rgba(255,255,255,0.05);
+            padding: 1rem;
+            border-radius: 12px;
+        }
+        .stat-val { font-size: 1.5rem; font-weight: 700; color: var(--text); }
+        .stat-label { font-size: 0.8rem; color: #94a3b8; }
+        
+        .main-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .achievements-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 1rem;
+        }
+        .achievement-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 1rem;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.05);
+            transition: transform 0.2s;
+            cursor: pointer;
+        }
+        .achievement-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+        }
+        .achievement-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            display: inline-block;
+        }
+        .achievement-locked {
+            filter: grayscale(100%);
+            opacity: 0.5;
+        }
+        .achievement-name {
+            font-size: 0.85rem;
+            font-weight: 600;
+            line-height: 1.2;
+        }
+        
+        .leaderboard {
+            background: var(--card-bg);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+        .leaderboard-item {
+            display: flex;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            gap: 1rem;
+        }
+        .rank {
+            font-weight: 700;
+            font-size: 1.2rem;
+            width: 30px;
+        }
+        .rank-1 { color: var(--gold); }
+        .rank-2 { color: var(--silver); }
+        .rank-3 { color: var(--bronze); }
+        .user-info { flex: 1; display: flex; align-items: center; gap: 0.75rem; }
+        .user-avatar-sm { width: 32px; height: 32px; background: #555; border-radius: 50%; }
+        .points {
+            font-weight: 700;
+            color: var(--accent);
+        }
+        
+        .notification-toast {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: var(--card-bg);
+            border: 2px solid var(--gold);
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transform: translateY(200%);
+            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 100;
+        }
+        .toast-show { transform: translateY(0); }
+    </style>
+</head>
+<body>
+    <div class="notification-toast" id="toast">
+        <div style="font-size: 2rem;">🏆</div>
+        <div>
+            <div style="font-size: 0.8rem; text-transform: uppercase; color: var(--gold); font-weight: 700;">Achievement Unlocked</div>
+            <div style="font-weight: 600;">Clean Coder: 10 Bug-Free PRs</div>
+        </div>
+    </div>
+
+    <div class="container">
+        <aside class="profile-card">
+            <div class="avatar">
+                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="User">
+            </div>
+            <div class="level-badge">LEVEL 12</div>
+            <h2 style="margin: 0; font-size: 1.5rem;">Alex Coder</h2>
+            <div style="color: #94a3b8; font-size: 0.9rem;">Full Stack Developer</div>
+            
+            <div style="margin-top: 1.5rem; text-align: left;">
+                <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 0.25rem;">
+                    <span>XP Progress</span>
+                    <span>2,450 / 3,000</span>
+                </div>
+                <div class="progress-container">
+                    <div class="progress-bar" style="width: 81%;"></div>
+                </div>
+            </div>
+            
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-val">42</div>
+                    <div class="stat-label">Code Review Streak</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-val">98%</div>
+                    <div class="stat-label">Quality Score</div>
+                </div>
+            </div>
+        </aside>
+
+        <main class="main-panel">
+            <section>
+                <div class="section-title"><span>🏅</span> Recent Achievements</div>
+                <div class="achievements-grid">
+                    <div class="achievement-card">
+                        <div class="achievement-icon">🛡️</div>
+                        <div class="achievement-name">Security Guardian</div>
+                    </div>
+                    <div class="achievement-card">
+                        <div class="achievement-icon">⚡</div>
+                        <div class="achievement-name">Speed Demon</div>
+                    </div>
+                    <div class="achievement-card">
+                        <div class="achievement-icon">📝</div>
+                        <div class="achievement-name">Doc Master</div>
+                    </div>
+                    <div class="achievement-card">
+                        <div class="achievement-icon">🐛</div>
+                        <div class="achievement-name">Bug Hunter</div>
+                    </div>
+                    <div class="achievement-card achievement-locked">
+                        <div class="achievement-icon">👑</div>
+                        <div class="achievement-name">Team Legend</div>
+                    </div>
+                </div>
+            </section>
+
+            <section>
+                <div class="section-title">
+                    <span>📊</span> Weekly Team Leaderboard
+                    <span style="font-size: 0.8rem; margin-left: auto; color: #94a3b8; font-weight: 400;">Resets in 2 days</span>
+                </div>
+                <div class="leaderboard">
+                    <div class="leaderboard-item">
+                        <div class="rank rank-1">1</div>
+                        <div class="user-info">
+                            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah" class="user-avatar-sm">
+                            <span>Sarah Engineer</span>
+                        </div>
+                        <div class="points">1,250 XP</div>
+                    </div>
+                    <div class="leaderboard-item" style="background: rgba(99, 102, 241, 0.1);">
+                        <div class="rank rank-2">2</div>
+                        <div class="user-info">
+                            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" class="user-avatar-sm">
+                            <span>Alex Coder (You)</span>
+                        </div>
+                        <div class="points">980 XP</div>
+                    </div>
+                    <div class="leaderboard-item">
+                        <div class="rank rank-3">3</div>
+                        <div class="user-info">
+                            <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Mike" class="user-avatar-sm">
+                            <span>Mike DevOps</span>
+                        </div>
+                        <div class="points">850 XP</div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+    
+    <script>
+        // Demo: Show achievement unlock automatically
+        setTimeout(() => {
+            const toast = document.getElementById('toast');
+            toast.classList.add('toast-show');
+            
+            // Play sound (simulated)
+            console.log("Achievement Unlocked Sound!");
+            
+            setTimeout(() => {
+                toast.classList.remove('toast-show');
+            }, 4000);
+        }, 1500);
+    </script>
+</body>
+</html>
