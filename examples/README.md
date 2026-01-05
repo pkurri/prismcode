@@ -1,8 +1,18 @@
 # PrismCode Feature Examples
 
-This directory contains interactive demos of PrismCode's core and advanced features. open the `index.html` file in any directory to try out the interactive demo.
+This directory contains interactive demos of PrismCode's core and advanced features.
 
-## 🚀 New Differentiation Features (Phase 6)
+## 🚀 Quick Start
+
+Open the `index.html` file in any directory to try out the interactive demo.
+
+```bash
+cd examples
+npx http-server -p 8080
+# Open http://localhost:8080
+```
+
+## 🌟 New Differentiation Features (Phase 6)
 
 | Example                                                       | Description                                                                                  | Status   |
 | ------------------------------------------------------------- | -------------------------------------------------------------------------------------------- | -------- |
@@ -12,21 +22,21 @@ This directory contains interactive demos of PrismCode's core and advanced featu
 | **[Test Intelligence](./test-intelligence/index.html)**       | Smart test generation and flaky test detection/healing visualization.                        | ✅ Ready |
 | **[Gamification](./developer-gamification/index.html)**       | Developer engagement features: achievements, leaderboards, XP.                               | ✅ Ready |
 
-## 🛠️ Core Features
+## 🛠️ Core & Advanced Features
 
-| Example                                               | Description                                              |
-| ----------------------------------------------------- | -------------------------------------------------------- |
-| **[Code Analyzer](./code-analyzer/index.html)**       | Basic code metrics and refactoring suggestions.          |
-| **[Self Healing](./self-healing/index.html)**         | Automatic diagnosis and fix suggestions for code issues. |
-| **[Model Router](./model-router/index.html)**         | Intelligent routing to different AI models.              |
-| **[Security Scanner](./security-scanner/index.html)** | Vulnerability detection and reporting.                   |
-| **[Team Dashboard](./team-dashboard/index.html)**     | Overview of project stats and team activity.             |
+| Example                                                   | Description                                                          |
+| --------------------------------------------------------- | -------------------------------------------------------------------- |
+| **[Security Scanner](./security-scanner/index.html)**     | Vulnerability detection and reporting (Snyk, SonarQube integration). |
+| **[Deployment Manager](./deployment-manager/index.html)** | Vercel Integration, Checkpoints & Rollback.                          |
+| **[Project Hub](./project-hub/index.html)**               | Jira, Linear Integration, Task Decomposition.                        |
+| **[Code Analyzer](./code-analyzer/index.html)**           | Basic code metrics and refactoring suggestions.                      |
+| **[NL Search](./nl-search/index.html)**                   | Natural Language Query, Code Indexing, Embeddings.                   |
+| **[Text-to-UI](./text-to-ui/index.html)**                 | Text-to-UI Generation, Live Preview.                                 |
+| **[Team Dashboard](./team-dashboard/index.html)**         | Overview of project stats, team activity, and RBAC.                  |
+| **[Model Router](./model-router/index.html)**             | Intelligent routing to different AI models and cost tracking.        |
+| **[MCP Console](./mcp-console/index.html)**               | MCP Server, Tool Invocation, IDE Integration.                        |
+| **[Self Healing](./self-healing/index.html)**             | Automatic diagnosis and fix suggestions for code issues.             |
 
-## How to Run
+## 🎨 Technologies
 
-Since these are static HTML/JS demos, you can simply open the `index.html` file in your browser.
-
-```bash
-# Example
-open examples/autonomous-debugging/index.html
-```
+All examples are built with vanilla HTML, CSS, and JavaScript - no dependencies required!
