@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accessibility-First Agent | Prismcode</title>
+    <style>
+        :root {
+            --bg: #f8fafc;
+            --surface: #ffffff;
+            --primary: #4f46e5;
+            --secondary: #64748b;
+            --success: #22c55e;
+            --warning: #eab308;
+            --danger: #ef4444;
+            --text-main: #0f172a;
+            --text-sub: #475569;
+            --border: #e2e8f0;
+        }
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text-main);
+            margin: 0;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+        .sidebar {
+            width: 300px;
+            background: var(--surface);
+            border-right: 1px solid var(--border);
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        .logo {
+            font-weight: 800;
+            font-size: 1.25rem;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .main-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .preview-pane {
+            flex: 1;
+            background: #e5e5e5;
+            padding: 2rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+        .mock-browser {
+            background: white;
+            width: 100%;
+            max-width: 800px;
+            height: 100%;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .mock-url-bar {
+            background: #f1f5f9;
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            gap: 0.5rem;
+        }
+        .url-input {
+            background: white;
+            flex: 1;
+            border-radius: 4px;
+            border: 1px solid var(--border);
+            padding: 0.25rem 0.75rem;
+            font-size: 0.85rem;
+            color: var(--secondary);
+        }
+        .mock-body {
+            flex: 1;
+            padding: 2rem;
+            overflow-y: auto;
+        }
+        /* Intentionally inaccessible styles for demo */
+        .bad-button {
+            background: #efefef; /* Low contrast */
+            color: #ccc;
+            border: none;
+            padding: 10px 20px;
+            font-size: 14px;
+        }
+        .bad-image {
+            width: 100%;
+            height: 200px;
+            background: #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1rem;
+            color: #666;
+        }
+        .bad-input {
+            border: 1px solid #ddd;
+            padding: 5px;
+        }
+        
+        .a11y-panel {
+            height: 350px;
+            background: var(--surface);
+            border-top: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+        }
+        .panel-header {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .score-badge {
+            background: var(--danger);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 999px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            transition: all 0.5s ease;
+        }
+        .score-badge.good { background: var(--success); }
+        
+        .issues-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 0;
+            margin: 0;
+            list-style: none;
+        }
+        .issue-item {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            gap: 1rem;
+            transition: background 0.2s;
+        }
+        .issue-item:hover { background: #f8fafc; }
+        .issue-icon {
+            width: 24px;
+            height: 24px;
+            background: #fee2e2;
+            color: var(--danger);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .issue-content { flex: 1; }
+        .issue-title { font-weight: 600; font-size: 0.9rem; margin-bottom: 0.25rem; }
+        .issue-desc { font-size: 0.85rem; color: var(--text-sub); margin-bottom: 0.5rem; }
+        .fix-button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.4rem 0.8rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .fix-button:disabled {
+            background: var(--success);
+            cursor: default;
+        }
+        .scan-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(255,255,255,0.8);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+        .scan-line {
+            width: 100%;
+            height: 2px;
+            background: var(--primary);
+            position: absolute;
+            top: 0;
+            animation: scan 2s linear infinite;
+        }
+        @keyframes scan {
+            0% { top: 0; opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { top: 100%; opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="logo">
+            <span>♿</span> A11y Agent
+        </div>
+        <div>
+            <h3 style="font-size: 0.9rem; margin-bottom: 0.5rem;">Quick Stats</h3>
+            <div style="background: #f1f5f9; padding: 1rem; border-radius: 8px;">
+                <div style="font-size: 0.8rem; color: var(--secondary);">Total Issues</div>
+                <div style="font-size: 1.5rem; font-weight: 700;" id="totalIssues">3</div>
+            </div>
+        </div>
+        <div>
+            <h3 style="font-size: 0.9rem; margin-bottom: 0.5rem;">WCAG Compliance</h3>
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                <span style="background: #fee2e2; color: #991b1b; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem;">Perceivable ❌</span>
+                <span style="background: #fee2e2; color: #991b1b; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem;">Operable ❌</span>
+            </div>
+        </div>
+        <button onclick="runGlobalFix()" style="background: var(--primary); color: white; border: none; padding: 1rem; border-radius: 6px; font-weight: 600; cursor: pointer; margin-top: auto;">
+            ✨ Auto-Fix All Issues
+        </button>
+    </div>
+
+    <div class="main-content">
+        <div class="preview-pane">
+            <div class="mock-browser">
+                <div class="mock-url-bar">
+                    <div style="display: flex; gap: 4px;">
+                        <div style="width: 10px; height: 10px; border-radius: 50%; background: #ef4444;"></div>
+                        <div style="width: 10px; height: 10px; border-radius: 50%; background: #eab308;"></div>
+                        <div style="width: 10px; height: 10px; border-radius: 50%; background: #22c55e;"></div>
+                    </div>
+                    <div class="url-input">localhost:3000/product/123</div>
+                </div>
+                <div class="mock-body" id="domRoot">
+                    <h2 style="font-weight: 300; color: #ccc;">Product Details</h2>
+                    
+                    <div class="bad-image" id="heroImage">Product Image</div>
+                    
+                    <p style="color: #bbb; font-size: 10px;">This is a great product that solves many problems.</p>
+                    
+                    <div style="margin-top: 2rem;">
+                        <input type="text" class="bad-input" placeholder="Type email">
+                        <button class="bad-button" id="submitBtn">Submit</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="scan-overlay" id="scanOverlay">
+                <div style="background: white; padding: 2rem; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); text-align: center;">
+                    <div style="font-size: 2rem; margin-bottom: 1rem;">🤖</div>
+                    <h3>AI Remediation in Progress</h3>
+                    <p style="color: var(--secondary);">Generating alt tags, fixing contrast ratios...</p>
+                </div>
+                <div class="scan-line"></div>
+            </div>
+        </div>
+
+        <div class="a11y-panel">
+            <div class="panel-header">
+                <div style="font-weight: 600;">Accessibility Audit</div>
+                <div class="score-badge" id="scoreBadge">Score: 45/100</div>
+            </div>
+            <ul class="issues-list" id="issueList">
+                <li class="issue-item" id="issue1">
+                    <div class="issue-icon">1.1</div>
+                    <div class="issue-content">
+                        <div class="issue-title">Missing Alt Text</div>
+                        <div class="issue-desc">Image elements must have alternative text.</div>
+                        <div style="background: #f1f5f9; padding: 0.5rem; border-radius: 4px; font-family: monospace; font-size: 0.8rem; margin-bottom: 0.5rem;">
+                            &lt;div class="bad-image"&gt;...&lt;/div&gt;
+                        </div>
+                        <button class="fix-button" onclick="fixIssue(1)">
+                            <span>🤖 Generate Description</span>
+                        </button>
+                    </div>
+                </li>
+                <li class="issue-item" id="issue2">
+                    <div class="issue-icon">1.4</div>
+                    <div class="issue-content">
+                        <div class="issue-title">Low Contrast Ratio</div>
+                        <div class="issue-desc">Text has contrast ratio of 1.5:1. Required 4.5:1.</div>
+                        <button class="fix-button" onclick="fixIssue(2)">
+                            <span>🎨 Auto-Adjust Colors</span>
+                        </button>
+                    </div>
+                </li>
+                <li class="issue-item" id="issue3">
+                    <div class="issue-icon">3.3</div>
+                    <div class="issue-content">
+                        <div class="issue-title">Missing Form Label</div>
+                        <div class="issue-desc">Form input needs an associated label.</div>
+                        <button class="fix-button" onclick="fixIssue(3)">
+                            <span>🏷️ Add Label</span>
+                        </button>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        function fixIssue(id) {
+            const btn = event.currentTarget;
+            btn.innerHTML = '✨ Fixing...';
+            btn.disabled = true;
+
+            setTimeout(() => {
+                applyDomChange(id);
+                btn.innerHTML = '✓ Fixed';
+                btn.style.background = 'var(--success)';
+                
+                updateScore();
+            }, 800);
+        }
+
+        function applyDomChange(id) {
+            if (id === 1) {
+                // Fix Image
+                const img = document.getElementById('heroImage');
+                img.style.background = 'url("https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=500") center/cover';
+                img.innerHTML = '';
+                img.setAttribute('role', 'img');
+                img.setAttribute('aria-label', 'Sleek modern headphones on a wooden surface');
+            } else if (id === 2) {
+                // Fix Contrast
+                const h2 = document.querySelector('h2');
+                h2.style.color = '#1e293b';
+                h2.style.fontWeight = '700';
+                
+                const p = document.querySelector('p');
+                p.style.color = '#475569';
+                p.style.fontSize = '16px';
+                
+                const btn = document.getElementById('submitBtn');
+                btn.style.background = '#4f46e5';
+                btn.style.color = 'white';
+                btn.style.borderRadius = '4px';
+            } else if (id === 3) {
+                // Fix Label
+                const input = document.querySelector('.bad-input');
+                const label = document.createElement('label');
+                label.textContent = 'Email Address';
+                label.setAttribute('for', 'email-field');
+                label.style.display = 'block';
+                label.style.marginBottom = '0.25rem';
+                label.style.fontSize = '0.875rem';
+                label.style.fontWeight = '500';
+                
+                input.id = 'email-field';
+                input.parentNode.insertBefore(label, input);
+                input.style.padding = '0.5rem';
+                input.style.border = '1px solid #cbd5e1';
+                input.style.borderRadius = '4px';
+                input.style.width = '100%';
+                input.style.marginBottom = '1rem';
+            }
+        }
+
+        function updateScore() {
+            const total = 3;
+            const fixed = document.querySelectorAll('.fix-button:disabled').length;
+            const score = 45 + Math.round((fixed / total) * 55);
+            
+            const badge = document.getElementById('scoreBadge');
+            badge.textContent = `Score: ${score}/100`;
+            
+            if (score > 90) {
+                badge.classList.add('good');
+                document.getElementById('totalIssues').textContent = '0';
+            } else {
+                document.getElementById('totalIssues').textContent = (total - fixed).toString();
+            }
+        }
+
+        function runGlobalFix() {
+            document.getElementById('scanOverlay').style.display = 'flex';
+            
+            setTimeout(() => {
+                fixIssue(1);
+                setTimeout(() => fixIssue(2), 500);
+                setTimeout(() => fixIssue(3), 1000);
+                
+                setTimeout(() => {
+                    document.getElementById('scanOverlay').style.display = 'none';
+                }, 2000);
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
