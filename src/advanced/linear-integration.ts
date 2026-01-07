@@ -96,7 +96,7 @@ export class LinearIntegration {
 
     try {
       // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
       logger.info('Linear connection test successful');
       return true;
     } catch (error) {
@@ -108,8 +108,8 @@ export class LinearIntegration {
   /**
    * Fetch issues from Linear
    */
-  async fetchIssues(options?: { 
-    state?: string; 
+  async fetchIssues(options?: {
+    state?: string;
     project?: string;
     limit?: number;
   }): Promise<LinearIssue[]> {
@@ -121,7 +121,7 @@ export class LinearIntegration {
 
     // Simulate API call
     const issues = await this.mockFetchIssues(options?.limit || 50);
-    
+
     // Update cache
     for (const issue of issues) {
       this.issueCache.set(issue.id, issue);
@@ -212,7 +212,7 @@ export class LinearIntegration {
 
     issue.state = stateMap[stateType];
     issue.updatedAt = new Date();
-    
+
     this.issueCache.set(issueId, issue);
     logger.info('Updated issue state', { identifier: issue.identifier, state: stateType });
 
@@ -222,12 +222,14 @@ export class LinearIntegration {
   /**
    * Sync PrismCode GitHub issues to Linear
    */
-  syncFromGitHub(githubIssues: Array<{ 
-    title: string; 
-    body: string; 
-    labels: string[];
-    state: 'open' | 'closed';
-  }>): SyncResult {
+  syncFromGitHub(
+    githubIssues: Array<{
+      title: string;
+      body: string;
+      labels: string[];
+      state: 'open' | 'closed';
+    }>
+  ): SyncResult {
     if (!this.config?.syncEnabled) {
       logger.warn('Sync disabled');
       return { created: 0, updated: 0, errors: ['Sync disabled'], syncedAt: new Date() };
@@ -294,7 +296,7 @@ export class LinearIntegration {
   // Private helpers
 
   private async mockFetchIssues(limit: number): Promise<LinearIssue[]> {
-    await new Promise(resolve => setTimeout(resolve, 100));
+    await new Promise((resolve) => setTimeout(resolve, 100));
 
     const issues: LinearIssue[] = [];
     for (let i = 0; i < Math.min(limit, 5); i++) {

@@ -54,7 +54,15 @@ export interface CompatibilityResult {
 }
 
 // License categories
-const PERMISSIVE_LICENSES = ['MIT', 'Apache-2.0', 'BSD-2-Clause', 'BSD-3-Clause', 'ISC', 'Unlicense', 'CC0-1.0'];
+const PERMISSIVE_LICENSES = [
+  'MIT',
+  'Apache-2.0',
+  'BSD-2-Clause',
+  'BSD-3-Clause',
+  'ISC',
+  'Unlicense',
+  'CC0-1.0',
+];
 const COPYLEFT_LICENSES = ['GPL-2.0', 'GPL-3.0', 'LGPL-2.1', 'LGPL-3.0', 'MPL-2.0'];
 const NETWORK_COPYLEFT = ['AGPL-3.0'];
 
@@ -68,7 +76,7 @@ export class LicenseScanner {
     blockedLicenses: [...NETWORK_COPYLEFT],
     requireApproval: [...COPYLEFT_LICENSES],
   };
-  
+
   private projectLicense: string = 'MIT';
   private scanHistory: SBOM[] = [];
 
@@ -89,11 +97,11 @@ export class LicenseScanner {
     const entries: SBOMEntry[] = [];
 
     // Process dependencies
-    const deps: Record<string, string> = { 
-      ...packageJson.dependencies, 
-      ...packageJson.devDependencies 
+    const deps: Record<string, string> = {
+      ...packageJson.dependencies,
+      ...packageJson.devDependencies,
     };
-    
+
     for (const [name, version] of Object.entries(deps)) {
       const license = this.detectLicense(name, version);
       entries.push({
@@ -205,8 +213,10 @@ export class LicenseScanner {
       }
 
       // Check if license is allowed
-      if (this.policy.allowedLicenses.length > 0 && 
-          !this.policy.allowedLicenses.includes(entry.license)) {
+      if (
+        this.policy.allowedLicenses.length > 0 &&
+        !this.policy.allowedLicenses.includes(entry.license)
+      ) {
         violations.push({
           package: entry.name,
           version: entry.version,
@@ -263,7 +273,10 @@ export class LicenseScanner {
   /**
    * Get compatibility matrix
    */
-  getCompatibilityMatrix(): Record<string, Record<string, { compatible: boolean; notes?: string }>> {
+  getCompatibilityMatrix(): Record<
+    string,
+    Record<string, { compatible: boolean; notes?: string }>
+  > {
     const licenses = [...PERMISSIVE_LICENSES, ...COPYLEFT_LICENSES, ...NETWORK_COPYLEFT];
     const matrix: Record<string, Record<string, { compatible: boolean; notes?: string }>> = {};
 
@@ -286,7 +299,7 @@ export class LicenseScanner {
    */
   generateReport(entries: SBOMEntry[]): string {
     const licenseCount: Record<string, number> = {};
-    
+
     for (const entry of entries) {
       licenseCount[entry.license] = (licenseCount[entry.license] || 0) + 1;
     }
