@@ -238,3 +238,28 @@ export type {
 // Predictive Quality Intelligence (#256)
 export { PredictiveQuality, predictiveQuality } from './predictive-quality';
 export type { FileRisk, CommitAnalysis, ReleaseRisk } from './predictive-quality';
+
+// Live Code Session Sharing (#261)
+export { LiveSessionManager, liveSessionManager } from './live-session';
+export type {
+  SessionParticipant,
+  CursorPosition,
+  SelectionRange,
+  CodeChange as SessionCodeChange,
+  LiveSession,
+  SessionConfig,
+  SessionEvent,
+} from './live-session';
+
+// Team Knowledge Graph (#262)
+export { KnowledgeGraphManager, knowledgeGraphManager } from './knowledge-graph';
+export type {
+  KnowledgeNode,
+  KnowledgeEdge,
+  TeamMember as GraphTeamMember,
+  ExpertiseArea,
+  Contribution,
+  KnowledgeGraph,
+  KnowledgeQuery,
+  QueryResult,
+} from './knowledge-graph';
