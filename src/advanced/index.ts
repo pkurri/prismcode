@@ -212,3 +212,29 @@ export type {
   LeaderboardEntry,
   ShareCard,
 } from './achievements';
+
+// Green Code Sustainability Engine (#253)
+export { GreenCodeEngine, greenCodeEngine } from './green-code';
+export type {
+  CarbonMetrics,
+  ResourceUsage,
+  GreenSuggestion,
+  SustainabilityReport,
+} from './green-code';
+
+// Accessibility-First Development Agent (#254)
+export { AccessibilityAgent, accessibilityAgent } from './accessibility';
+export type { AccessibilityIssue, WCAGReport } from './accessibility';
+
+// Autonomous Debugging Agent (#255)
+export { AutonomousDebugger, autonomousDebugger } from './autonomous-debugging';
+export type {
+  DebugContext,
+  RootCauseAnalysis as DebugRootCauseAnalysis,
+  CodeFix,
+  DebugResult,
+} from './autonomous-debugging';
+
+// Predictive Quality Intelligence (#256)
+export { PredictiveQuality, predictiveQuality } from './predictive-quality';
+export type { FileRisk, CommitAnalysis, ReleaseRisk } from './predictive-quality';
