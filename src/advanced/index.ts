@@ -119,238 +119,39 @@ export type {
 export { TemplateMarketplace, templateMarketplace } from './marketplace';
 export type { MarketplaceTemplate, TemplateReview } from './marketplace';
 
-// Usage Analytics (#214)
-export { UsageAnalytics, usageAnalytics } from './usage-analytics';
+// Agent Pool Manager (#204)
+export { AgentPool, agentPool } from './agent-pool';
+export type { AgentState, PoolConfig, PoolStats, TaskAssignment } from './agent-pool';
+
+// Task Decomposition Engine (#205)
+export { TaskDecompositionEngine, taskDecompositionEngine } from './task-decomposition';
 export type {
-  UsageReport,
-  UserUsage,
-  ProjectUsage,
-  ModelUsage,
-  AgentUsage,
-  UsageAlert,
-  ExportConfig,
-} from './usage-analytics';
+  TaskNode,
+  TaskEdge,
+  TaskGraph,
+  DecompositionResult,
+  ExecutionPlan,
+  ExecutionPhase,
+} from './task-decomposition';
 
-// Smart Model Router (#215)
-export { ModelRouter, modelRouter } from './model-router';
+// Conflict Resolution System (#206)
+export { ConflictResolver, conflictResolver } from './conflict-resolution';
 export type {
-  ModelCapabilities,
-  ModelCapability,
-  TaskContext,
-  RoutingDecision,
-  RoutingPolicy,
-} from './model-router';
+  Conflict,
+  ChangeInfo,
+  Resolution,
+  MergeResult,
+  ConflictAuditEntry,
+} from './conflict-resolution';
 
-// RBAC - Role Based Access Control (#218)
-export { RBACManager, rbacManager } from './rbac';
-export type { Permission, Role, UserRole, PermissionCheck, AuditEntry } from './rbac';
-
-// Snyk Security Integration (#216)
-export { SnykIntegration, snykIntegration } from './snyk-integration';
-export type { SnykConfig, Vulnerability, ScanResult, FixSuggestion } from './snyk-integration';
-
-// SonarQube Quality Gate (#217)
-export { SonarQubeIntegration, sonarQubeIntegration } from './sonarqube-integration';
-export type {
-  SonarQubeConfig,
-  QualityMetric,
-  CodeSmell,
-  QualityGateResult,
-  PRAnalysisResult,
-} from './sonarqube-integration';
-
-// Linear Integration (#207)
-export { LinearIntegration, linearIntegration } from './linear-integration';
-export type {
-  LinearConfig,
-  LinearIssue,
-  LinearState,
-  LinearProject,
-  SyncResult,
-} from './linear-integration';
-
-// Vercel Deployment Integration (#201)
-export { VercelIntegration, vercelIntegration } from './vercel-integration';
-export type {
-  VercelConfig,
-  VercelProject,
-  VercelEnvVar,
-  Deployment,
-  DeploymentResult,
-  FrameworkDetection,
-} from './vercel-integration';
-
-// Jira Cloud Integration (#208)
-export { JiraIntegration, jiraIntegration } from './jira-integration';
-export type {
-  JiraConfig,
-  JiraIssue,
-  JiraStatus,
-  JiraSprint,
-  JiraProject,
-} from './jira-integration';
-
-// Compliance Audit Logging (#209)
-export { ComplianceAuditLogger, complianceAuditLogger } from './audit-logging';
-export type {
-  AuditEvent,
-  AuditAction,
-  AuditContext,
-  AuditQuery,
-  AuditExport,
-} from './audit-logging';
-
-// PII Detection & Redaction (#210)
-export { PIIDetector, piiDetector } from './pii-detection';
-export type { PIIMatch, PIIType, ScanResult as PIIScanResult, PIIPolicy } from './pii-detection';
-
-// Code Complexity Analyzer (#211)
+// Code Complexity Analyzer (#212)
 export { CodeComplexityAnalyzer, codeComplexityAnalyzer } from './code-complexity';
 export type {
   ComplexityMetrics,
-  FileAnalysis,
-  FunctionComplexity,
-  ComplexityIssue,
-  ProjectAnalysis,
+  HalsteadMetrics,
+  CouplingAnalysis,
+  CohesionMetrics,
+  Hotspot,
+  ComplexityTrend,
+  AnalysisSummary,
 } from './code-complexity';
-
-// Agent Pool Manager (#202)
-export { AgentPoolManager, agentPoolManager } from './agent-pool';
-export type { AgentInstance, PoolConfig, TaskQueueItem, PoolStats } from './agent-pool';
-
-// Task Decomposition Engine (#203)
-export { TaskDecompositionEngine, taskDecompositionEngine } from './task-decomposition';
-export type {
-  Task,
-  DecompositionResult,
-  DependencyGraph as TaskDependencyGraph,
-  MergeStrategy,
-} from './task-decomposition';
-
-// Conflict Resolution System (#204)
-export { ConflictResolutionSystem, conflictResolutionSystem } from './conflict-resolution';
-export type {
-  FileChange as ConflictFileChange,
-  Conflict,
-  Resolution,
-  MergeResult,
-} from './conflict-resolution';
-
-// Refactoring PR Generator (#212)
-export { RefactoringPRGenerator, refactoringPRGenerator } from './refactoring-pr';
-export type {
-  RefactoringOpportunity,
-  RefactoringType,
-  RefactoringPR,
-  RefactoringConfig,
-} from './refactoring-pr';
-
-// License Compliance Scanner (#211)
-export { LicenseScanner, licenseScanner } from './license-scanner';
-export type {
-  SBOMEntry,
-  SBOM,
-  LicensePolicy,
-  LicenseViolation,
-  CopyleftFlag,
-  CompatibilityResult,
-} from './license-scanner';
-
-// ============================================
-// Phase 4-5: Autonomous Task & Code Intelligence
-// ============================================
-
-// Iteration Loop Controller (#192)
-export { IterationLoopController, withRetries } from './iteration-loop';
-export type {
-  IterationConfig,
-  IterationResult,
-  IterationRecord,
-  BreakCondition,
-} from './iteration-loop';
-
-// Self-Healing Error Recovery (#193)
-export { SelfHealingRecovery, selfHealing, autoHeal, diagnoseError } from './self-healing';
-export type {
-  HealingSession,
-  ErrorDiagnosis,
-  SuggestedFix as HealingFix,
-  FixResult,
-  ErrorCategory,
-} from './self-healing';
-
-// Progress Checkpoints & Rollback (#194)
-export { CheckpointManager, checkpointManager, createFileSnapshot } from './checkpoints';
-export type {
-  CheckpointMetadata,
-  FileSnapshot,
-  RollbackResult,
-  CheckpointDiff,
-  CheckpointConfig,
-} from './checkpoints';
-
-// Live Preview Iframe Renderer (#189)
-export { LivePreviewRenderer, livePreview, renderPreview } from './live-preview';
-export type {
-  PreviewConfig,
-  PreviewState,
-  PreviewError,
-  ConsoleEntry,
-  RenderResult,
-} from './live-preview';
-
-// Text-to-UI Generation Engine (#190)
-export { TextToUIEngine, textToUI, generateUI } from './text-to-ui';
-export type {
-  GenerationConfig,
-  GeneratedComponent,
-  GenerationResult,
-  ParsedIntent,
-  ComponentType,
-  FrameworkType,
-} from './text-to-ui';
-
-// Codebase Indexing & Embedding (#195)
-export { CodebaseIndexer, codebaseIndexer, indexCode, searchCode } from './codebase-indexer';
-export type {
-  IndexConfig,
-  FileIndex,
-  CodeChunk,
-  ChunkMetadata,
-  SearchResult as CodeSearchResult,
-  IndexStats,
-} from './codebase-indexer';
-
-// Natural Language Query Interface (#196)
-export { NaturalLanguageQueryEngine, nlQuery, askCode, parseQuery } from './nl-query';
-export type {
-  QueryConfig,
-  ParsedQuery,
-  QueryEntity,
-  QueryContext,
-  QueryResult,
-  ResultItem,
-  QueryIntent,
-} from './nl-query';
-
-// MCP Server Core (#198)
-export {
-  MCPServer,
-  mcpServer,
-  createEchoTool,
-  createDelayTool,
-  createReadFileTool,
-  createSearchCodeTool,
-  registerBuiltInTools,
-} from './mcp-server';
-export type {
-  MCPConfig,
-  ToolDefinition,
-  ParameterSchema,
-  ReturnSchema,
-  ToolHandler,
-  ToolResult,
-  ToolInvocation,
-  ServerCapabilities,
-  ToolCategory,
-} from './mcp-server';
