@@ -263,3 +263,23 @@ export type {
   KnowledgeQuery,
   QueryResult,
 } from './knowledge-graph';
+
+// Multimodal Code Understanding (#255, #256)
+export { MultimodalEngine, multimodalEngine } from './multimodal';
+export type {
+  ImageAnalysisResult,
+  UIElement,
+  GeneratedUICode,
+  DiagramValidationResult,
+  DiagramMatch,
+  DriftIssue,
+} from './multimodal';
+
+// Multi-Model Orchestration Engine (#258)
+export { OrchestrationEngine, orchestrationEngine } from './orchestration';
+export type {
+  ExecutionStep,
+  OrchestrationExecutionPlan,
+  StepResult,
+  OrchestrationResult,
+} from './orchestration';

@@ -18,6 +18,8 @@ export interface ModelCapabilities {
   latencyMs: number; // Average latency
   qualityScore: number; // 0-100 quality rating
   isAvailable: boolean;
+  endpoint?: string; // For local models
+  supportsVision?: boolean; // Vision/multimodal capability
 }
 
 export type ModelCapability =
@@ -30,7 +32,9 @@ export type ModelCapability =
   | 'debugging'
   | 'explanation'
   | 'translation'
-  | 'summarization';
+  | 'summarization'
+  | 'vision'
+  | 'multimodal';
 
 export interface TaskContext {
   type: ModelCapability;
@@ -80,10 +84,19 @@ const DEFAULT_MODELS: ModelCapabilities[] = [
     maxTokens: 128000,
     costPer1kInput: 0.005,
     costPer1kOutput: 0.015,
-    capabilities: ['code-generation', 'code-review', 'documentation', 'testing', 'explanation'],
+    capabilities: [
+      'code-generation',
+      'code-review',
+      'documentation',
+      'testing',
+      'explanation',
+      'vision',
+      'multimodal',
+    ],
     latencyMs: 1500,
     qualityScore: 92,
     isAvailable: true,
+    supportsVision: true,
   },
   {
     id: 'gpt-3.5-turbo',
