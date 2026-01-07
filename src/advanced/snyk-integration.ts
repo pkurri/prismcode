@@ -74,7 +74,7 @@ export class SnykIntegration {
    */
   configure(config: SnykConfig): void {
     this.config = config;
-    logger.info('Snyk configured', { 
+    logger.info('Snyk configured', {
       organizationId: config.organizationId,
       severity: config.severity,
       autoFix: config.autoFix,
@@ -94,9 +94,9 @@ export class SnykIntegration {
     // In a real implementation, this would call the Snyk API
     // For now, we simulate the scan
     const result = await this.performScan(manifestPath);
-    
+
     this.scanHistory.push(result);
-    
+
     logger.info('Snyk scan complete', {
       totalVulnerabilities: result.totalVulnerabilities,
       critical: result.bySeverity.critical,
@@ -161,9 +161,9 @@ export class SnykIntegration {
     for (const suggestion of suggestions) {
       if (!suggestion.isBreaking) {
         // In reality, this would run the npm command
-        logger.info('Would apply fix', { 
-          package: suggestion.packageName, 
-          version: suggestion.fixedVersion 
+        logger.info('Would apply fix', {
+          package: suggestion.packageName,
+          version: suggestion.fixedVersion,
         });
         applied++;
       } else {
@@ -220,7 +220,7 @@ export class SnykIntegration {
 
   private async performScan(manifestPath: string): Promise<ScanResult> {
     // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 100));
+    await new Promise((resolve) => setTimeout(resolve, 100));
 
     // Mock scan result
     const mockVulnerabilities: Vulnerability[] = [
@@ -245,14 +245,14 @@ export class SnykIntegration {
       scannedAt: new Date(),
       totalVulnerabilities: mockVulnerabilities.length,
       bySeverity: {
-        critical: mockVulnerabilities.filter(v => v.severity === 'critical').length,
-        high: mockVulnerabilities.filter(v => v.severity === 'high').length,
-        medium: mockVulnerabilities.filter(v => v.severity === 'medium').length,
-        low: mockVulnerabilities.filter(v => v.severity === 'low').length,
+        critical: mockVulnerabilities.filter((v) => v.severity === 'critical').length,
+        high: mockVulnerabilities.filter((v) => v.severity === 'high').length,
+        medium: mockVulnerabilities.filter((v) => v.severity === 'medium').length,
+        low: mockVulnerabilities.filter((v) => v.severity === 'low').length,
       },
       vulnerabilities: mockVulnerabilities,
       isBlocked: false,
-      fixAvailable: mockVulnerabilities.filter(v => v.fixedIn).length,
+      fixAvailable: mockVulnerabilities.filter((v) => v.fixedIn).length,
     };
   }
 

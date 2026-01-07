@@ -95,7 +95,7 @@ export class JiraIntegration {
     }
 
     try {
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
       logger.info('Jira connection test successful');
       return true;
     } catch (error) {
@@ -115,7 +115,7 @@ export class JiraIntegration {
     logger.info('Fetching Jira issues', { jql, limit });
 
     const issues = await this.mockFetchIssues(limit);
-    
+
     for (const issue of issues) {
       this.issueCache.set(issue.key, issue);
     }
@@ -178,7 +178,7 @@ export class JiraIntegration {
     const statusMap: Record<string, JiraStatus> = {
       'To Do': { id: 'status_todo', name: 'To Do', category: 'todo' },
       'In Progress': { id: 'status_inprogress', name: 'In Progress', category: 'in-progress' },
-      'Done': { id: 'status_done', name: 'Done', category: 'done' },
+      Done: { id: 'status_done', name: 'Done', category: 'done' },
     };
 
     issue.status = statusMap[statusName] || issue.status;
@@ -195,7 +195,13 @@ export class JiraIntegration {
   getSprints(): JiraSprint[] {
     return [
       { id: 'sprint_1', name: 'Sprint 1', state: 'closed' },
-      { id: 'sprint_2', name: 'Sprint 2', state: 'active', startDate: new Date(), endDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000) },
+      {
+        id: 'sprint_2',
+        name: 'Sprint 2',
+        state: 'active',
+        startDate: new Date(),
+        endDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
+      },
       { id: 'sprint_3', name: 'Sprint 3', state: 'future' },
     ];
   }
@@ -203,12 +209,14 @@ export class JiraIntegration {
   /**
    * Sync from GitHub
    */
-  syncFromGitHub(githubIssues: Array<{
-    title: string;
-    body: string;
-    labels: string[];
-    state: 'open' | 'closed';
-  }>): SyncResult {
+  syncFromGitHub(
+    githubIssues: Array<{
+      title: string;
+      body: string;
+      labels: string[];
+      state: 'open' | 'closed';
+    }>
+  ): SyncResult {
     if (!this.config) {
       return { created: 0, updated: 0, errors: ['Not configured'], syncedAt: new Date() };
     }
@@ -242,16 +250,16 @@ export class JiraIntegration {
    */
   getCustomFieldMapping(): Record<string, string> {
     return {
-      'customfield_10001': 'Story Points',
-      'customfield_10002': 'Epic Link',
-      'customfield_10003': 'Sprint',
+      customfield_10001: 'Story Points',
+      customfield_10002: 'Epic Link',
+      customfield_10003: 'Sprint',
     };
   }
 
   // Private helpers
   private async mockFetchIssues(limit: number): Promise<JiraIssue[]> {
-    await new Promise(resolve => setTimeout(resolve, 100));
-    
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
     const issues: JiraIssue[] = [];
     for (let i = 0; i < Math.min(limit, 5); i++) {
       issues.push({

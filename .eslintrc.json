@@ -33,5 +33,5 @@
     "prefer-const": "error",
     "no-var": "error"
   },
-  "ignorePatterns": ["dist/", "coverage/", "node_modules/", "*.config.js", "scripts/"]
+  "ignorePatterns": ["dist/", "coverage/", "node_modules/", "*.config.js", "**/scripts/**"]
 }

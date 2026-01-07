@@ -106,15 +106,17 @@ export class RefactoringPRGenerator {
       const match = lines[i].match(funcPattern);
       if (match) {
         if (funcStart !== -1 && i - funcStart > 50) {
-          opportunities.push(this.createOpportunity(
-            'extract_method',
-            filePath,
-            { startLine: funcStart + 1, endLine: i },
-            'high',
-            `Function '${funcName}' is ${i - funcStart} lines long`,
-            `Split into smaller functions`,
-            false
-          ));
+          opportunities.push(
+            this.createOpportunity(
+              'extract_method',
+              filePath,
+              { startLine: funcStart + 1, endLine: i },
+              'high',
+              `Function '${funcName}' is ${i - funcStart} lines long`,
+              `Split into smaller functions`,
+              false
+            )
+          );
         }
         funcStart = i;
         funcName = match[1] || match[2] || 'anonymous';
@@ -124,15 +126,17 @@ export class RefactoringPRGenerator {
     // Check for TODO comments indicating dead code
     for (let i = 0; i < lines.length; i++) {
       if (/\/\/\s*TODO:?\s*(remove|delete|clean)/i.test(lines[i])) {
-        opportunities.push(this.createOpportunity(
-          'remove_dead_code',
-          filePath,
-          { startLine: i + 1, endLine: i + 1 },
-          'low',
-          'Code marked for removal',
-          'Delete the marked code',
-          false
-        ));
+        opportunities.push(
+          this.createOpportunity(
+            'remove_dead_code',
+            filePath,
+            { startLine: i + 1, endLine: i + 1 },
+            'low',
+            'Code marked for removal',
+            'Delete the marked code',
+            false
+          )
+        );
       }
     }
 
@@ -141,30 +145,34 @@ export class RefactoringPRGenerator {
       const andCount = (lines[i].match(/&&/g) || []).length;
       const orCount = (lines[i].match(/\|\|/g) || []).length;
       if (andCount + orCount >= 3) {
-        opportunities.push(this.createOpportunity(
-          'simplify_conditional',
-          filePath,
-          { startLine: i + 1, endLine: i + 1 },
-          'medium',
-          'Complex conditional expression',
-          'Extract conditions into named variables or helper function',
-          false
-        ));
+        opportunities.push(
+          this.createOpportunity(
+            'simplify_conditional',
+            filePath,
+            { startLine: i + 1, endLine: i + 1 },
+            'medium',
+            'Complex conditional expression',
+            'Extract conditions into named variables or helper function',
+            false
+          )
+        );
       }
     }
 
     // Check for any type usage
     for (let i = 0; i < lines.length; i++) {
       if (/:\s*any\b/.test(lines[i])) {
-        opportunities.push(this.createOpportunity(
-          'improve_types',
-          filePath,
-          { startLine: i + 1, endLine: i + 1 },
-          'medium',
-          'Using any type - loses type safety',
-          'Replace with proper type annotation',
-          false
-        ));
+        opportunities.push(
+          this.createOpportunity(
+            'improve_types',
+            filePath,
+            { startLine: i + 1, endLine: i + 1 },
+            'medium',
+            'Using any type - loses type safety',
+            'Replace with proper type annotation',
+            false
+          )
+        );
       }
     }
 
@@ -172,15 +180,17 @@ export class RefactoringPRGenerator {
     for (let i = 0; i < lines.length; i++) {
       if (/\(\s*\w+\s*\)/.test(lines[i]) && !/:\s*\w+/.test(lines[i])) {
         if (!/=>/.test(lines[i])) continue; // Skip arrow functions with implied return
-        opportunities.push(this.createOpportunity(
-          'improve_types',
-          filePath,
-          { startLine: i + 1, endLine: i + 1 },
-          'low',
-          'Missing type annotation on parameter',
-          'Add explicit type annotation',
-          false
-        ));
+        opportunities.push(
+          this.createOpportunity(
+            'improve_types',
+            filePath,
+            { startLine: i + 1, endLine: i + 1 },
+            'low',
+            'Missing type annotation on parameter',
+            'Add explicit type annotation',
+            false
+          )
+        );
       }
     }
 
@@ -194,10 +204,10 @@ export class RefactoringPRGenerator {
    * Generate a refactoring PR
    */
   generatePR(opportunityIds: string[]): RefactoringPR | null {
-    const selected = this.opportunities.filter(o => opportunityIds.includes(o.id));
+    const selected = this.opportunities.filter((o) => opportunityIds.includes(o.id));
     if (selected.length === 0) return null;
 
-    const changes: FileChange[] = selected.map(opp => ({
+    const changes: FileChange[] = selected.map((opp) => ({
       filePath: opp.filePath,
       originalContent: '',
       newContent: opp.suggestedFix,
@@ -234,8 +244,8 @@ export class RefactoringPRGenerator {
     const sevMap = { low: 0, medium: 1, high: 2 };
     const minSev = sevMap[this.config.minSeverity];
 
-    const eligible = this.opportunities.filter(o => 
-      sevMap[o.severity] >= minSev && !o.breakingChange
+    const eligible = this.opportunities.filter(
+      (o) => sevMap[o.severity] >= minSev && !o.breakingChange
     );
 
     // Group by file
@@ -247,9 +257,9 @@ export class RefactoringPRGenerator {
     }
 
     const prs: RefactoringPR[] = [];
-    for (const [_file, opps] of byFile) {
+    for (const opps of byFile.values()) {
       const batch = opps.slice(0, this.config.maxChangesPerPR);
-      const pr = this.generatePR(batch.map(o => o.id));
+      const pr = this.generatePR(batch.map((o) => o.id));
       if (pr) prs.push(pr);
     }
 
@@ -260,8 +270,8 @@ export class RefactoringPRGenerator {
    * Submit a PR (mock)
    */
   submitPR(prId: string): boolean {
-    const pr = this.generatedPRs.find(p => p.id === prId);
-    if (!pr || pr.status !== 'draft' && pr.status !== 'ready') return false;
+    const pr = this.generatedPRs.find((p) => p.id === prId);
+    if (!pr || (pr.status !== 'draft' && pr.status !== 'ready')) return false;
 
     pr.status = 'submitted';
     logger.info('PR submitted', { id: prId });
@@ -271,21 +281,21 @@ export class RefactoringPRGenerator {
   /**
    * Get all opportunities
    */
-  getOpportunities(filter?: { 
-    type?: RefactoringType; 
+  getOpportunities(filter?: {
+    type?: RefactoringType;
     severity?: 'low' | 'medium' | 'high';
     file?: string;
   }): RefactoringOpportunity[] {
     let result = [...this.opportunities];
 
     if (filter?.type) {
-      result = result.filter(o => o.type === filter.type);
+      result = result.filter((o) => o.type === filter.type);
     }
     if (filter?.severity) {
-      result = result.filter(o => o.severity === filter.severity);
+      result = result.filter((o) => o.severity === filter.severity);
     }
     if (filter?.file) {
-      result = result.filter(o => o.filePath === filter.file);
+      result = result.filter((o) => o.filePath === filter.file);
     }
 
     return result;
@@ -296,7 +306,7 @@ export class RefactoringPRGenerator {
    */
   getPRs(filter?: { status?: RefactoringPR['status'] }): RefactoringPR[] {
     if (filter?.status) {
-      return this.generatedPRs.filter(p => p.status === filter.status);
+      return this.generatedPRs.filter((p) => p.status === filter.status);
     }
     return [...this.generatedPRs];
   }
@@ -305,7 +315,7 @@ export class RefactoringPRGenerator {
    * Get PR by ID
    */
   getPR(id: string): RefactoringPR | undefined {
-    return this.generatedPRs.find(p => p.id === id);
+    return this.generatedPRs.find((p) => p.id === id);
   }
 
   // Private helpers
@@ -333,7 +343,7 @@ export class RefactoringPRGenerator {
   }
 
   private generatePRTitle(opportunities: RefactoringOpportunity[]): string {
-    const types = [...new Set(opportunities.map(o => o.type))];
+    const types = [...new Set(opportunities.map((o) => o.type))];
     if (types.length === 1) {
       return `refactor: ${types[0].replace(/_/g, ' ')}`;
     }
@@ -342,7 +352,7 @@ export class RefactoringPRGenerator {
 
   private generatePRDescription(opportunities: RefactoringOpportunity[]): string {
     const lines = ['## Refactoring Changes\n'];
-    
+
     for (const opp of opportunities) {
       lines.push(`### ${opp.type.replace(/_/g, ' ')}`);
       lines.push(`- **File:** ${opp.filePath}:${opp.location.startLine}`);

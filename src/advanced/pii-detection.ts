@@ -56,7 +56,8 @@ const PII_PATTERNS: Record<PIIType, RegExp> = {
   ssn: /\b\d{3}[-.\s]?\d{2}[-.\s]?\d{4}\b/g,
   credit_card: /\b(?:\d{4}[-.\s]?){3}\d{4}\b/g,
   ip_address: /\b(?:\d{1,3}\.){3}\d{1,3}\b/g,
-  address: /\d+\s+[\w\s]+(?:street|st|avenue|ave|road|rd|boulevard|blvd|drive|dr|lane|ln|court|ct)\.?\s*(?:,\s*[\w\s]+)?/gi,
+  address:
+    /\d+\s+[\w\s]+(?:street|st|avenue|ave|road|rd|boulevard|blvd|drive|dr|lane|ln|court|ct)\.?\s*(?:,\s*[\w\s]+)?/gi,
   name: /\b[A-Z][a-z]+\s+[A-Z][a-z]+\b/g,
   date_of_birth: /\b(?:\d{1,2}[-/]\d{1,2}[-/]\d{2,4}|\d{4}[-/]\d{1,2}[-/]\d{1,2})\b/g,
   passport: /\b[A-Z]{1,2}\d{6,9}\b/g,
@@ -159,7 +160,7 @@ export class PIIDetector {
     if (this.policy.alertOnDetection && matches.length > 0) {
       logger.warn('PII detected', {
         count: matches.length,
-        types: [...new Set(matches.map(m => m.type))],
+        types: [...new Set(matches.map((m) => m.type))],
         riskLevel,
       });
     }
@@ -195,7 +196,7 @@ export class PIIDetector {
     if (result.riskLevel === 'high' || result.riskLevel === 'critical') {
       return {
         block: true,
-        reason: `High-risk PII detected: ${result.matches.map(m => m.type).join(', ')}`,
+        reason: `High-risk PII detected: ${result.matches.map((m) => m.type).join(', ')}`,
       };
     }
 
@@ -253,13 +254,14 @@ export class PIIDetector {
     let result = text;
     // Process from end to start to preserve indices
     const sortedMatches = [...matches].sort((a, b) => b.startIndex - a.startIndex);
-    
+
     for (const match of sortedMatches) {
-      result = result.substring(0, match.startIndex) + 
-               match.redactedValue + 
-               result.substring(match.endIndex);
+      result =
+        result.substring(0, match.startIndex) +
+        match.redactedValue +
+        result.substring(match.endIndex);
     }
-    
+
     return result;
   }
 
@@ -274,10 +276,10 @@ export class PIIDetector {
 
   private calculateRiskLevel(matches: PIIMatch[]): ScanResult['riskLevel'] {
     if (matches.length === 0) return 'none';
-    
+
     const highRiskTypes: PIIType[] = ['ssn', 'credit_card', 'password', 'api_key'];
-    const hasHighRisk = matches.some(m => highRiskTypes.includes(m.type));
-    
+    const hasHighRisk = matches.some((m) => highRiskTypes.includes(m.type));
+
     if (hasHighRisk && matches.length > 3) return 'critical';
     if (hasHighRisk) return 'high';
     if (matches.length > 5) return 'medium';

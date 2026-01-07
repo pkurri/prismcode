@@ -87,8 +87,8 @@ export class ComplianceAuditLogger {
     this.events.push(auditEvent);
     this.enforceRetention();
 
-    logger.debug('Audit event logged', { 
-      action: event.action, 
+    logger.debug('Audit event logged', {
+      action: event.action,
       resource: event.resource,
       userId: event.userId,
     });
@@ -167,19 +167,19 @@ export class ComplianceAuditLogger {
     let results = [...this.events];
 
     if (query.userId) {
-      results = results.filter(e => e.userId === query.userId);
+      results = results.filter((e) => e.userId === query.userId);
     }
     if (query.action) {
-      results = results.filter(e => e.action === query.action);
+      results = results.filter((e) => e.action === query.action);
     }
     if (query.resource) {
-      results = results.filter(e => e.resource === query.resource);
+      results = results.filter((e) => e.resource === query.resource);
     }
     if (query.startDate) {
-      results = results.filter(e => e.timestamp >= query.startDate!);
+      results = results.filter((e) => e.timestamp >= query.startDate!);
     }
     if (query.endDate) {
-      results = results.filter(e => e.timestamp <= query.endDate!);
+      results = results.filter((e) => e.timestamp <= query.endDate!);
     }
 
     // Sort by timestamp descending
@@ -197,11 +197,12 @@ export class ComplianceAuditLogger {
   search(searchTerm: string, limit: number = 50): AuditEvent[] {
     const term = searchTerm.toLowerCase();
     return this.events
-      .filter(e => 
-        e.userId.toLowerCase().includes(term) ||
-        e.resource.toLowerCase().includes(term) ||
-        e.action.toLowerCase().includes(term) ||
-        JSON.stringify(e.metadata).toLowerCase().includes(term)
+      .filter(
+        (e) =>
+          e.userId.toLowerCase().includes(term) ||
+          e.resource.toLowerCase().includes(term) ||
+          e.action.toLowerCase().includes(term) ||
+          JSON.stringify(e.metadata).toLowerCase().includes(term)
       )
       .slice(0, limit);
   }
@@ -219,8 +220,8 @@ export class ComplianceAuditLogger {
       query,
     };
 
-    logger.info('Audit events exported', { 
-      format, 
+    logger.info('Audit events exported', {
+      format,
       count: events.length,
     });
 
@@ -248,8 +249,9 @@ export class ComplianceAuditLogger {
    */
   exportToSiem(query: AuditQuery): string[] {
     const events = this.query(query);
-    return events.map(e => 
-      `CEF:0|PrismCode|Audit|1.0|${e.action}|${e.resource}|5|userId=${e.userId} resourceId=${e.resourceId || 'none'} timestamp=${e.timestamp.toISOString()}`
+    return events.map(
+      (e) =>
+        `CEF:0|PrismCode|Audit|1.0|${e.action}|${e.resource}|5|userId=${e.userId} resourceId=${e.resourceId || 'none'} timestamp=${e.timestamp.toISOString()}`
     );
   }
 
@@ -289,7 +291,7 @@ export class ComplianceAuditLogger {
     // Enforce time-based retention
     const cutoffDate = new Date();
     cutoffDate.setFullYear(cutoffDate.getFullYear() - this.retentionYears);
-    this.events = this.events.filter(e => e.timestamp >= cutoffDate);
+    this.events = this.events.filter((e) => e.timestamp >= cutoffDate);
   }
 
   /**

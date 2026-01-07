@@ -155,3 +155,60 @@ export type {
   ComplexityTrend,
   AnalysisSummary,
 } from './code-complexity';
+
+// Auto-Fix PR Generator (#245)
+export { AutoFixPRGenerator, autoFixPRGenerator } from './auto-fix-pr';
+export type {
+  FixCategory,
+  PRPriority,
+  AutoMergePolicy,
+  FileChange,
+  FixSuggestion,
+  AutoFixPR,
+  SecurityVulnerability,
+  DependencyUpdate,
+  AutoMergeConfig,
+  PRStats,
+  LintViolation,
+} from './auto-fix-pr';
+
+// Test Impact Analysis (#249)
+export { TestImpactAnalyzer, testImpactAnalyzer } from './test-impact';
+export type {
+  TestPriority,
+  ChangeType,
+  TestFileMapping,
+  CodeChange,
+  ImpactAnalysis,
+  AffectedTest,
+  TestDependency,
+  TestRecommendation,
+  TestHistory,
+} from './test-impact';
+
+// Flaky Test Detection (#250)
+export { FlakyTestDetector, flakyTestDetector } from './flaky-tests';
+export type {
+  FlakinessRootCause,
+  FlakinessSeverity,
+  QuarantineStatus,
+  TestRunResult,
+  FlakyTest,
+  RootCauseAnalysis,
+  QuarantineConfig,
+  HealingStats,
+} from './flaky-tests';
+
+// Achievement & Badge System (#252)
+export { AchievementSystem, achievementSystem } from './achievements';
+export type {
+  AchievementCategory,
+  Rarity,
+  Achievement,
+  AchievementCriteria,
+  UserProgress,
+  Streak,
+  Leaderboard,
+  LeaderboardEntry,
+  ShareCard,
+} from './achievements';

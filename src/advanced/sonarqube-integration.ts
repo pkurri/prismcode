@@ -76,7 +76,7 @@ export class SonarQubeIntegration {
    */
   configure(config: SonarQubeConfig): void {
     this.config = config;
-    logger.info('SonarQube configured', { 
+    logger.info('SonarQube configured', {
       serverUrl: config.serverUrl,
       projectKey: config.projectKey,
     });
@@ -90,7 +90,7 @@ export class SonarQubeIntegration {
       throw new Error('SonarQube not configured. Call configure() first.');
     }
 
-    logger.info('Starting SonarQube analysis', { 
+    logger.info('Starting SonarQube analysis', {
       projectKey: this.config.projectKey,
       branch,
     });
@@ -120,12 +120,12 @@ export class SonarQubeIntegration {
 
     // Get base branch analysis
     const baseAnalysis = await this.analyze(baseBranch);
-    
+
     // Get PR analysis
     const prAnalysis = await this.analyze(`pr-${prNumber}`);
 
-    const blockers = prAnalysis.issues.filter(i => i.severity === 'BLOCKER');
-    const criticals = prAnalysis.issues.filter(i => i.severity === 'CRITICAL');
+    const blockers = prAnalysis.issues.filter((i) => i.severity === 'BLOCKER');
+    const criticals = prAnalysis.issues.filter((i) => i.severity === 'CRITICAL');
 
     const result: PRAnalysisResult = {
       passed: blockers.length === 0 && criticals.length === 0,
@@ -168,7 +168,7 @@ export class SonarQubeIntegration {
       failures.push(`Reliability rating ${result.rating.reliability} is below B`);
     }
 
-    const blockers = result.issues.filter(i => i.severity === 'BLOCKER');
+    const blockers = result.issues.filter((i) => i.severity === 'BLOCKER');
     if (blockers.length > 0) {
       failures.push(`${blockers.length} blocker issues found`);
     }
@@ -241,7 +241,7 @@ export class SonarQubeIntegration {
 
   private async performAnalysis(_branch?: string): Promise<QualityGateResult> {
     // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 100));
+    await new Promise((resolve) => setTimeout(resolve, 100));
 
     const mockIssues: CodeSmell[] = [
       {

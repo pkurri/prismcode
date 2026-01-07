@@ -87,9 +87,12 @@ export class VercelIntegration {
   /**
    * Detect framework from project files
    */
-  detectFramework(packageJson: { dependencies?: Record<string, string>; scripts?: Record<string, string> }): FrameworkDetection {
+  detectFramework(packageJson: {
+    dependencies?: Record<string, string>;
+    scripts?: Record<string, string>;
+  }): FrameworkDetection {
     const deps = packageJson.dependencies || {};
-    
+
     if (deps['next']) {
       return {
         framework: 'nextjs',
@@ -98,7 +101,7 @@ export class VercelIntegration {
         installCommand: 'npm install',
       };
     }
-    
+
     if (deps['react'] && !deps['next']) {
       return {
         framework: 'create-react-app',
@@ -107,7 +110,7 @@ export class VercelIntegration {
         installCommand: 'npm install',
       };
     }
-    
+
     if (deps['vue']) {
       return {
         framework: 'vue',
@@ -116,7 +119,7 @@ export class VercelIntegration {
         installCommand: 'npm install',
       };
     }
-    
+
     if (deps['svelte'] || deps['@sveltejs/kit']) {
       return {
         framework: 'sveltekit',
@@ -125,7 +128,7 @@ export class VercelIntegration {
         installCommand: 'npm install',
       };
     }
-    
+
     if (deps['vite']) {
       return {
         framework: 'vite',
@@ -180,7 +183,7 @@ export class VercelIntegration {
     }
 
     const target = options.target || 'preview';
-    
+
     logger.info('Starting Vercel deployment', {
       projectId: options.projectId,
       target,
@@ -217,7 +220,8 @@ export class VercelIntegration {
         'Deployment ready!',
       ],
       previewUrl: deployment.url,
-      productionUrl: target === 'production' ? deployment.url.replace(/-.+\.vercel/, '.vercel') : undefined,
+      productionUrl:
+        target === 'production' ? deployment.url.replace(/-.+\.vercel/, '.vercel') : undefined,
     };
 
     logger.info('Deployment complete', {
@@ -330,7 +334,7 @@ export class VercelIntegration {
     deployment.state = 'BUILDING';
     this.deployments.set(deployment.id, deployment);
 
-    await new Promise(resolve => setTimeout(resolve, 100));
+    await new Promise((resolve) => setTimeout(resolve, 100));
 
     deployment.state = 'READY';
     deployment.readyAt = new Date();
