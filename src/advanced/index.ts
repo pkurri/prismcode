@@ -294,3 +294,18 @@ export type {
   HealthCheckResult,
   LocalModelOptions,
 } from './local-models';
+
+// Debugging Memory & Pattern Database (#239)
+export { DebugMemoryManager, debugMemoryManager } from './debug-memory';
+export type { DebugPattern, DebugSession, DebugStep, PatternMatch } from './debug-memory';
+
+// Team Leaderboards & Challenges (#253)
+export { LeaderboardManager, leaderboardManager } from './leaderboards';
+export type {
+  LeaderboardEntry,
+  Leaderboard,
+  LeaderboardCategory,
+  Challenge,
+  ChallengeParticipant,
+  WeeklyStats,
+} from './leaderboards';
