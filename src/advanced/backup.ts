@@ -230,7 +230,7 @@ export class BackupManager {
     cronExpression: string,
     retentionDays: number = 30
   ): BackupSchedule {
-    const id = `schedule_${Date.now()}`;
+    const id = `schedule_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
     const schedule: BackupSchedule = {
       id,
