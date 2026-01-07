@@ -1,184 +1,179 @@
 /**
  * Agent Pool Manager Tests
- * Issue #204: Agent Pool Manager
+ * Issue #204
  */
 
-import {
-  AgentPoolManager,
-  agentPoolManager,
-} from '../../../src/advanced/agent-pool';
+import { AgentPool } from '../../../src/advanced/agent-pool';
 
-describe('AgentPoolManager', () => {
-  let pool: AgentPoolManager;
+describe('AgentPool', () => {
+  let pool: AgentPool;
 
   beforeEach(() => {
-    pool = new AgentPoolManager();
-  });
-
-  afterEach(() => {
-    pool.reset();
-  });
-
-  describe('configuration', () => {
-    it('should configure pool settings', () => {
-      pool.configure({
-        minAgents: 2,
-        maxAgents: 8,
-        scaleUpThreshold: 10,
-      });
-
-      // Should not throw
-      expect(pool).toBeDefined();
+    // Use very long health check interval to avoid timer issues in tests
+    pool = new AgentPool({
+      minAgents: 1,
+      maxAgents: 5,
+      healthCheckIntervalMs: 999999999, // Effectively disabled for tests
+      gracefulShutdownTimeoutMs: 100, // Fast shutdown for tests
     });
   });
 
-  describe('agent lifecycle', () => {
-    it('should start pool with minimum agents', () => {
-      pool.configure({ minAgents: 2 });
-      pool.start();
+  afterEach(async () => {
+    await pool.shutdown();
+  }, 10000);
 
-      const agents = pool.getAgents();
-      expect(agents.length).toBe(2);
+  describe('initialization', () => {
+    it('should create pool with default config', () => {
+      const defaultPool = new AgentPool();
+      expect(defaultPool).toBeDefined();
     });
 
-    it('should spawn new agent', () => {
-      const agent = pool.spawnAgent();
-
-      expect(agent).toBeDefined();
-      expect(agent?.id).toBeDefined();
-      expect(agent?.status).toBe('idle');
+    it('should validate minAgents >= 1', () => {
+      expect(() => new AgentPool({ minAgents: 0 })).toThrow('minAgents must be at least 1');
     });
 
-    it('should respect max agents limit', () => {
-      pool.configure({ maxAgents: 2 });
-      pool.spawnAgent();
-      pool.spawnAgent();
-      const third = pool.spawnAgent();
-
-      expect(third).toBeNull();
+    it('should validate maxAgents >= minAgents', () => {
+      expect(() => new AgentPool({ minAgents: 5, maxAgents: 3 })).toThrow(
+        'maxAgents must be >= minAgents'
+      );
     });
 
-    it('should shutdown agent gracefully', () => {
-      const agent = pool.spawnAgent();
-      if (agent) {
-        const result = pool.shutdownAgent(agent.id);
-        expect(result).toBe(true);
-      }
-    });
-  });
-
-  describe('task management', () => {
-    beforeEach(() => {
-      pool.spawnAgent();
-      pool.spawnAgent();
+    it('should validate maxAgents <= 10', () => {
+      expect(() => new AgentPool({ maxAgents: 15 })).toThrow('maxAgents cannot exceed 10');
     });
 
-    it('should submit task to pool', () => {
-      const task = pool.submitTask('Test Task', { data: 'test' });
-
-      expect(task.id).toBeDefined();
-      expect(task.name).toBe('Test Task');
-      expect(task.status).toBeDefined();
-    });
-
-    it('should submit high priority task', () => {
-      const task = pool.submitTask('Urgent Task', { urgent: true }, 'high');
-
-      expect(task.priority).toBe('high');
-    });
-
-    it('should get task status', () => {
-      const task = pool.submitTask('Task', {});
-      const status = pool.getTaskStatus(task.id);
-
-      expect(status).toBeDefined();
-      expect(status?.id).toBe(task.id);
-    });
-
-    it('should complete task successfully', () => {
-      const task = pool.submitTask('Task', {});
-      const completed = pool.completeTask(task.id, true);
-
-      expect(completed).toBe(true);
-    });
-
-    it('should mark task as failed', () => {
-      const task = pool.submitTask('Failing Task', {});
-      pool.completeTask(task.id, false);
-
-      const status = pool.getTaskStatus(task.id);
-      expect(status?.status).toBe('failed');
-    });
-  });
-
-  describe('pool statistics', () => {
-    it('should get pool stats', () => {
-      pool.spawnAgent();
-      pool.submitTask('Task 1', {});
-      pool.submitTask('Task 2', {});
-
+    it('should initialize with minimum agents', () => {
+      pool.initialize();
       const stats = pool.getStats();
-
       expect(stats.totalAgents).toBeGreaterThanOrEqual(1);
-      expect(stats.queueLength).toBeDefined();
-      expect(stats.completedTasks).toBeDefined();
+    });
+  });
+
+  describe('agent management', () => {
+    beforeEach(() => {
+      pool.initialize();
     });
 
-    it('should track busy vs idle agents', () => {
-      pool.spawnAgent();
-      pool.spawnAgent();
-      pool.submitTask('Task', {});
+    it('should add agents up to max limit', () => {
+      for (let i = 0; i < 4; i++) {
+        pool.addAgent();
+      }
+      const stats = pool.getStats();
+      expect(stats.totalAgents).toBe(5);
+    });
+
+    it('should reject adding agents beyond max', () => {
+      for (let i = 0; i < 4; i++) {
+        pool.addAgent();
+      }
+      expect(() => pool.addAgent()).toThrow('Maximum agent limit reached');
+    });
+
+    it('should remove agents', async () => {
+      const agentId = pool.addAgent();
+      const removed = await pool.removeAgent(agentId, true);
+      expect(removed).toBe(true);
+    });
+
+    it('should not remove below minimum agents unless forced', async () => {
+      const agents = pool.getAllAgentStates();
+      const removed = await pool.removeAgent(agents[0].id, false);
+      expect(removed).toBe(false);
+    });
+  });
+
+  describe('task assignment', () => {
+    beforeEach(() => {
+      pool.initialize();
+    });
+
+    it('should assign task to idle agent', () => {
+      const agentId = pool.assignTask({
+        taskId: 'task-1',
+        priority: 1,
+      });
+      expect(agentId).toBeTruthy();
+
+      const agent = pool.getAgentState(agentId!);
+      expect(agent?.status).toBe('busy');
+      expect(agent?.currentTask).toBe('task-1');
+    });
+
+    it('should complete task and free agent', () => {
+      const agentId = pool.assignTask({
+        taskId: 'task-1',
+        priority: 1,
+      });
+
+      pool.completeTask(agentId!, true);
+
+      const agent = pool.getAgentState(agentId!);
+      expect(agent?.status).toBe('idle');
+      expect(agent?.currentTask).toBeUndefined();
+      expect(agent?.completedTasks).toBe(1);
+    });
+
+    it('should decrease health on task failure', () => {
+      const agentId = pool.assignTask({
+        taskId: 'task-1',
+        priority: 1,
+      });
+
+      const initialHealth = pool.getAgentState(agentId!)?.health;
+      pool.completeTask(agentId!, false);
+
+      const agent = pool.getAgentState(agentId!);
+      expect(agent?.health).toBeLessThan(initialHealth!);
+      expect(agent?.errorCount).toBe(1);
+    });
+  });
+
+  describe('health monitoring', () => {
+    beforeEach(() => {
+      pool.initialize();
+    });
+
+    it('should record heartbeat', () => {
+      const agents = pool.getAllAgentStates();
+      const agentId = agents[0].id;
+      const before = pool.getAgentState(agentId)?.lastHeartbeat;
+
+      pool.recordHeartbeat(agentId);
+
+      const after = pool.getAgentState(agentId)?.lastHeartbeat;
+      expect(after!.getTime()).toBeGreaterThanOrEqual(before!.getTime());
+    });
+  });
+
+  describe('statistics', () => {
+    beforeEach(() => {
+      pool.initialize();
+    });
+
+    it('should return accurate stats', () => {
+      pool.addAgent();
+      pool.assignTask({ taskId: 'task-1', priority: 1 });
 
       const stats = pool.getStats();
-
-      expect(stats.busyAgents + stats.idleAgents).toBe(stats.totalAgents);
+      expect(stats.totalAgents).toBe(2);
+      expect(stats.busyAgents).toBe(1);
+      expect(stats.idleAgents).toBe(1);
+      // uptime can be 0 if test runs in sub-millisecond time
+      expect(stats.uptime).toBeGreaterThanOrEqual(0);
     });
   });
 
-  describe('scaling', () => {
-    it('should scale up when queue threshold reached', () => {
-      pool.configure({
-        minAgents: 1,
-        maxAgents: 5,
-        scaleUpThreshold: 2,
-      });
-      pool.start();
-
-      const initialAgents = pool.getAgents().length;
-
-      // Submit many tasks to trigger scaling
-      for (let i = 0; i < 5; i++) {
-        pool.submitTask(`Task ${i}`, {});
-      }
-
-      // Pool may have scaled up
-      expect(pool.getAgents().length).toBeGreaterThanOrEqual(initialAgents);
+  describe('shutdown', () => {
+    beforeEach(() => {
+      pool.initialize();
     });
-  });
 
-  describe('pool shutdown', () => {
-    it('should shutdown entire pool', () => {
-      pool.start();
-      pool.shutdown();
+    it('should gracefully shutdown', async () => {
+      pool.addAgent();
+      await pool.shutdown();
 
-      // Idle agents should be removed, busy marked for shutdown
-      expect(pool).toBeDefined();
-    });
-  });
-
-  describe('resource tracking', () => {
-    it('should track agent resource usage', () => {
-      const agent = pool.spawnAgent();
-
-      expect(agent?.resourceUsage).toBeDefined();
-      expect(agent?.resourceUsage.memory).toBeDefined();
-      expect(agent?.resourceUsage.cpu).toBeDefined();
-    });
-  });
-
-  describe('singleton instance', () => {
-    it('should export singleton instance', () => {
-      expect(agentPoolManager).toBeInstanceOf(AgentPoolManager);
+      const stats = pool.getStats();
+      expect(stats.totalAgents).toBe(0);
     });
   });
 });
