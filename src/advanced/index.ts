@@ -263,3 +263,34 @@ export type {
   KnowledgeQuery,
   QueryResult,
 } from './knowledge-graph';
+
+// Technical Debt Forecasting (#243)
+export { TechnicalDebtForecaster, technicalDebtForecaster } from './tech-debt';
+export type {
+  DebtItem,
+  DebtType,
+  DebtTrend,
+  RemediationPlan,
+  DebtForecast,
+  DebtAnalysisResult,
+} from './tech-debt';
+
+// Intelligent Test Generation (#248)
+export { TestGenerationEngine, testGenerationEngine } from './test-generation';
+export type {
+  TestCase,
+  TestInput,
+  Assertion,
+  CoverageGap,
+  GenerationResult,
+  FunctionSignature,
+} from './test-generation';
+
+// Local Model Support (#259)
+export { LocalModelManager, localModelManager } from './local-models';
+export type {
+  LocalModelConfig,
+  LocalModelResponse,
+  HealthCheckResult,
+  LocalModelOptions,
+} from './local-models';
