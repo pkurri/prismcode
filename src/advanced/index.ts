@@ -283,3 +283,49 @@ export type {
   StepResult,
   OrchestrationResult,
 } from './orchestration';
+
+// Technical Debt Forecasting (#243)
+export { TechnicalDebtForecaster, technicalDebtForecaster } from './tech-debt';
+export type {
+  DebtItem,
+  DebtType,
+  DebtTrend,
+  RemediationPlan,
+  DebtForecast,
+  DebtAnalysisResult,
+} from './tech-debt';
+
+// Intelligent Test Generation (#248)
+export { TestGenerationEngine, testGenerationEngine } from './test-generation';
+export type {
+  TestCase,
+  TestInput,
+  Assertion,
+  CoverageGap,
+  GenerationResult,
+  FunctionSignature,
+} from './test-generation';
+
+// Local Model Support (#259)
+export { LocalModelManager, localModelManager } from './local-models';
+export type {
+  LocalModelConfig,
+  LocalModelResponse,
+  HealthCheckResult,
+  LocalModelOptions,
+} from './local-models';
+
+// Debugging Memory & Pattern Database (#239)
+export { DebugMemoryManager, debugMemoryManager } from './debug-memory';
+export type { DebugPattern, DebugSession, DebugStep, PatternMatch } from './debug-memory';
+
+// Team Leaderboards & Challenges (#253)
+export { LeaderboardManager, leaderboardManager } from './leaderboards';
+export type {
+  LeaderboardEntry as TeamLeaderboardEntry,
+  Leaderboard as TeamLeaderboard,
+  LeaderboardCategory,
+  Challenge,
+  ChallengeParticipant,
+  WeeklyStats,
+} from './leaderboards';
