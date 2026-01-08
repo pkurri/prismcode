@@ -264,6 +264,26 @@ export type {
   QueryResult,
 } from './knowledge-graph';
 
+// Multimodal Code Understanding (#255, #256)
+export { MultimodalEngine, multimodalEngine } from './multimodal';
+export type {
+  ImageAnalysisResult,
+  UIElement,
+  GeneratedUICode,
+  DiagramValidationResult,
+  DiagramMatch,
+  DriftIssue,
+} from './multimodal';
+
+// Multi-Model Orchestration Engine (#258)
+export { OrchestrationEngine, orchestrationEngine } from './orchestration';
+export type {
+  ExecutionStep,
+  OrchestrationExecutionPlan,
+  StepResult,
+  OrchestrationResult,
+} from './orchestration';
+
 // Technical Debt Forecasting (#243)
 export { TechnicalDebtForecaster, technicalDebtForecaster } from './tech-debt';
 export type {
@@ -302,8 +322,8 @@ export type { DebugPattern, DebugSession, DebugStep, PatternMatch } from './debu
 // Team Leaderboards & Challenges (#253)
 export { LeaderboardManager, leaderboardManager } from './leaderboards';
 export type {
-  LeaderboardEntry,
-  Leaderboard,
+  LeaderboardEntry as TeamLeaderboardEntry,
+  Leaderboard as TeamLeaderboard,
   LeaderboardCategory,
   Challenge,
   ChallengeParticipant,
