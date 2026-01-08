@@ -329,3 +329,26 @@ export type {
   ChallengeParticipant,
   WeeklyStats,
 } from './leaderboards';
+
+// Bug Prediction Engine (#242)
+export { BugPredictionEngine, bugPredictionEngine } from './bug-prediction';
+export type {
+  BugPrediction,
+  BugType,
+  RiskFactor,
+  FileRiskScore,
+  PredictionResult,
+} from './bug-prediction';
+
+// Self-Healing CI/CD Pipelines (#246)
+export { SelfHealingCICD, selfHealingCICD } from './self-healing-cicd';
+export type {
+  PipelineRun,
+  PipelineStage,
+  HealingAttempt,
+  PipelineIssue,
+  IssueType,
+  HealingAction,
+  ActionType,
+  HealingStrategy,
+} from './self-healing-cicd';
