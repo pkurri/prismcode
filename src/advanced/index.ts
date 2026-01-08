@@ -352,3 +352,23 @@ export type {
   ActionType,
   HealingStrategy,
 } from './self-healing-cicd';
+
+// Screen Reader Simulation (#235)
+export { ScreenReaderSimulator, screenReaderSimulator } from './screen-reader';
+export type {
+  ScreenReaderResult,
+  ScreenReaderIssue,
+  NavigationPath,
+  NavigationStep,
+  SimulationConfig,
+} from './screen-reader';
+
+// Green CI/CD Optimizer (#231)
+export { GreenCICDOptimizer, greenCICDOptimizer } from './green-cicd';
+export type {
+  CarbonMetrics as GreenCarbonMetrics,
+  OptimizationSuggestion,
+  SuggestionType,
+  PipelineAnalysis,
+  ScheduleRecommendation,
+} from './green-cicd';
