@@ -399,3 +399,28 @@ export type {
   RemediationAction,
   RemediationResult,
 } from './accessibility-remediation';
+
+// Root Cause Analysis (#237)
+export { RootCauseAnalyzer, rootCauseAnalyzer } from './root-cause-analysis';
+export type {
+  ErrorContext,
+  RootCause,
+  CauseType,
+  AnalysisResult as RootCauseResult,
+  AnalysisStep,
+} from './root-cause-analysis';
+
+// Carbon Footprint Analyzer (#228)
+export { CarbonFootprintAnalyzer, carbonFootprintAnalyzer } from './carbon-analyzer';
+export type {
+  CarbonFootprint,
+  CarbonBreakdown,
+  ResourceUsage,
+  CarbonReport,
+  Contributor,
+  Recommendation as CarbonRecommendation,
+} from './carbon-analyzer';
+
+// Autonomous Fix Generator (#238)
+export { AutonomousFixGenerator, autonomousFixGenerator } from './auto-fix-generator';
+export type { Issue as FixIssue, GeneratedFix, FixResult } from './auto-fix-generator';
