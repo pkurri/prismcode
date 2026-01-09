@@ -12,3 +12,6 @@ node_modules/
 
 # Scripts directory
 scripts/
+
+# Next.js web app (has its own eslint)
+web/
