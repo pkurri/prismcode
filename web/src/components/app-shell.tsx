@@ -147,13 +147,85 @@ const icons = {
       <path d="M13.76 17.5a5 5 0 0 0-6.88-6" />
     </svg>
   ),
+  review: (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+      <polyline points="14 2 14 8 20 8" />
+      <line x1="16" y1="13" x2="8" y2="13" />
+      <line x1="16" y1="17" x2="8" y2="17" />
+    </svg>
+  ),
+  integrations: (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <rect x="2" y="2" width="8" height="8" rx="2" />
+      <rect x="14" y="2" width="8" height="8" rx="2" />
+      <rect x="2" y="14" width="8" height="8" rx="2" />
+      <rect x="14" y="14" width="8" height="8" rx="2" />
+    </svg>
+  ),
+  workflows: (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+    </svg>
+  ),
+  models: (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M12 2L2 7l10 5 10-5-10-5z" />
+      <path d="M2 17l10 5 10-5" />
+      <path d="M2 12l10 5 10-5" />
+    </svg>
+  ),
 };
 
 const menuItems = [
   { title: 'Dashboard', href: '/', icon: icons.dashboard },
   { title: 'AI Assistant', href: '/assistant', icon: icons.brain },
+  { title: 'Code Review', href: '/review', icon: icons.review },
   { title: 'Code Analysis', href: '/analysis', icon: icons.code },
   { title: 'Test Intelligence', href: '/tests', icon: icons.tests },
+  { title: 'Workflows', href: '/workflows', icon: icons.workflows },
+  { title: 'AI Models', href: '/models', icon: icons.models },
+  { title: 'Integrations', href: '/integrations', icon: icons.integrations },
   { title: 'Sustainability', href: '/sustainability', icon: icons.leaf },
   { title: 'Accessibility', href: '/accessibility', icon: icons.accessibility },
   { title: 'Settings', href: '/settings', icon: icons.settings },
