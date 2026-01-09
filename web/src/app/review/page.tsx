@@ -120,7 +120,7 @@ const riskColors = {
   high: 'bg-red-500/10 text-red-600 border-red-500/20',
 };
 
-const categoryIcons: Record<string, JSX.Element> = {
+const categoryIcons: Record<string, React.ReactNode> = {
   security: (
     <svg
       xmlns="http://www.w3.org/2000/svg"
