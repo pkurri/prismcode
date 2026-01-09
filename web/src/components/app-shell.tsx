@@ -334,11 +334,47 @@ const icons = {
       <path d="m9 12 2 2 4-4" />
     </svg>
   ),
+  agents: (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1a7 7 0 0 1 7-7h1V5.73c-.6-.34-1-.99-1-1.73a2 2 0 0 1 2-2z" />
+      <path d="M8 11h.01" />
+      <path d="M16 11h.01" />
+    </svg>
+  ),
+  visual: (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5" />
+      <path d="M9 18h6" />
+      <path d="M10 22h4" />
+    </svg>
+  ),
 };
 
 const menuItems = [
   { title: 'Dashboard', href: '/', icon: icons.dashboard },
   { title: 'AI Assistant', href: '/assistant', icon: icons.brain },
+  { title: 'Agent Swarm', href: '/agents', icon: icons.agents },
+  { title: 'Visual Preview', href: '/visual-preview', icon: icons.visual },
   { title: 'Code Review', href: '/review', icon: icons.review },
   { title: 'Code Analysis', href: '/analysis', icon: icons.code },
   { title: 'Test Intelligence', href: '/tests', icon: icons.tests },
