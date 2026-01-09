@@ -303,6 +303,37 @@ const icons = {
       <path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5" />
     </svg>
   ),
+  techDebt: (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+    </svg>
+  ),
+  compliance: (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+      <path d="m9 12 2 2 4-4" />
+    </svg>
+  ),
 };
 
 const menuItems = [
@@ -316,6 +347,8 @@ const menuItems = [
   { title: 'Deploy', href: '/deploy', icon: icons.deploy },
   { title: 'Sandbox', href: '/sandbox', icon: icons.sandbox },
   { title: 'Security', href: '/security', icon: icons.security },
+  { title: 'Tech Debt', href: '/tech-debt', icon: icons.techDebt },
+  { title: 'Compliance', href: '/compliance', icon: icons.compliance },
   { title: 'Dashboards', href: '/dashboards', icon: icons.dashboards },
   { title: 'Achievements', href: '/achievements', icon: icons.trophy },
   { title: 'Integrations', href: '/integrations', icon: icons.integrations },
