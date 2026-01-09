@@ -372,3 +372,30 @@ export type {
   PipelineAnalysis,
   ScheduleRecommendation,
 } from './green-cicd';
+
+// Live Debug Assistant (#240)
+export { LiveDebugAssistant, liveDebugAssistant } from './live-debug';
+export type {
+  DebugContext,
+  DebugSuggestion,
+  WatchExpression,
+  DebugSession as LiveDebugSession,
+} from './live-debug';
+
+// Sustainability Dashboard (#230)
+export { SustainabilityDashboard, sustainabilityDashboard } from './sustainability-dashboard';
+export type {
+  DashboardMetrics,
+  ProjectMetrics,
+  DashboardWidget,
+  WidgetType,
+  DashboardConfig,
+} from './sustainability-dashboard';
+
+// Accessibility Remediation (#234)
+export { AccessibilityRemediator, accessibilityRemediator } from './accessibility-remediation';
+export type {
+  AccessibilityIssue,
+  RemediationAction,
+  RemediationResult,
+} from './accessibility-remediation';
