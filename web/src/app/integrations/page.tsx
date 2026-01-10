@@ -8,7 +8,29 @@ import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
 
-const integrations = [
+interface Integration {
+  id: string;
+  name: string;
+  desc: string;
+  category: string;
+  status: 'connected' | 'disconnected' | 'needs-setup' | 'error';
+  lastSync: string | null;
+  logo: string;
+  features: string[];
+  health?: {
+    status: 'healthy' | 'degraded' | 'unhealthy';
+    lastCheck: string;
+    latency?: number;
+  };
+  scopes?: string[];
+  capabilities?: {
+    triggers: string[];
+    actions: string[];
+  };
+  exampleWorkflows?: string[];
+}
+
+const integrations: Integration[] = [
   {
     id: 'github',
     name: 'GitHub',
@@ -18,6 +40,13 @@ const integrations = [
     lastSync: '2 mins ago',
     logo: '🐙',
     features: ['PR Analysis', 'Issue Sync', 'Actions'],
+    health: { status: 'healthy', lastCheck: '30s ago', latency: 45 },
+    scopes: ['repo', 'read:org', 'read:user', 'workflow'],
+    capabilities: {
+      triggers: ['PR Opened', 'PR Merged', 'Issue Created', 'Push to Branch'],
+      actions: ['Create PR', 'Add Comment', 'Merge PR', 'Create Issue', 'Run Workflow'],
+    },
+    exampleWorkflows: ['Auto PR Review', 'Issue Triage', 'Release Automation'],
   },
   {
     id: 'gitlab',
@@ -28,6 +57,12 @@ const integrations = [
     lastSync: null,
     logo: '🦊',
     features: ['MR Analysis', 'Pipelines'],
+    scopes: ['api', 'read_repository', 'write_repository'],
+    capabilities: {
+      triggers: ['MR Opened', 'Pipeline Complete', 'Tag Created'],
+      actions: ['Create MR', 'Trigger Pipeline', 'Add Comment'],
+    },
+    exampleWorkflows: ['MR Auto-Review', 'Deploy on Tag'],
   },
   {
     id: 'jira',
@@ -38,6 +73,13 @@ const integrations = [
     lastSync: '15 mins ago',
     logo: '📋',
     features: ['Issue Sync', 'Sprints'],
+    health: { status: 'healthy', lastCheck: '1m ago', latency: 120 },
+    scopes: ['read:jira-work', 'write:jira-work', 'read:sprint'],
+    capabilities: {
+      triggers: ['Issue Created', 'Issue Updated', 'Sprint Started'],
+      actions: ['Create Issue', 'Update Status', 'Add Comment', 'Log Work'],
+    },
+    exampleWorkflows: ['PR to Issue Linking', 'Sprint Sync'],
   },
   {
     id: 'linear',
@@ -48,6 +90,12 @@ const integrations = [
     lastSync: null,
     logo: '⚡',
     features: ['Issue Sync', 'Cycles'],
+    scopes: ['read', 'write', 'issues:create'],
+    capabilities: {
+      triggers: ['Issue Created', 'Issue Completed', 'Cycle Started'],
+      actions: ['Create Issue', 'Update Issue', 'Link PR'],
+    },
+    exampleWorkflows: ['Auto-create from PR', 'Cycle Planning'],
   },
   {
     id: 'slack',
@@ -58,6 +106,13 @@ const integrations = [
     lastSync: '1 min ago',
     logo: '💬',
     features: ['Notifications', 'Commands'],
+    health: { status: 'healthy', lastCheck: '15s ago', latency: 30 },
+    scopes: ['chat:write', 'commands', 'channels:read'],
+    capabilities: {
+      triggers: ['Slash Command', 'Mention', 'Reaction Added'],
+      actions: ['Send Message', 'Send DM', 'Update Message', 'Add Reaction'],
+    },
+    exampleWorkflows: ['Deploy Notifications', 'PR Review Alerts'],
   },
   {
     id: 'vercel',
@@ -68,6 +123,13 @@ const integrations = [
     lastSync: '5 mins ago',
     logo: '▲',
     features: ['Preview Deploys', 'Env Sync'],
+    health: { status: 'healthy', lastCheck: '2m ago', latency: 80 },
+    scopes: ['deployments', 'projects', 'env-vars'],
+    capabilities: {
+      triggers: ['Deploy Started', 'Deploy Complete', 'Deploy Failed'],
+      actions: ['Trigger Deploy', 'Rollback', 'Update Env Var'],
+    },
+    exampleWorkflows: ['PR Preview Deploy', 'Production Release'],
   },
   {
     id: 'snyk',
@@ -78,6 +140,13 @@ const integrations = [
     lastSync: '30 mins ago',
     logo: '🔒',
     features: ['Vuln Scanning', 'Auto-fix'],
+    health: { status: 'degraded', lastCheck: '5m ago', latency: 250 },
+    scopes: ['org.read', 'project.read', 'project.test'],
+    capabilities: {
+      triggers: ['Vulnerability Found', 'Scan Complete'],
+      actions: ['Run Scan', 'Create Fix PR', 'Ignore Issue'],
+    },
+    exampleWorkflows: ['Security Gate', 'Auto-fix Dependencies'],
   },
   {
     id: 'sonarqube',
@@ -88,6 +157,12 @@ const integrations = [
     lastSync: null,
     logo: '📊',
     features: ['Quality Gates', 'Coverage'],
+    scopes: ['scan', 'provisioning', 'user'],
+    capabilities: {
+      triggers: ['Analysis Complete', 'Quality Gate Failed'],
+      actions: ['Run Analysis', 'Get Metrics'],
+    },
+    exampleWorkflows: ['PR Quality Check', 'Coverage Report'],
   },
 ];
 
@@ -204,6 +279,33 @@ export default function IntegrationsPage() {
               </CardHeader>
               <Separator />
               <CardContent className="pt-4 space-y-4">
+                {/* Health Status */}
+                {selected.health && (
+                  <div className="p-3 rounded-lg bg-muted/30">
+                    <div className="flex items-center justify-between mb-2">
+                      <h4 className="text-sm font-medium">Health Status</h4>
+                      <Badge
+                        variant="outline"
+                        className={
+                          selected.health.status === 'healthy'
+                            ? 'bg-green-500/10 text-green-600'
+                            : selected.health.status === 'degraded'
+                            ? 'bg-yellow-500/10 text-yellow-600'
+                            : 'bg-red-500/10 text-red-600'
+                        }
+                      >
+                        {selected.health.status === 'healthy' ? '✓ ' : selected.health.status === 'degraded' ? '⚠ ' : '✗ '}
+                        {selected.health.status}
+                      </Badge>
+                    </div>
+                    <div className="flex justify-between text-xs text-muted-foreground">
+                      <span>Last check: {selected.health.lastCheck}</span>
+                      {selected.health.latency && <span>Latency: {selected.health.latency}ms</span>}
+                    </div>
+                  </div>
+                )}
+
+                {/* Features */}
                 <div>
                   <h4 className="text-sm font-medium mb-2">Features</h4>
                   <div className="flex flex-wrap gap-2">
@@ -214,6 +316,76 @@ export default function IntegrationsPage() {
                     ))}
                   </div>
                 </div>
+
+                {/* OAuth Scopes */}
+                {selected.scopes && selected.scopes.length > 0 && (
+                  <>
+                    <Separator />
+                    <div>
+                      <h4 className="text-sm font-medium mb-2">🔐 Required Scopes</h4>
+                      <div className="flex flex-wrap gap-1">
+                        {selected.scopes.map((scope) => (
+                          <Badge key={scope} variant="outline" className="text-xs font-mono">
+                            {scope}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                {/* Capabilities */}
+                {selected.capabilities && (
+                  <>
+                    <Separator />
+                    <div>
+                      <h4 className="text-sm font-medium mb-2">⚡ Capabilities</h4>
+                      <div className="space-y-2">
+                        <div>
+                          <p className="text-xs text-muted-foreground mb-1">Triggers</p>
+                          <div className="flex flex-wrap gap-1">
+                            {selected.capabilities.triggers.map((t) => (
+                              <Badge key={t} variant="outline" className="text-xs bg-blue-500/10 text-blue-600 border-blue-500/30">
+                                {t}
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+                        <div>
+                          <p className="text-xs text-muted-foreground mb-1">Actions</p>
+                          <div className="flex flex-wrap gap-1">
+                            {selected.capabilities.actions.map((a) => (
+                              <Badge key={a} variant="outline" className="text-xs bg-green-500/10 text-green-600 border-green-500/30">
+                                {a}
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                {/* Example Workflows */}
+                {selected.exampleWorkflows && selected.exampleWorkflows.length > 0 && (
+                  <>
+                    <Separator />
+                    <div>
+                      <h4 className="text-sm font-medium mb-2">📋 Example Workflows</h4>
+                      <div className="space-y-2">
+                        {selected.exampleWorkflows.map((wf) => (
+                          <div key={wf} className="p-2 rounded border border-border/50 bg-background flex items-center justify-between">
+                            <span className="text-sm">{wf}</span>
+                            <Button variant="ghost" size="sm" className="h-6 text-xs">
+                              Use
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </>
+                )}
+
                 <Separator />
                 {selected.status === 'connected' ? (
                   <div className="flex flex-col gap-2">

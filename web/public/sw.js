@@ -1,10 +1,19 @@
-const CACHE_NAME = 'prismcode-v1';
+const CACHE_NAME = 'prismcode-v2';
 const STATIC_ASSETS = [
   '/',
   '/assistant',
   '/review',
+  '/code-review',
   '/analysis',
   '/tests',
+  '/workflows',
+  '/agents',
+  '/settings',
+  '/integrations',
+  '/visualization',
+  '/sustainability',
+  '/accessibility',
+  '/team',
   '/manifest.json',
   '/offline.html',
 ];

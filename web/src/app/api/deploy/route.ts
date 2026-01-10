@@ -1,111 +1,235 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
-// Service connecting to vercel-integration.ts backend module
-interface Deployment {
+// Deployments API
+// Manage deployments, environments, and deployment history
+
+interface Environment {
   id: string;
   name: string;
-  status: 'building' | 'ready' | 'error' | 'queued';
+  type: 'production' | 'staging' | 'preview' | 'development';
   url: string;
-  createdAt: string;
+  status: 'healthy' | 'deploying' | 'failed' | 'stopped';
+  branch: string;
+  version?: string;
+  lastDeployAt: string;
+  config: Record<string, unknown>;
+}
+
+interface Deployment {
+  id: string;
+  envId: string;
+  status: 'pending' | 'building' | 'deploying' | 'success' | 'failed' | 'cancelled';
   branch: string;
   commit: string;
+  author: string;
+  message: string;
+  startedAt: string;
+  completedAt?: string;
+  durationMs?: number;
+  logs: string[];
 }
 
-const deploymentService = {
-  async getDeployments(): Promise<Deployment[]> {
-    // In production: Connect to VercelIntegration from src/advanced/vercel-integration.ts
-    return [
-      {
-        id: 'dpl_1',
-        name: 'prismcode-web',
-        status: 'ready',
-        url: 'https://prismcode.vercel.app',
-        createdAt: '2024-01-09T15:00:00Z',
-        branch: 'main',
-        commit: '8a794f3',
-      },
-      {
-        id: 'dpl_2',
-        name: 'prismcode-web',
-        status: 'ready',
-        url: 'https://prismcode-git-feature-auth.vercel.app',
-        createdAt: '2024-01-09T14:30:00Z',
-        branch: 'feature/auth',
-        commit: 'abc1234',
-      },
-      {
-        id: 'dpl_3',
-        name: 'prismcode-api',
-        status: 'building',
-        url: '',
-        createdAt: '2024-01-09T15:45:00Z',
-        branch: 'main',
-        commit: 'def5678',
-      },
-    ];
-  },
+// Mock data stores
+const environments: Map<string, Environment> = new Map([
+  ['prod', { id: 'prod', name: 'Production', type: 'production', url: 'https://prismcode.dev', status: 'healthy', branch: 'main', version: 'v2.4.1', lastDeployAt: new Date(Date.now() - 7200000).toISOString(), config: { autoDeploy: false } }],
+  ['staging', { id: 'staging', name: 'Staging', type: 'staging', url: 'https://staging.prismcode.dev', status: 'healthy', branch: 'main', version: 'v2.4.2-beta', lastDeployAt: new Date(Date.now() - 1800000).toISOString(), config: { autoDeploy: true } }],
+  ['dev', { id: 'dev', name: 'Development', type: 'development', url: 'http://localhost:3000', status: 'healthy', branch: 'develop', lastDeployAt: new Date().toISOString(), config: {} }],
+]);
 
-  async deploy(options: { branch: string; environment: string }) {
-    // In production: Connect to VercelIntegration.deploy()
-    return {
-      deploymentId: `dpl_${Date.now()}`,
-      status: 'queued',
-      estimatedTime: '45s',
-    };
-  },
+const deployments: Map<string, Deployment> = new Map();
 
-  async getEnvironments() {
-    return [
-      { id: 'production', name: 'Production', url: 'https://prismcode.app', protected: true },
-      { id: 'preview', name: 'Preview', url: 'https://preview.prismcode.app', protected: false },
-      {
-        id: 'development',
-        name: 'Development',
-        url: 'https://dev.prismcode.app',
-        protected: false,
-      },
-    ];
-  },
-};
-
-export async function GET(request: Request) {
+// GET: List environments or deployments
+export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
-  const type = searchParams.get('type') || 'deployments';
+  const envId = searchParams.get('envId');
+  const deployId = searchParams.get('deployId');
+  const view = searchParams.get('view');
 
-  try {
-    switch (type) {
-      case 'deployments':
-        return NextResponse.json({ success: true, data: await deploymentService.getDeployments() });
-      case 'environments':
-        return NextResponse.json({
-          success: true,
-          data: await deploymentService.getEnvironments(),
-        });
-      default:
-        return NextResponse.json({ success: false, error: 'Invalid type' }, { status: 400 });
+  // Get specific deployment
+  if (deployId) {
+    const deploy = deployments.get(deployId);
+    if (!deploy) {
+      return NextResponse.json({ error: 'Deployment not found' }, { status: 404 });
     }
-  } catch (error) {
-    return NextResponse.json({ success: false, error: 'Failed to fetch' }, { status: 500 });
+    return NextResponse.json(deploy);
   }
+
+  // Get environment with its deployments
+  if (envId) {
+    const env = environments.get(envId);
+    if (!env) {
+      return NextResponse.json({ error: 'Environment not found' }, { status: 404 });
+    }
+    const envDeployments = Array.from(deployments.values())
+      .filter(d => d.envId === envId)
+      .sort((a, b) => new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime());
+    return NextResponse.json({ environment: env, deployments: envDeployments });
+  }
+
+  // Summary view
+  if (view === 'summary') {
+    return NextResponse.json({
+      environments: Array.from(environments.values()),
+      stats: {
+        totalDeployments: deployments.size,
+        successRate: 95.5,
+        avgDurationMs: 105000,
+      },
+    });
+  }
+
+  // List all environments
+  return NextResponse.json({
+    environments: Array.from(environments.values()),
+    total: environments.size,
+  });
 }
 
-export async function POST(request: Request) {
+// POST: Trigger deployment or create preview environment
+export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { action, branch = 'main', environment = 'preview' } = body;
+    const { action, envId, branch, commit, prNumber } = body;
 
-    switch (action) {
-      case 'deploy':
-        const result = await deploymentService.deploy({ branch, environment });
-        return NextResponse.json({ success: true, ...result });
-      case 'rollback':
-        return NextResponse.json({ success: true, message: 'Rollback initiated' });
-      case 'cancel':
-        return NextResponse.json({ success: true, message: 'Deployment cancelled' });
-      default:
-        return NextResponse.json({ success: false, error: 'Invalid action' }, { status: 400 });
+    // Trigger deployment
+    if (action === 'deploy') {
+      const env = environments.get(envId);
+      if (!env) {
+        return NextResponse.json({ error: 'Environment not found' }, { status: 404 });
+      }
+
+      if (env.status === 'deploying') {
+        return NextResponse.json({ error: 'Deployment already in progress' }, { status: 409 });
+      }
+
+      const deployment: Deployment = {
+        id: `deploy-${Date.now()}`,
+        envId,
+        status: 'building',
+        branch: branch || env.branch,
+        commit: commit || `${Math.random().toString(36).substring(2, 9)}`,
+        author: 'API User',
+        message: body.message || 'Triggered via API',
+        startedAt: new Date().toISOString(),
+        logs: ['Starting deployment...', 'Cloning repository...'],
+      };
+
+      deployments.set(deployment.id, deployment);
+      env.status = 'deploying';
+      environments.set(envId, env);
+
+      console.log('[Deployment Started]', { deployId: deployment.id, envId, branch: deployment.branch });
+
+      return NextResponse.json({
+        message: 'Deployment started',
+        deployment,
+      }, { status: 202 });
     }
+
+    // Create preview environment for PR
+    if (action === 'create_preview') {
+      if (!prNumber || !branch) {
+        return NextResponse.json({ error: 'prNumber and branch required' }, { status: 400 });
+      }
+
+      const previewId = `preview-${prNumber}`;
+      const preview: Environment = {
+        id: previewId,
+        name: `PR #${prNumber} Preview`,
+        type: 'preview',
+        url: `https://pr-${prNumber}.prismcode.dev`,
+        status: 'deploying',
+        branch,
+        lastDeployAt: new Date().toISOString(),
+        config: { prNumber },
+      };
+
+      environments.set(previewId, preview);
+
+      console.log('[Preview Created]', { previewId, prNumber, branch });
+
+      return NextResponse.json({
+        message: 'Preview environment created',
+        environment: preview,
+      }, { status: 201 });
+    }
+
+    // Rollback deployment
+    if (action === 'rollback') {
+      const env = environments.get(envId);
+      if (!env) {
+        return NextResponse.json({ error: 'Environment not found' }, { status: 404 });
+      }
+
+      // Find previous successful deployment
+      const prevDeploy = Array.from(deployments.values())
+        .filter(d => d.envId === envId && d.status === 'success')
+        .sort((a, b) => new Date(b.startedAt).getTime() - new Date(a.startedAt).getTime())[1];
+
+      if (!prevDeploy) {
+        return NextResponse.json({ error: 'No previous deployment to rollback to' }, { status: 400 });
+      }
+
+      console.log('[Rollback Initiated]', { envId, toCommit: prevDeploy.commit });
+
+      return NextResponse.json({
+        message: 'Rollback initiated',
+        rollingBackTo: prevDeploy,
+      }, { status: 202 });
+    }
+
+    return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
+
   } catch (error) {
-    return NextResponse.json({ success: false, error: 'Deploy failed' }, { status: 500 });
+    console.error('[Deployment API Error]', error);
+    return NextResponse.json({ error: 'Failed to process request' }, { status: 500 });
   }
+}
+
+// DELETE: Cancel deployment or delete preview environment
+export async function DELETE(request: NextRequest) {
+  const { searchParams } = new URL(request.url);
+  const envId = searchParams.get('envId');
+  const deployId = searchParams.get('deployId');
+
+  // Cancel deployment
+  if (deployId) {
+    const deploy = deployments.get(deployId);
+    if (!deploy) {
+      return NextResponse.json({ error: 'Deployment not found' }, { status: 404 });
+    }
+
+    if (!['pending', 'building', 'deploying'].includes(deploy.status)) {
+      return NextResponse.json({ error: 'Deployment cannot be cancelled' }, { status: 400 });
+    }
+
+    deploy.status = 'cancelled';
+    deploy.completedAt = new Date().toISOString();
+    deployments.set(deployId, deploy);
+
+    const env = environments.get(deploy.envId);
+    if (env) {
+      env.status = 'healthy';
+      environments.set(deploy.envId, env);
+    }
+
+    return NextResponse.json({ message: 'Deployment cancelled', deployment: deploy });
+  }
+
+  // Delete preview environment
+  if (envId) {
+    const env = environments.get(envId);
+    if (!env) {
+      return NextResponse.json({ error: 'Environment not found' }, { status: 404 });
+    }
+
+    if (env.type !== 'preview') {
+      return NextResponse.json({ error: 'Can only delete preview environments' }, { status: 400 });
+    }
+
+    environments.delete(envId);
+    return NextResponse.json({ message: 'Preview environment deleted' });
+  }
+
+  return NextResponse.json({ error: 'envId or deployId required' }, { status: 400 });
 }
