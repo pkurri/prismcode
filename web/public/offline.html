@@ -1,91 +1,220 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Offline - PrismCode</title>
-    <style>
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
-      body {
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
-        color: #fff;
-        min-height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-      .container {
-        text-align: center;
-        padding: 2rem;
-      }
-      .logo {
-        width: 80px;
-        height: 80px;
-        background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
-        border-radius: 20px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto 2rem;
-        font-size: 2rem;
-        font-weight: bold;
-        box-shadow: 0 10px 40px rgba(124, 58, 237, 0.3);
-      }
-      h1 {
-        font-size: 2rem;
-        margin-bottom: 1rem;
-      }
-      p {
-        color: #888;
-        margin-bottom: 2rem;
-        max-width: 400px;
-      }
-      .btn {
-        background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
-        color: white;
-        border: none;
-        padding: 12px 24px;
-        border-radius: 8px;
-        font-size: 1rem;
-        cursor: pointer;
-        transition:
-          transform 0.2s,
-          box-shadow 0.2s;
-      }
-      .btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 5px 20px rgba(124, 58, 237, 0.4);
-      }
-      .status {
-        margin-top: 2rem;
-        padding: 1rem;
-        background: rgba(255, 255, 255, 0.05);
-        border-radius: 8px;
-        font-size: 0.875rem;
-        color: #666;
-      }
-    </style>
-  </head>
-  <body>
-    <div class="container">
-      <div class="logo">P</div>
-      <h1>You're Offline</h1>
-      <p>
-        It looks like you've lost your internet connection. Some features may be unavailable until
-        you're back online.
-      </p>
-      <button class="btn" onclick="location.reload()">Try Again</button>
-      <div class="status">
-        <p>Cached pages are still available</p>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#7c3aed">
+  <title>Offline - PrismCode</title>
+  <link rel="manifest" href="/manifest.json">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, #0a0a0b 0%, #1a1a2e 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      padding: 24px;
+      text-align: center;
+    }
+    
+    .container {
+      max-width: 400px;
+    }
+    
+    .icon {
+      width: 120px;
+      height: 120px;
+      margin-bottom: 32px;
+      background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+      border-radius: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 48px;
+      margin-left: auto;
+      margin-right: auto;
+      box-shadow: 0 20px 40px rgba(124, 58, 237, 0.3);
+    }
+    
+    h1 {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      background: linear-gradient(135deg, #fff 0%, #a78bfa 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    
+    p {
+      color: #94a3b8;
+      font-size: 16px;
+      line-height: 1.6;
+      margin-bottom: 32px;
+    }
+    
+    .actions {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    
+    button {
+      padding: 16px 24px;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s ease;
+    }
+    
+    .primary {
+      background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+      color: white;
+    }
+    
+    .primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(124, 58, 237, 0.4);
+    }
+    
+    .secondary {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .secondary:hover {
+      background: rgba(255, 255, 255, 0.15);
+    }
+    
+    .status {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 32px;
+      font-size: 14px;
+      color: #64748b;
+    }
+    
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #f59e0b;
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    
+    .cached-pages {
+      margin-top: 48px;
+      padding-top: 32px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .cached-pages h2 {
+      font-size: 14px;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 16px;
+    }
+    
+    .page-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+    }
+    
+    .page-link {
+      padding: 8px 16px;
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 8px;
+      color: #a78bfa;
+      text-decoration: none;
+      font-size: 14px;
+      transition: background 0.2s;
+    }
+    
+    .page-link:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="icon">📡</div>
+    <h1>You're Offline</h1>
+    <p>
+      It looks like you've lost your internet connection. 
+      Don't worry – you can still access cached pages while we wait for the connection to return.
+    </p>
+    
+    <div class="actions">
+      <button class="primary" onclick="location.reload()">
+        Try Again
+      </button>
+      <button class="secondary" onclick="history.back()">
+        Go Back
+      </button>
+    </div>
+    
+    <div class="status">
+      <span class="status-dot"></span>
+      <span>Waiting for connection...</span>
+    </div>
+    
+    <div class="cached-pages">
+      <h2>Available Offline</h2>
+      <div class="page-list">
+        <a href="/" class="page-link">Dashboard</a>
+        <a href="/agents" class="page-link">Agents</a>
+        <a href="/workflows" class="page-link">Workflows</a>
+        <a href="/tests" class="page-link">Tests</a>
+        <a href="/settings" class="page-link">Settings</a>
       </div>
     </div>
-    <script>
-      window.addEventListener('online', () => location.reload());
-    </script>
-  </body>
+  </div>
+
+  <script>
+    // Auto-reload when back online
+    window.addEventListener('online', () => {
+      location.reload();
+    });
+    
+    // Update status when connection changes
+    function updateStatus() {
+      const statusText = document.querySelector('.status span:last-child');
+      const statusDot = document.querySelector('.status-dot');
+      
+      if (navigator.onLine) {
+        statusText.textContent = 'Connection restored!';
+        statusDot.style.background = '#22c55e';
+        setTimeout(() => location.reload(), 1000);
+      } else {
+        statusText.textContent = 'Waiting for connection...';
+        statusDot.style.background = '#f59e0b';
+      }
+    }
+    
+    window.addEventListener('online', updateStatus);
+    window.addEventListener('offline', updateStatus);
+  </script>
+</body>
 </html>

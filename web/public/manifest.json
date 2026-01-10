@@ -1,37 +1,43 @@
 {
   "name": "PrismCode",
   "short_name": "PrismCode",
-  "description": "AI-Powered Code Intelligence Platform",
+  "description": "AI-Powered Multi-Agent Code Intelligence Platform",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0a0a0a",
+  "background_color": "#0a0a0b",
   "theme_color": "#7c3aed",
-  "orientation": "portrait-primary",
+  "orientation": "any",
+  "scope": "/",
   "icons": [
     {
       "src": "/icons/icon-72x72.png",
       "sizes": "72x72",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
       "src": "/icons/icon-96x96.png",
       "sizes": "96x96",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
       "src": "/icons/icon-128x128.png",
       "sizes": "128x128",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
       "src": "/icons/icon-144x144.png",
       "sizes": "144x144",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
       "src": "/icons/icon-152x152.png",
       "sizes": "152x152",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
       "src": "/icons/icon-192x192.png",
@@ -42,7 +48,8 @@
     {
       "src": "/icons/icon-384x384.png",
       "sizes": "384x384",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
       "src": "/icons/icon-512x512.png",
@@ -51,22 +58,61 @@
       "purpose": "any maskable"
     }
   ],
-  "categories": ["developer-tools", "productivity"],
+  "screenshots": [
+    {
+      "src": "/screenshots/dashboard-wide.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "PrismCode Dashboard"
+    },
+    {
+      "src": "/screenshots/mobile.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "PrismCode Mobile"
+    }
+  ],
+  "categories": ["developer-tools", "productivity", "utilities"],
   "shortcuts": [
     {
       "name": "Dashboard",
+      "short_name": "Home",
       "url": "/",
-      "description": "Open Dashboard"
+      "description": "Open Dashboard",
+      "icons": [{ "src": "/icons/shortcut-dashboard.png", "sizes": "96x96" }]
     },
     {
       "name": "Code Review",
-      "url": "/review",
-      "description": "Review Pull Requests"
+      "short_name": "Review",
+      "url": "/code-review",
+      "description": "AI Code Review",
+      "icons": [{ "src": "/icons/shortcut-review.png", "sizes": "96x96" }]
     },
     {
       "name": "AI Assistant",
+      "short_name": "Assistant",
       "url": "/assistant",
-      "description": "Chat with AI"
+      "description": "Chat with AI",
+      "icons": [{ "src": "/icons/shortcut-assistant.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Workflows",
+      "short_name": "Workflows",
+      "url": "/workflows",
+      "description": "Automation Workflows",
+      "icons": [{ "src": "/icons/shortcut-workflows.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Tests",
+      "short_name": "Tests",
+      "url": "/tests",
+      "description": "Test Intelligence",
+      "icons": [{ "src": "/icons/shortcut-tests.png", "sizes": "96x96" }]
     }
-  ]
+  ],
+  "related_applications": [],
+  "prefer_related_applications": false
 }
+
