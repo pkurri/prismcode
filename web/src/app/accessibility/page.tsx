@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -22,23 +23,59 @@ const wcagResults = [
 ];
 
 export default function AccessibilityPage() {
+  const [isScanning, setIsScanning] = useState(false);
+  const [lastFix, setLastFix] = useState<string | null>(null);
+
+  const runScan = () => {
+    setIsScanning(true);
+    setTimeout(() => setIsScanning(false), 2000);
+  };
+
+  const applyFix = (id: string) => {
+    setLastFix(id);
+    setTimeout(() => setLastFix(null), 3000);
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Accessibility</h1>
-          <p className="text-muted-foreground">WCAG compliance and accessibility scanning</p>
+          <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">
+            Accessibility
+          </h1>
+          <p className="text-muted-foreground mt-1">
+            WCAG 2.1 AA compliance monitoring and auto-remediation
+          </p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline">Screen Reader Test</Button>
-          <Button className="bg-gradient-to-r from-violet-600 to-purple-600">Run Full Scan</Button>
+          <Button variant="outline">Screen Reader Simulator</Button>
+          <Button
+            className="bg-gradient-to-r from-violet-600 to-purple-600 text-white"
+            onClick={runScan}
+            disabled={isScanning}
+          >
+            {isScanning ? 'Scanning...' : 'Run Full Scan'}
+          </Button>
         </div>
       </div>
 
+      {lastFix && (
+        <Card className="bg-green-500/10 border-green-500/50">
+          <CardContent className="py-3 flex items-center justify-between">
+            <p className="text-sm font-medium text-green-600">
+              ✓ Optimization applied for {lastFix}. PR created.
+            </p>
+            <Button variant="ghost" size="sm" className="text-green-600">
+              View PR
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Score Overview */}
       <div className="grid gap-4 md:grid-cols-4">
-        <Card className="border-border/50 col-span-1">
+        <Card className="border-border/50 col-span-1 shadow-sm">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">A11y Score</CardTitle>
           </CardHeader>
@@ -48,12 +85,12 @@ export default function AccessibilityPage() {
             >
               {accessibilityScore}%
             </div>
-            <p className="text-sm text-muted-foreground">WCAG 2.1 AA</p>
+            <p className="text-xs text-muted-foreground mt-1">Overall Compliance</p>
           </CardContent>
         </Card>
 
         {issues.slice(0, 3).map((issue) => (
-          <Card key={issue.type} className="border-border/50">
+          <Card key={issue.description} className="border-border/50 shadow-sm">
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground capitalize">
                 {issue.type}
@@ -71,42 +108,49 @@ export default function AccessibilityPage() {
               >
                 {issue.count}
               </div>
-              <p className="text-sm text-muted-foreground truncate">{issue.description}</p>
+              <p className="text-xs text-muted-foreground truncate mt-1">{issue.description}</p>
             </CardContent>
           </Card>
         ))}
       </div>
 
       {/* WCAG Compliance */}
-      <Card className="border-border/50">
+      <Card className="border-border/50 shadow-sm">
         <CardHeader>
-          <CardTitle>WCAG 2.1 Compliance</CardTitle>
-          <CardDescription>Success criteria evaluation</CardDescription>
+          <CardTitle className="text-lg">WCAG 2.1 Audit Results</CardTitle>
+          <CardDescription>Systematic evaluation of success criteria</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-3">
+        <CardContent className="space-y-4">
           {wcagResults.map((result, i) => (
-            <div key={i} className="flex items-center justify-between p-4 rounded-lg bg-muted/30">
+            <div
+              key={i}
+              className="flex items-center justify-between p-4 rounded-xl border bg-muted/20 hover:bg-muted/30 transition-colors"
+            >
               <div className="flex items-center gap-4">
                 <div
                   className={`h-3 w-3 rounded-full ${
                     result.status === 'pass'
-                      ? 'bg-green-500'
+                      ? 'bg-green-500 shadow-[0_0_8px_rgba(34,197,94,0.5)]'
                       : result.status === 'partial'
                         ? 'bg-amber-500'
                         : 'bg-red-500'
                   }`}
                 />
                 <div>
-                  <p className="font-medium">{result.criterion}</p>
-                  <Badge variant="outline" className="mt-1">
-                    Level {result.level}
-                  </Badge>
+                  <p className="font-semibold text-sm">{result.criterion}</p>
+                  <div className="flex gap-2 mt-1">
+                    <Badge variant="outline" className="text-[10px] h-4">
+                      Level {result.level}
+                    </Badge>
+                    {result.issues > 0 && (
+                      <span className="text-[10px] text-muted-foreground">
+                        {result.issues} issues detected
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                {result.issues > 0 && (
-                  <span className="text-sm text-muted-foreground">{result.issues} issues</span>
-                )}
                 <Badge
                   variant={
                     result.status === 'pass'
@@ -115,12 +159,13 @@ export default function AccessibilityPage() {
                         ? 'default'
                         : 'destructive'
                   }
+                  className="text-xs"
                 >
                   {result.status}
                 </Badge>
                 {result.issues > 0 && (
-                  <Button size="sm" variant="outline">
-                    Fix
+                  <Button size="sm" variant="outline" onClick={() => applyFix(result.criterion)}>
+                    Auto-fix
                   </Button>
                 )}
               </div>
@@ -130,35 +175,59 @@ export default function AccessibilityPage() {
       </Card>
 
       {/* Quick Actions */}
-      <Card className="border-border/50">
+      <Card className="border-border/50 shadow-sm">
         <CardHeader>
-          <CardTitle>Quick Actions</CardTitle>
-          <CardDescription>Common accessibility fixes</CardDescription>
+          <CardTitle className="text-lg">Remediation Center</CardTitle>
+          <CardDescription>Rapidly fix common accessibility bottlenecks</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="grid gap-3 md:grid-cols-2">
-            <Button variant="outline" className="justify-start h-auto py-4">
+            <Button
+              variant="outline"
+              className="justify-start h-auto py-5 px-6 border-l-4 border-l-violet-600 hover:bg-violet-50 dark:hover:bg-violet-950/20"
+              onClick={() => applyFix('Alt Text')}
+            >
               <div className="text-left">
-                <p className="font-medium">Add Missing Alt Text</p>
-                <p className="text-sm text-muted-foreground">3 images need descriptions</p>
+                <p className="font-bold text-sm">Add Missing Alt Text</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  3 images missing descriptive attributes
+                </p>
               </div>
             </Button>
-            <Button variant="outline" className="justify-start h-auto py-4">
+            <Button
+              variant="outline"
+              className="justify-start h-auto py-5 px-6 border-l-4 border-l-amber-500 hover:bg-amber-50 dark:hover:bg-amber-950/20"
+              onClick={() => applyFix('Contrast')}
+            >
               <div className="text-left">
-                <p className="font-medium">Fix Color Contrast</p>
-                <p className="text-sm text-muted-foreground">8 elements below 4.5:1 ratio</p>
+                <p className="font-bold text-sm">Fix Color Contrast</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  8 text elements failing minimum ratios
+                </p>
               </div>
             </Button>
-            <Button variant="outline" className="justify-start h-auto py-4">
+            <Button
+              variant="outline"
+              className="justify-start h-auto py-5 px-6 border-l-4 border-l-blue-500 hover:bg-blue-50 dark:hover:bg-blue-950/20"
+              onClick={() => applyFix('Labels')}
+            >
               <div className="text-left">
-                <p className="font-medium">Add Form Labels</p>
-                <p className="text-sm text-muted-foreground">12 inputs missing labels</p>
+                <p className="font-bold text-sm">Add Form Labels</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  12 inputs missing explicit &lt;label&gt; tags
+                </p>
               </div>
             </Button>
-            <Button variant="outline" className="justify-start h-auto py-4">
+            <Button
+              variant="outline"
+              className="justify-start h-auto py-5 px-6 border-l-4 border-l-green-600 hover:bg-green-50 dark:hover:bg-green-950/20"
+              onClick={() => applyFix('Skip Links')}
+            >
               <div className="text-left">
-                <p className="font-medium">Add Skip Links</p>
-                <p className="text-sm text-muted-foreground">Improve keyboard navigation</p>
+                <p className="font-bold text-sm">Inject Skip Navigation</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Improve keyboard accessibility score by 15%
+                </p>
               </div>
             </Button>
           </div>
