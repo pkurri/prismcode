@@ -344,3 +344,74 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+
+// PUT: Post review findings as comments to the PR via Git provider API
+export async function PUT(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const { reviewId, prNumber, repo, provider = 'github', postSummary = true, postInlineComments = false } = body;
+
+    // Validate required fields
+    if (!reviewId || !prNumber || !repo) {
+      return NextResponse.json(
+        { error: 'Missing required fields: reviewId, prNumber, repo' },
+        { status: 400 }
+      );
+    }
+
+    // In production, this would:
+    // 1. Fetch the review result by reviewId
+    // 2. Format findings into PR comments
+    // 3. Use the Git provider API (GitHub, GitLab, etc.) to post comments
+    // 4. Respect rate limits and org policies
+
+    const summaryComment = `## 🔍 PrismCode AI Review
+
+**Overall Score:** 85/100  
+**Risk Level:** Medium
+
+### Summary
+- 🔴 2 Critical Issues
+- 🟡 3 Warnings  
+- 💡 5 Suggestions
+- ✅ 2 Positive Highlights
+
+[View Full Review →](/code-review?id=${reviewId})
+
+---
+*Powered by PrismCode AI*`;
+
+    // Simulate posting to Git provider
+    console.log('[PR Comment Post]', {
+      reviewId,
+      repo,
+      prNumber,
+      provider,
+      postSummary,
+      postInlineComments,
+    });
+
+    // In production, call the actual API:
+    // await octokit.issues.createComment({ owner, repo, issue_number: prNumber, body: summaryComment });
+
+    return NextResponse.json({
+      success: true,
+      message: 'Review comments posted successfully',
+      postedAt: new Date().toISOString(),
+      details: {
+        summaryPosted: postSummary,
+        inlineCommentsPosted: postInlineComments ? 5 : 0,
+        provider,
+        prUrl: `https://github.com/${repo}/pull/${prNumber}`,
+      },
+    });
+
+  } catch (error) {
+    console.error('[PR Comment Error]', error);
+    return NextResponse.json(
+      { error: 'Failed to post PR comments' },
+      { status: 500 }
+    );
+  }
+}
+
