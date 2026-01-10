@@ -1,326 +1,312 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
 
-const models = [
-  {
-    id: 'gpt-4o',
-    name: 'GPT-4o',
-    provider: 'OpenAI',
-    context: '128K',
-    cost: '$$$',
-    speed: 'Fast',
-    quality: 'Excellent',
-    capabilities: ['code', 'vision', 'reasoning'],
-    status: 'active',
-    recommended: true,
-  },
-  {
-    id: 'gpt-4-turbo',
-    name: 'GPT-4 Turbo',
-    provider: 'OpenAI',
-    context: '128K',
-    cost: '$$$',
-    speed: 'Medium',
-    quality: 'Excellent',
-    capabilities: ['code', 'reasoning'],
-    status: 'active',
-    recommended: false,
-  },
-  {
-    id: 'claude-3.5-sonnet',
-    name: 'Claude 3.5 Sonnet',
-    provider: 'Anthropic',
-    context: '200K',
-    cost: '$$',
-    speed: 'Fast',
-    quality: 'Excellent',
-    capabilities: ['code', 'reasoning'],
-    status: 'active',
-    recommended: true,
-  },
-  {
-    id: 'claude-3-opus',
-    name: 'Claude 3 Opus',
-    provider: 'Anthropic',
-    context: '200K',
-    cost: '$$$',
-    speed: 'Slow',
-    quality: 'Best',
-    capabilities: ['code', 'vision', 'reasoning'],
-    status: 'active',
-    recommended: false,
-  },
-  {
-    id: 'gemini-pro',
-    name: 'Gemini 1.5 Pro',
-    provider: 'Google',
-    context: '1M',
-    cost: '$$',
-    speed: 'Fast',
-    quality: 'Great',
-    capabilities: ['code', 'vision'],
-    status: 'active',
-    recommended: false,
-  },
-  {
-    id: 'llama-3.2',
-    name: 'Llama 3.2 70B',
-    provider: 'Local/Ollama',
-    context: '128K',
-    cost: 'Free',
-    speed: 'Variable',
-    quality: 'Good',
-    capabilities: ['code'],
-    status: 'available',
-    recommended: false,
-  },
-  {
-    id: 'mistral-large',
-    name: 'Mistral Large',
-    provider: 'Mistral',
-    context: '32K',
-    cost: '$',
-    speed: 'Fast',
-    quality: 'Good',
-    capabilities: ['code'],
-    status: 'available',
-    recommended: false,
-  },
-  {
-    id: 'codestral',
-    name: 'Codestral',
-    provider: 'Mistral',
-    context: '32K',
-    cost: '$',
-    speed: 'Very Fast',
-    quality: 'Great',
-    capabilities: ['code'],
-    status: 'active',
-    recommended: true,
-  },
+interface AIModel {
+  id: string;
+  provider: string;
+  name: string;
+  contextWindow: number;
+  pricing: { input: number; output: number };
+  latencyMs: number;
+  capabilities: string[];
+  quality: string;
+  status: 'available' | 'beta' | 'deprecated';
+}
+
+interface TaskDefaults {
+  task: string;
+  label: string;
+  icon: string;
+  defaultModel: string;
+  description: string;
+}
+
+interface UsageStats {
+  model: string;
+  calls: number;
+  tokens: number;
+  cost: number;
+}
+
+const taskDefaults: TaskDefaults[] = [
+  { task: 'code-generation', label: 'Code Generation', icon: '💻', defaultModel: 'claude-3-sonnet', description: 'Writing new code, functions, and components' },
+  { task: 'code-review', label: 'Code Review', icon: '🔍', defaultModel: 'gpt-4-turbo', description: 'Analyzing PRs for issues and improvements' },
+  { task: 'docs', label: 'Documentation', icon: '📝', defaultModel: 'claude-3-sonnet', description: 'Generating and updating documentation' },
+  { task: 'tests', label: 'Test Generation', icon: '🧪', defaultModel: 'deepseek-coder', description: 'Creating unit and integration tests' },
+  { task: 'chat', label: 'Chat & Q&A', icon: '💬', defaultModel: 'gpt-4o', description: 'Conversational AI assistance' },
 ];
 
-const taskDefaults = [
-  { task: 'Code Generation', model: 'claude-3.5-sonnet', icon: '💻' },
-  { task: 'Code Review', model: 'gpt-4o', icon: '🔍' },
-  { task: 'Documentation', model: 'gpt-4-turbo', icon: '📝' },
-  { task: 'Test Generation', model: 'codestral', icon: '🧪' },
-  { task: 'Chat/Q&A', model: 'claude-3.5-sonnet', icon: '💬' },
-  { task: 'Debugging', model: 'gpt-4o', icon: '🐛' },
+const mockUsageStats: UsageStats[] = [
+  { model: 'claude-3-sonnet', calls: 1245, tokens: 2500000, cost: 12.50 },
+  { model: 'gpt-4-turbo', calls: 856, tokens: 1800000, cost: 45.00 },
+  { model: 'deepseek-coder', calls: 432, tokens: 950000, cost: 0.35 },
+  { model: 'gpt-4o', calls: 678, tokens: 1200000, cost: 9.60 },
+  { model: 'gemini-pro', calls: 234, tokens: 480000, cost: 1.20 },
 ];
 
-const usageData = [
-  { date: 'Today', calls: 234, tokens: '1.2M', cost: '$4.56' },
-  { date: 'Yesterday', calls: 189, tokens: '980K', cost: '$3.21' },
-  { date: 'This Week', calls: 1245, tokens: '6.8M', cost: '$23.45' },
-  { date: 'This Month', calls: 4567, tokens: '24M', cost: '$89.12' },
+const strategies = [
+  { id: 'quality', label: 'Quality', icon: '⭐', description: 'Best results, higher cost' },
+  { id: 'speed', label: 'Speed', icon: '⚡', description: 'Fastest response times' },
+  { id: 'cost', label: 'Cost', icon: '💰', description: 'Most economical option' },
 ];
 
-export default function ModelsPage() {
-  const [selected, setSelected] = useState<(typeof models)[0] | null>(null);
-  const [routingPolicy, setRoutingPolicy] = useState('balanced');
+export default function AIModelsPage() {
+  const [models, setModels] = useState<AIModel[]>([]);
+  const [selectedStrategy, setSelectedStrategy] = useState('quality');
+  const [taskModelMap, setTaskModelMap] = useState<Record<string, string>>({});
+  const [loading, setLoading] = useState(true);
 
-  const costColors: Record<string, string> = {
-    Free: 'text-green-600',
-    $: 'text-blue-600',
-    $$: 'text-yellow-600',
-    $$$: 'text-red-600',
+  useEffect(() => {
+    // Fetch models from the orchestration API
+    fetch('/api/ai/orchestration')
+      .then(res => res.json())
+      .then(data => {
+        setModels(data.models || []);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+
+    // Initialize task defaults
+    const defaults: Record<string, string> = {};
+    taskDefaults.forEach(t => { defaults[t.task] = t.defaultModel; });
+    setTaskModelMap(defaults);
+  }, []);
+
+  const formatNumber = (num: number) => {
+    if (num >= 1000000) return `${(num / 1000000).toFixed(1)}M`;
+    if (num >= 1000) return `${(num / 1000).toFixed(0)}K`;
+    return num.toString();
   };
-  const qualityColors: Record<string, string> = {
-    Good: 'bg-blue-500',
-    Great: 'bg-green-500',
-    Excellent: 'bg-purple-500',
-    Best: 'bg-violet-500',
+
+  const getProviderColor = (provider: string) => {
+    switch (provider) {
+      case 'openai': return 'bg-green-500/10 text-green-500 border-green-500/30';
+      case 'anthropic': return 'bg-orange-500/10 text-orange-500 border-orange-500/30';
+      case 'google': return 'bg-blue-500/10 text-blue-500 border-blue-500/30';
+      case 'deepseek': return 'bg-purple-500/10 text-purple-500 border-purple-500/30';
+      default: return 'bg-gray-500/10 text-gray-500 border-gray-500/30';
+    }
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">
-            AI Models
-          </h1>
-          <p className="text-muted-foreground mt-1">
-            Configure and route AI models for optimal results
-          </p>
-        </div>
-        <Button variant="outline">Add Custom Model</Button>
+    <div className="p-6 max-w-7xl mx-auto">
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">
+          AI Model Selection
+        </h1>
+        <p className="text-muted-foreground mt-1">
+          Configure which AI models are used for different tasks
+        </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Models Table */}
-        <Card className="lg:col-span-2">
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-base">Available Models</CardTitle>
-              <Tabs value={routingPolicy} onValueChange={setRoutingPolicy}>
-                <TabsList className="h-8">
-                  <TabsTrigger value="cost" className="text-xs">
-                    Cost
-                  </TabsTrigger>
-                  <TabsTrigger value="balanced" className="text-xs">
-                    Balanced
-                  </TabsTrigger>
-                  <TabsTrigger value="quality" className="text-xs">
-                    Quality
-                  </TabsTrigger>
-                </TabsList>
-              </Tabs>
-            </div>
-          </CardHeader>
-          <CardContent className="p-0">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b bg-muted/50">
-                  <th className="text-left p-3 font-medium">Model</th>
-                  <th className="text-left p-3 font-medium">Context</th>
-                  <th className="text-left p-3 font-medium">Cost</th>
-                  <th className="text-left p-3 font-medium">Quality</th>
-                  <th className="text-left p-3 font-medium">Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {models.map((m) => (
-                  <tr
-                    key={m.id}
-                    className={`border-b hover:bg-muted/30 cursor-pointer transition-colors ${selected?.id === m.id ? 'bg-primary/5' : ''}`}
-                    onClick={() => setSelected(m)}
-                  >
-                    <td className="p-3">
-                      <div className="flex items-center gap-2">
-                        <span className="font-medium">{m.name}</span>
-                        {m.recommended && <Badge className="text-[10px] h-4">Recommended</Badge>}
-                      </div>
-                      <span className="text-xs text-muted-foreground">{m.provider}</span>
-                    </td>
-                    <td className="p-3 text-muted-foreground">{m.context}</td>
-                    <td className={`p-3 font-medium ${costColors[m.cost]}`}>{m.cost}</td>
-                    <td className="p-3">
-                      <div className="flex items-center gap-2">
-                        <div className={`h-2 w-2 rounded-full ${qualityColors[m.quality]}`} />
-                        {m.quality}
-                      </div>
-                    </td>
-                    <td className="p-3">
-                      <Badge
-                        variant={m.status === 'active' ? 'default' : 'secondary'}
-                        className="text-xs"
-                      >
-                        {m.status}
+      <Tabs defaultValue="models" className="space-y-6">
+        <TabsList>
+          <TabsTrigger value="models">Available Models</TabsTrigger>
+          <TabsTrigger value="routing">Task Routing</TabsTrigger>
+          <TabsTrigger value="usage">Usage Dashboard</TabsTrigger>
+        </TabsList>
+
+        {/* Models Tab */}
+        <TabsContent value="models" className="space-y-4">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {loading ? (
+              <p className="text-muted-foreground col-span-full">Loading models...</p>
+            ) : (
+              models.map((model) => (
+                <Card key={model.id} className="hover:shadow-md transition-shadow">
+                  <CardHeader className="pb-2">
+                    <div className="flex items-center justify-between">
+                      <Badge variant="outline" className={getProviderColor(model.provider)}>
+                        {model.provider}
                       </Badge>
-                    </td>
-                  </tr>
+                      <Badge variant={model.status === 'available' ? 'default' : 'secondary'}>
+                        {model.status}
+                      </Badge>
+                    </div>
+                    <CardTitle className="text-lg mt-2">{model.name}</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div className="grid grid-cols-2 gap-2 text-sm">
+                      <div>
+                        <p className="text-muted-foreground">Context</p>
+                        <p className="font-medium">{formatNumber(model.contextWindow)} tokens</p>
+                      </div>
+                      <div>
+                        <p className="text-muted-foreground">Latency</p>
+                        <p className="font-medium">{model.latencyMs}ms avg</p>
+                      </div>
+                      <div>
+                        <p className="text-muted-foreground">Input</p>
+                        <p className="font-medium">${model.pricing.input}/1K</p>
+                      </div>
+                      <div>
+                        <p className="text-muted-foreground">Output</p>
+                        <p className="font-medium">${model.pricing.output}/1K</p>
+                      </div>
+                    </div>
+                    <Separator />
+                    <div className="flex flex-wrap gap-1">
+                      {model.capabilities.slice(0, 4).map((cap) => (
+                        <Badge key={cap} variant="secondary" className="text-xs">{cap}</Badge>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))
+            )}
+          </div>
+        </TabsContent>
+
+        {/* Task Routing Tab */}
+        <TabsContent value="routing" className="space-y-6">
+          {/* Strategy Selector */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Routing Strategy</CardTitle>
+              <CardDescription>Choose how models are selected for tasks</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-3 gap-4">
+                {strategies.map((strategy) => (
+                  <button
+                    key={strategy.id}
+                    onClick={() => setSelectedStrategy(strategy.id)}
+                    className={`p-4 rounded-lg border-2 text-left transition-all ${
+                      selectedStrategy === strategy.id
+                        ? 'border-primary bg-primary/5'
+                        : 'border-border hover:border-primary/50'
+                    }`}
+                  >
+                    <div className="text-2xl mb-2">{strategy.icon}</div>
+                    <h3 className="font-semibold">{strategy.label}</h3>
+                    <p className="text-sm text-muted-foreground">{strategy.description}</p>
+                  </button>
                 ))}
-              </tbody>
-            </table>
-          </CardContent>
-        </Card>
-
-        {/* Model Details / Task Defaults */}
-        <div className="space-y-6">
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base">Per-Task Defaults</CardTitle>
-              <CardDescription>Auto-route by task type</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-2">
-              {taskDefaults.map((t) => (
-                <div
-                  key={t.task}
-                  className="flex items-center justify-between p-2 rounded-lg hover:bg-muted/50"
-                >
-                  <div className="flex items-center gap-2">
-                    <span>{t.icon}</span>
-                    <span className="text-sm">{t.task}</span>
-                  </div>
-                  <Badge variant="outline" className="text-xs">
-                    {models.find((m) => m.id === t.model)?.name}
-                  </Badge>
-                </div>
-              ))}
-              <Button variant="outline" size="sm" className="w-full mt-2">
-                Configure Defaults
-              </Button>
+              </div>
             </CardContent>
           </Card>
 
+          {/* Per-Task Defaults */}
           <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-base">Usage This Month</CardTitle>
+            <CardHeader>
+              <CardTitle>Task Defaults</CardTitle>
+              <CardDescription>Override model selection per task type</CardDescription>
             </CardHeader>
-            <CardContent className="space-y-3">
-              {usageData.map((u) => (
-                <div key={u.date} className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">{u.date}</span>
-                  <div className="text-right">
-                    <p className="text-sm font-medium">{u.cost}</p>
-                    <p className="text-xs text-muted-foreground">{u.tokens} tokens</p>
+            <CardContent className="space-y-4">
+              {taskDefaults.map((task) => (
+                <div key={task.task} className="flex items-center justify-between p-4 rounded-lg bg-muted/30">
+                  <div className="flex items-center gap-3">
+                    <span className="text-2xl">{task.icon}</span>
+                    <div>
+                      <h4 className="font-medium">{task.label}</h4>
+                      <p className="text-sm text-muted-foreground">{task.description}</p>
+                    </div>
                   </div>
+                  <select
+                    value={taskModelMap[task.task] || task.defaultModel}
+                    onChange={(e) => setTaskModelMap({ ...taskModelMap, [task.task]: e.target.value })}
+                    className="px-3 py-2 rounded-md border border-border bg-background text-sm"
+                  >
+                    <option value="">Auto ({selectedStrategy})</option>
+                    {models.map((model) => (
+                      <option key={model.id} value={model.id}>{model.name}</option>
+                    ))}
+                  </select>
                 </div>
               ))}
-              <Separator />
-              <Button variant="outline" size="sm" className="w-full">
-                View Full Analytics
+              <Button className="w-full bg-gradient-to-r from-violet-600 to-purple-600 text-white">
+                Save Preferences
               </Button>
             </CardContent>
           </Card>
-        </div>
-      </div>
+        </TabsContent>
 
-      {/* Selected Model Details */}
-      {selected && (
-        <Card>
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle>{selected.name}</CardTitle>
-                <CardDescription>
-                  {selected.provider} · {selected.context} context
-                </CardDescription>
+        {/* Usage Dashboard Tab */}
+        <TabsContent value="usage" className="space-y-6">
+          <div className="grid gap-4 md:grid-cols-4">
+            <Card>
+              <CardHeader className="pb-2">
+                <CardDescription>Total API Calls</CardDescription>
+                <CardTitle className="text-3xl">3,445</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-xs text-muted-foreground">↑ 12% from last week</p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="pb-2">
+                <CardDescription>Tokens Used</CardDescription>
+                <CardTitle className="text-3xl">6.9M</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-xs text-muted-foreground">↓ 3% from last week</p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="pb-2">
+                <CardDescription>Total Cost</CardDescription>
+                <CardTitle className="text-3xl">$68.65</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-xs text-muted-foreground">This billing period</p>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="pb-2">
+                <CardDescription>Avg Latency</CardDescription>
+                <CardTitle className="text-3xl">847ms</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-xs text-muted-foreground">Across all models</p>
+              </CardContent>
+            </Card>
+          </div>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Usage by Model</CardTitle>
+              <CardDescription>Recent activity across all AI models</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {mockUsageStats.map((stat) => {
+                  const model = models.find(m => m.id === stat.model);
+                  const totalCalls = mockUsageStats.reduce((acc, s) => acc + s.calls, 0);
+                  const percentage = Math.round((stat.calls / totalCalls) * 100);
+                  
+                  return (
+                    <div key={stat.model} className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium">{model?.name || stat.model}</span>
+                          <Badge variant="outline" className="text-xs">
+                            {model?.provider || 'unknown'}
+                          </Badge>
+                        </div>
+                        <div className="text-sm text-muted-foreground">
+                          {stat.calls.toLocaleString()} calls · {formatNumber(stat.tokens)} tokens · ${stat.cost.toFixed(2)}
+                        </div>
+                      </div>
+                      <div className="h-2 bg-muted rounded-full overflow-hidden">
+                        <div 
+                          className="h-full bg-gradient-to-r from-violet-500 to-purple-500 rounded-full"
+                          style={{ width: `${percentage}%` }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
-              <div className="flex gap-2">
-                <Button variant="outline">Test Model</Button>
-                <Button className="bg-gradient-to-r from-violet-600 to-purple-600 text-white">
-                  {selected.status === 'active' ? 'Configure' : 'Activate'}
-                </Button>
-              </div>
-            </div>
-          </CardHeader>
-          <Separator />
-          <CardContent className="pt-4">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="p-3 rounded-lg bg-muted/50">
-                <p className="text-xs text-muted-foreground">Speed</p>
-                <p className="font-medium">{selected.speed}</p>
-              </div>
-              <div className="p-3 rounded-lg bg-muted/50">
-                <p className="text-xs text-muted-foreground">Quality</p>
-                <p className="font-medium">{selected.quality}</p>
-              </div>
-              <div className="p-3 rounded-lg bg-muted/50">
-                <p className="text-xs text-muted-foreground">Cost</p>
-                <p className={`font-medium ${costColors[selected.cost]}`}>{selected.cost}</p>
-              </div>
-              <div className="p-3 rounded-lg bg-muted/50">
-                <p className="text-xs text-muted-foreground">Capabilities</p>
-                <div className="flex gap-1 mt-1">
-                  {selected.capabilities.map((c) => (
-                    <Badge key={c} variant="secondary" className="text-xs">
-                      {c}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
