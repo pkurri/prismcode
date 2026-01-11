@@ -1,0 +1,56 @@
+name: 🎯 Epic
+description: Create a new epic for a major feature or initiative
+title: "[EPIC] "
+labels: ["epic", "planning"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Epic Template
+        Use this template to create a new epic that represents a major feature or initiative.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: Describe the epic and its business value
+      placeholder: As a [user], I want [feature] so that [benefit]
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: Acceptance Criteria
+      description: What must be true for this epic to be complete?
+      placeholder: |
+        - [ ] Criterion 1
+        - [ ] Criterion 2
+    validations:
+      required: true
+
+  - type: textarea
+    id: user-stories
+    attributes:
+      label: User Stories
+      description: Break down the epic into user stories
+      placeholder: |
+        - [ ] STORY: Story 1
+        - [ ] STORY: Story 2
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      options:
+        - priority:high
+        - priority:medium
+        - priority:low
+    validations:
+      required: true
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Additional Notes
+      description: Any additional context or technical notes

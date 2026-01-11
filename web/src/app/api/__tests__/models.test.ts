@@ -1,7 +1,7 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { GET, POST } from '../models/route';
 
-vi.mock('next/server', () => ({
+// Mock NextResponse
+jest.mock('next/server', () => ({
   NextResponse: {
     json: (data: any, init?: any) => ({
       json: () => Promise.resolve(data),
@@ -12,7 +12,7 @@ vi.mock('next/server', () => ({
 
 describe('Models API Route', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    jest.clearAllMocks();
   });
 
   describe('GET /api/models', () => {

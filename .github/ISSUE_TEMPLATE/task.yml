@@ -1,0 +1,54 @@
+name: ✅ Task
+description: Create a new implementation task
+title: "[TASK] "
+labels: ["task"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Task Template
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: What needs to be done?
+    validations:
+      required: true
+
+  - type: textarea
+    id: implementation
+    attributes:
+      label: Implementation Details
+      description: Technical approach or steps
+      placeholder: |
+        1. Step 1
+        2. Step 2
+
+  - type: input
+    id: story
+    attributes:
+      label: Parent Story
+      description: Link to parent story
+      placeholder: "#123"
+
+  - type: dropdown
+    id: type
+    attributes:
+      label: Task Type
+      options:
+        - feature
+        - refactor
+        - docs
+        - test
+        - chore
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Definition of Done
+      options:
+        - label: Code complete
+        - label: Tests passing
+        - label: Documentation updated
+        - label: Code reviewed

@@ -1,0 +1,58 @@
+name: 📖 User Story
+description: Create a new user story
+title: "[STORY] "
+labels: ["story"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## User Story Template
+
+  - type: textarea
+    id: story
+    attributes:
+      label: User Story
+      description: Describe the user story in standard format
+      placeholder: As a [role], I want [feature] so that [benefit]
+    validations:
+      required: true
+
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: Acceptance Criteria
+      description: What must be true for this story to be complete?
+      placeholder: |
+        Given [context]
+        When [action]
+        Then [outcome]
+    validations:
+      required: true
+
+  - type: textarea
+    id: tasks
+    attributes:
+      label: Tasks
+      description: Break down into implementation tasks
+      placeholder: |
+        - [ ] Task 1
+        - [ ] Task 2
+
+  - type: input
+    id: epic
+    attributes:
+      label: Parent Epic
+      description: Link to parent epic (if applicable)
+      placeholder: "#123"
+
+  - type: dropdown
+    id: estimate
+    attributes:
+      label: Story Points
+      options:
+        - "1"
+        - "2"
+        - "3"
+        - "5"
+        - "8"
+        - "13"

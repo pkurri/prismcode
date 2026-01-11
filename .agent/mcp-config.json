@@ -1,0 +1,112 @@
+{
+  "$schema": "https://schemas.modelcontextprotocol.io/mcp.json",
+  "name": "prismcode-orchestrator",
+  "version": "1.0.0",
+  "description": "PrismCode Multi-Agent Orchestrator MCP Configuration",
+  "servers": {
+    "orchestrator": {
+      "command": "node",
+      "args": ["./dist/mcp-server.js"],
+      "env": {
+        "PRISMCODE_API_URL": "http://localhost:3000/api"
+      }
+    }
+  },
+  "tools": {
+    "product_manager": {
+      "gather_requirements": {
+        "description": "Analyze user input and extract structured requirements",
+        "parameters": {
+          "input": { "type": "string", "required": true },
+          "context": { "type": "object" }
+        }
+      },
+      "create_epic": {
+        "description": "Create a GitHub epic issue",
+        "parameters": {
+          "title": { "type": "string", "required": true },
+          "description": { "type": "string", "required": true },
+          "labels": { "type": "array" }
+        }
+      },
+      "create_user_story": {
+        "description": "Create a user story from requirements",
+        "parameters": {
+          "requirement": { "type": "object", "required": true },
+          "epicId": { "type": "string" }
+        }
+      }
+    },
+    "scrum_master": {
+      "plan_sprint": {
+        "description": "Create a sprint plan with selected stories",
+        "parameters": {
+          "sprintNumber": { "type": "number", "required": true },
+          "duration": { "type": "number", "default": 14 },
+          "storyIds": { "type": "array", "required": true }
+        }
+      },
+      "decompose_story": {
+        "description": "Break down a user story into tasks",
+        "parameters": {
+          "storyId": { "type": "string", "required": true },
+          "maxTasks": { "type": "number", "default": 5 }
+        }
+      },
+      "track_progress": {
+        "description": "Get sprint progress and burndown data",
+        "parameters": {
+          "sprintId": { "type": "string", "required": true }
+        }
+      }
+    },
+    "developer": {
+      "read_file": {
+        "description": "Read contents of a file",
+        "parameters": {
+          "path": { "type": "string", "required": true },
+          "encoding": { "type": "string", "default": "utf-8" }
+        }
+      },
+      "write_file": {
+        "description": "Write content to a file",
+        "parameters": {
+          "path": { "type": "string", "required": true },
+          "content": { "type": "string", "required": true },
+          "createDirs": { "type": "boolean", "default": true }
+        }
+      },
+      "generate_code": {
+        "description": "Generate code based on specification",
+        "parameters": {
+          "language": { "type": "string", "required": true },
+          "spec": { "type": "string", "required": true },
+          "style": { "type": "string" }
+        }
+      }
+    },
+    "qa": {
+      "generate_tests": {
+        "description": "Generate unit tests for a component",
+        "parameters": {
+          "componentPath": { "type": "string", "required": true },
+          "testFramework": { "type": "string", "default": "jest" },
+          "coverage": { "type": "number", "default": 80 }
+        }
+      },
+      "run_tests": {
+        "description": "Execute tests and return results",
+        "parameters": {
+          "pattern": { "type": "string", "default": "**/*.test.{ts,tsx}" },
+          "coverage": { "type": "boolean", "default": true }
+        }
+      },
+      "analyze_coverage": {
+        "description": "Analyze code coverage and identify gaps",
+        "parameters": {
+          "threshold": { "type": "number", "default": 80 }
+        }
+      }
+    }
+  }
+}

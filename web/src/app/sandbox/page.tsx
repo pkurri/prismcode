@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Separator } from '@/components/ui/separator';
+import { PreviewFrame } from '@/components/sandbox/preview-frame';
 
 interface DevicePreset {
   name: string;
@@ -21,235 +21,150 @@ const devicePresets: DevicePreset[] = [
   { name: 'Wide', width: 1920, height: 1080, icon: '🖵' },
 ];
 
-interface ConsoleLog {
-  id: string;
-  type: 'log' | 'error' | 'warn' | 'info';
-  message: string;
-  timestamp: string;
-  source?: string;
-}
-
-const mockConsoleLogs: ConsoleLog[] = [
-  { id: '1', type: 'info', message: '[HMR] Waiting for update signal from WDS...', timestamp: '12:34:56', source: 'webpack' },
-  { id: '2', type: 'log', message: 'App initialized successfully', timestamp: '12:34:57', source: 'App.tsx' },
-  { id: '3', type: 'warn', message: 'React Query devtools enabled in production', timestamp: '12:34:58', source: 'react-query' },
-  { id: '4', type: 'log', message: 'Fetching user data...', timestamp: '12:35:01', source: 'api.ts' },
-  { id: '5', type: 'log', message: 'User data loaded: 1 user', timestamp: '12:35:02', source: 'api.ts' },
-];
-
-const logColors = {
-  log: 'text-foreground',
-  error: 'text-red-500',
-  warn: 'text-amber-500',
-  info: 'text-blue-500',
-};
+const DEFAULT_CODE = `export default function App() {
+  return (
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 text-gray-900 font-sans">
+      <h1 className="text-4xl font-bold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-violet-600">
+        PrismCode Sandbox
+      </h1>
+      <p className="text-lg text-gray-600 mb-8 max-w-md text-center">
+        Enter a prompt above to generate a new UI component, or edit this code directly.
+      </p>
+      <div className="flex gap-4">
+        <button className="px-6 py-2 bg-black text-white rounded-full hover:bg-gray-800 transition">
+          Get Started
+        </button>
+        <button className="px-6 py-2 bg-white text-black border border-gray-200 rounded-full hover:bg-gray-50 transition">
+          Learn More
+        </button>
+      </div>
+    </div>
+  );
+}`;
 
 export default function SandboxPage() {
-  const [selectedDevice, setSelectedDevice] = useState(devicePresets[0]);
-  const [customWidth, setCustomWidth] = useState(390);
-  const [customHeight, setCustomHeight] = useState(844);
-  const [isCustomSize, setIsCustomSize] = useState(false);
-  const [previewUrl, setPreviewUrl] = useState('http://localhost:3000');
-  const [isLoading, setIsLoading] = useState(false);
-  const [hasError, setHasError] = useState(false);
-  const [consoleLogs, setConsoleLogs] = useState(mockConsoleLogs);
-  const [activePanel, setActivePanel] = useState<'preview' | 'console'>('preview');
-  const [zoom, setZoom] = useState(100);
+  const [prompt, setPrompt] = useState('');
+  const [code, setCode] = useState(DEFAULT_CODE);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [selectedDevice, setSelectedDevice] = useState(devicePresets[2]); // Desktop default
+  const [activeTab, setActiveTab] = useState('preview');
 
-  const currentWidth = isCustomSize ? customWidth : selectedDevice.width;
-  const currentHeight = isCustomSize ? customHeight : selectedDevice.height;
-
-  const handleRefresh = () => {
-    setIsLoading(true);
-    setHasError(false);
-    // Simulate refresh
-    setTimeout(() => {
-      setIsLoading(false);
-      setConsoleLogs([
-        ...consoleLogs,
-        { id: Date.now().toString(), type: 'info', message: '[HMR] App hot updated', timestamp: new Date().toLocaleTimeString(), source: 'webpack' },
-      ]);
-    }, 1000);
+  const handleGenerate = async () => {
+    if (!prompt.trim()) return;
+    
+    setIsGenerating(true);
+    try {
+      const response = await fetch('/api/ai/generate-ui', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prompt }),
+      });
+      
+      const data = await response.json();
+      if (data.code) {
+        setCode(data.code);
+      }
+    } catch (error) {
+      console.error('Generation failed:', error);
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
   const handleDeviceSelect = (device: DevicePreset) => {
     setSelectedDevice(device);
-    setIsCustomSize(false);
-  };
-
-  const clearConsole = () => {
-    setConsoleLogs([]);
   };
 
   return (
-    <div className="h-[calc(100vh-4rem)] flex flex-col">
-      {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-border/50">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight bg-gradient-to-r from-violet-600 to-purple-600 bg-clip-text text-transparent">
-            Preview Sandbox
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            Live preview with hot reload
-          </p>
-        </div>
-        <div className="flex items-center gap-2">
-          <Badge variant="outline" className={hasError ? 'text-red-500 border-red-500/50' : 'text-green-500 border-green-500/50'}>
-            <span className={`w-2 h-2 rounded-full mr-2 ${hasError ? 'bg-red-500' : 'bg-green-500'}`} />
-            {hasError ? 'Error' : 'Running'}
-          </Badge>
-          <Button variant="outline" size="sm" onClick={handleRefresh} disabled={isLoading}>
-            {isLoading ? '↻' : '🔄'} Refresh
-          </Button>
-          <Button variant="outline" size="sm">
-            ↗️ Open
+    <div className="h-[calc(100vh-4rem)] flex flex-col bg-background">
+      {/* AIS Prompt Bar */}
+      <div className="border-b border-border/40 bg-muted/10 p-4">
+        <div className="max-w-4xl mx-auto flex gap-3">
+          <div className="relative flex-1">
+            <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+              <span className="text-muted-foreground">✨</span>
+            </div>
+            <input
+              type="text"
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleGenerate()}
+              placeholder="Describe a UI component to generate (e.g., 'login form', 'dashboard stats', 'pricing table')..."
+              className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-border bg-background focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all shadow-sm"
+              disabled={isGenerating}
+            />
+          </div>
+          <Button 
+            onClick={handleGenerate} 
+            disabled={isGenerating || !prompt.trim()}
+            className="bg-gradient-to-r from-violet-600 to-purple-600 text-white min-w-[120px]"
+          >
+            {isGenerating ? (
+              <>
+                <span className="animate-spin mr-2">↻</span> Generating...
+              </>
+            ) : (
+              'Generate UI'
+            )}
           </Button>
         </div>
       </div>
 
-      {/* Main Content */}
       <div className="flex-1 flex overflow-hidden">
-        {/* Editor Panel (placeholder) */}
-        <div className="w-1/2 border-r border-border/50 flex flex-col">
-          <div className="p-2 bg-muted/30 border-b border-border/50 flex items-center gap-2">
-            <Badge variant="secondary" className="text-xs">src/App.tsx</Badge>
-            <span className="text-xs text-muted-foreground">Modified</span>
+        {/* Editor Pane */}
+        <div className="w-1/2 border-r border-border/40 flex flex-col bg-[#1e1e1e]">
+          <div className="px-4 py-2 bg-[#2d2d2d] border-b border-[#404040] flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="text-blue-400 text-xs font-mono">TSX</span>
+              <span className="text-gray-400 text-xs">GeneratedComponent.tsx</span>
+            </div>
+            <button 
+              onClick={() => setCode(DEFAULT_CODE)}
+              className="text-xs text-gray-400 hover:text-white transition-colors"
+            >
+              Reset
+            </button>
           </div>
-          <div className="flex-1 bg-[#1e1e1e] p-4 overflow-auto font-mono text-sm">
-            <pre className="text-gray-300">
-{`import React from 'react';
-import { Dashboard } from './components/Dashboard';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-
-const queryClient = new QueryClient();
-
-export default function App() {
-  return (
-    <QueryClientProvider client={queryClient}>
-      <div className="min-h-screen bg-background">
-        <Dashboard />
-      </div>
-    </QueryClientProvider>
-  );
-}`}
-            </pre>
+          <div className="flex-1 relative overflow-hidden">
+            <textarea
+              value={code}
+              onChange={(e) => setCode(e.target.value)}
+              className="w-full h-full bg-[#1e1e1e] text-gray-300 font-mono text-sm p-4 resize-none outline-none leading-relaxed"
+              spellCheck={false}
+            />
           </div>
         </div>
 
-        {/* Preview Panel */}
-        <div className="w-1/2 flex flex-col">
-          {/* Device Toolbar */}
-          <div className="p-2 bg-muted/30 border-b border-border/50 flex items-center justify-between">
-            <div className="flex items-center gap-1">
+        {/* Preview Pane */}
+        <div className="w-1/2 flex flex-col bg-slate-50 dark:bg-slate-950">
+          <div className="px-4 py-2 border-b border-border/40 flex items-center justify-between bg-background">
+            <div className="flex items-center gap-1 bg-muted/30 p-1 rounded-lg">
               {devicePresets.map((device) => (
-                <Button
+                <button
                   key={device.name}
-                  variant={!isCustomSize && selectedDevice.name === device.name ? 'default' : 'ghost'}
-                  size="sm"
                   onClick={() => handleDeviceSelect(device)}
-                  className="text-xs"
+                  className={`px-2 py-1 rounded text-xs transition-colors flex items-center gap-1 ${
+                    selectedDevice.name === device.name 
+                      ? 'bg-white shadow text-foreground' 
+                      : 'text-muted-foreground hover:text-foreground'
+                  }`}
                 >
-                  {device.icon} {device.name}
-                </Button>
+                  <span>{device.icon}</span>
+                  <span className="hidden xl:inline">{device.name}</span>
+                </button>
               ))}
-              <Separator orientation="vertical" className="h-6 mx-2" />
-              <Button
-                variant={isCustomSize ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => setIsCustomSize(true)}
-                className="text-xs"
-              >
-                📐 Custom
-              </Button>
             </div>
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <span>{currentWidth}×{currentHeight}</span>
-              <select 
-                value={zoom} 
-                onChange={(e) => setZoom(Number(e.target.value))}
-                className="bg-transparent border border-border/50 rounded px-1 py-0.5"
-              >
-                <option value={50}>50%</option>
-                <option value={75}>75%</option>
-                <option value={100}>100%</option>
-                <option value={125}>125%</option>
-              </select>
+            <div className="text-xs text-muted-foreground font-mono">
+              {selectedDevice.width} × {selectedDevice.height}
             </div>
           </div>
-
-          {/* Preview Iframe */}
-          <div className="flex-1 bg-[#2a2a2a] overflow-auto flex items-start justify-center p-4">
+          
+          <div className="flex-1 overflow-auto p-8 flex items-start justify-center">
             <div 
-              className="bg-white rounded-lg shadow-2xl overflow-hidden transition-all duration-300"
-              style={{
-                width: currentWidth * (zoom / 100),
-                height: currentHeight * (zoom / 100),
-                transform: `scale(${zoom / 100})`,
-                transformOrigin: 'top center',
-              }}
+              style={{ width: selectedDevice.width, height: selectedDevice.height }}
+              className="bg-background shadow-2xl rounded-xl border border-border/50 overflow-hidden shrink-0 transition-all duration-300"
             >
-              {isLoading ? (
-                <div className="w-full h-full flex items-center justify-center bg-gray-100">
-                  <div className="text-center">
-                    <div className="animate-spin text-4xl mb-2">⚙️</div>
-                    <p className="text-gray-500">Loading preview...</p>
-                  </div>
-                </div>
-              ) : hasError ? (
-                <div className="w-full h-full flex items-center justify-center bg-red-50 p-8">
-                  <div className="text-center">
-                    <div className="text-5xl mb-4">❌</div>
-                    <h3 className="text-lg font-semibold text-red-600 mb-2">Build Error</h3>
-                    <p className="text-red-500 text-sm mb-4">Failed to compile</p>
-                    <code className="block bg-red-100 p-3 rounded text-xs text-left text-red-700">
-                      Error: Cannot find module './Dashboard'
-                    </code>
-                  </div>
-                </div>
-              ) : (
-                <iframe
-                  src="about:blank"
-                  className="w-full h-full border-0"
-                  title="Preview"
-                  sandbox="allow-scripts allow-same-origin"
-                  style={{ background: '#fff' }}
-                />
-              )}
-            </div>
-          </div>
-
-          {/* Console Panel */}
-          <div className="h-48 border-t border-border/50 flex flex-col">
-            <div className="p-2 bg-muted/30 flex items-center justify-between">
-              <Tabs value={activePanel} onValueChange={(v) => setActivePanel(v as 'preview' | 'console')}>
-                <TabsList className="h-7">
-                  <TabsTrigger value="console" className="text-xs h-6">
-                    Console ({consoleLogs.length})
-                  </TabsTrigger>
-                  <TabsTrigger value="network" className="text-xs h-6">
-                    Network
-                  </TabsTrigger>
-                  <TabsTrigger value="elements" className="text-xs h-6">
-                    Elements
-                  </TabsTrigger>
-                </TabsList>
-              </Tabs>
-              <Button variant="ghost" size="sm" onClick={clearConsole} className="text-xs h-6">
-                🗑️ Clear
-              </Button>
-            </div>
-            <div className="flex-1 overflow-auto bg-[#1e1e1e] p-2 font-mono text-xs">
-              {consoleLogs.length === 0 ? (
-                <p className="text-gray-500">Console is empty</p>
-              ) : (
-                consoleLogs.map((log) => (
-                  <div key={log.id} className={`py-0.5 flex items-start gap-2 ${logColors[log.type]}`}>
-                    <span className="text-gray-500">{log.timestamp}</span>
-                    <span className="text-gray-600">[{log.source}]</span>
-                    <span>{log.message}</span>
-                  </div>
-                ))
-              )}
+              <PreviewFrame code={code} />
             </div>
           </div>
         </div>

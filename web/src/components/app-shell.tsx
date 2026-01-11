@@ -66,6 +66,7 @@ const navigationGroups = [
     label: 'Intelligence',
     items: [
       { title: 'AI Assistant', href: '/assistant', icon: Bot },
+      { title: 'Ask Codebase', href: '/ask', icon: Search },
       { title: 'Model Settings', href: '/model-settings', icon: Settings },
       { title: 'Orchestration', href: '/ai-analytics', icon: Workflow },
       { title: 'Local Models', href: '/local-models', icon: Server },

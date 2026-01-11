@@ -43,3 +43,22 @@ Object.defineProperty(window, 'matchMedia', {
 
 // Mock scrollIntoView
 Element.prototype.scrollIntoView = jest.fn();
+
+// Mock Request for API route tests
+class MockRequest {
+  url: string;
+  method: string;
+  body: string | null;
+  
+  constructor(url: string, init?: { method?: string; body?: string }) {
+    this.url = url;
+    this.method = init?.method || 'GET';
+    this.body = init?.body || null;
+  }
+
+  async json() {
+    return this.body ? JSON.parse(this.body) : {};
+  }
+}
+
+global.Request = MockRequest as unknown as typeof globalThis.Request;
