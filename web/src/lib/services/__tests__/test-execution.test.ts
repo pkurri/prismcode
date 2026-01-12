@@ -1,27 +1,54 @@
-import { executeTests, aggregateResults } from '../test-execution';
+import { executeTests, aggregateResults, TestRun } from '../test-execution';
 
-describe('Test Execution Service', () => {
-  describe('executeTests', () => {
-    it('executes tests and returns results', async () => {
-      const run = await executeTests('proj-1', 'main');
-      expect(run.projectId).toBe('proj-1');
-      expect(run.branch).toBe('main');
-      expect(run.status).toBe('passed');
-      expect(run.results).toBeDefined();
-      expect(run.results?.total).toBeGreaterThan(0);
-    });
+describe('Service: Test Execution', () => {
+  it('executes tests and returns results', async () => {
+    const start = Date.now();
+    const run = await executeTests('p1', 'main');
+    const duration = Date.now() - start;
+
+    expect(run.status).toBe('passed');
+    expect(run.branch).toBe('main');
+    expect(run.results).toBeDefined();
+    expect(run.results?.passed).toBeGreaterThan(0);
+    // Should take at least 100ms
+    expect(duration).toBeGreaterThanOrEqual(90); // leeway
   });
 
-  describe('aggregateResults', () => {
-    it('aggregates results from multiple runs', () => {
-      const runs = [
-        { id: 'r1', projectId: 'p1', branch: 'main', commit: 'abc', status: 'passed' as const, startedAt: new Date(), results: { total: 100, passed: 100, failed: 0, skipped: 0, duration: 1000, coverage: { lines: 80, functions: 75, branches: 70, statements: 78 }, suites: [] } },
-        { id: 'r2', projectId: 'p1', branch: 'main', commit: 'def', status: 'passed' as const, startedAt: new Date(), results: { total: 100, passed: 100, failed: 0, skipped: 0, duration: 1200, coverage: { lines: 85, functions: 80, branches: 75, statements: 82 }, suites: [] } },
-      ];
-      const agg = aggregateResults(runs);
-      expect(agg.passRate).toBe(100);
-      expect(agg.avgDuration).toBe(1100);
-      expect(agg.avgCoverage).toBe(82.5);
-    });
+  it('aggregates results correctly', () => {
+    const runs: TestRun[] = [
+      {
+        id: '1',
+        projectId: 'p1',
+        branch: 'main',
+        commit: 'c1',
+        status: 'passed',
+        startedAt: new Date(),
+        results: {
+          total: 10, passed: 10, failed: 0, skipped: 0, 
+          duration: 1000, 
+          coverage: { lines: 80, functions: 80, branches: 80, statements: 80 },
+          suites: []
+        }
+      },
+      {
+         id: '2',
+         projectId: 'p1',
+         branch: 'main',
+         commit: 'c2',
+         status: 'failed',
+         startedAt: new Date(),
+         results: {
+           total: 10, passed: 5, failed: 5, skipped: 0, 
+           duration: 2000, 
+           coverage: { lines: 50, functions: 50, branches: 50, statements: 50 },
+           suites: []
+         }
+      }
+    ];
+
+    const aggregated = aggregateResults(runs);
+    expect(aggregated.passRate).toBe(50); // 1 passed out of 2
+    expect(aggregated.avgDuration).toBe(1500); // (1000+2000)/2
+    expect(aggregated.avgCoverage).toBe(65); // (80+50)/2
   });
 });

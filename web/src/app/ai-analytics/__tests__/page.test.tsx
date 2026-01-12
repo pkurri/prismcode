@@ -19,10 +19,13 @@ describe('AIAnalyticsPage', () => {
     (global.fetch as jest.Mock).mockClear();
   });
 
-  it('renders page header', () => {
+  it('renders page header', async () => {
     render(<AIAnalyticsPage />);
     expect(screen.getByText('AI Analytics')).toBeInTheDocument();
     expect(screen.getByText('Monitor AI model usage, costs, and performance')).toBeInTheDocument();
+    
+    // Wait for effect to prevent act warnings
+    await screen.findByText('Total API Calls'); 
   });
 
   it('displays summary stats', () => {

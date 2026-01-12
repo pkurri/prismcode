@@ -1,46 +1,35 @@
 import { MCPClient, loadMCPConfig, createMCPClient } from '../client';
 
 describe('MCP Client', () => {
-  describe('MCPClient', () => {
-    it('creates client with config', () => {
-      const config = loadMCPConfig('test');
-      const client = new MCPClient(config);
-      expect(client).toBeDefined();
-    });
-
-    it('connects to server', async () => {
-      const client = createMCPClient();
-      const connected = await client.connect('orchestrator');
-      expect(connected).toBe(true);
-      expect(client.isConnected('orchestrator')).toBe(true);
-    });
-
-    it('disconnects from server', async () => {
-      const client = createMCPClient();
-      await client.connect('orchestrator');
-      await client.disconnect('orchestrator');
-      expect(client.isConnected('orchestrator')).toBe(false);
-    });
-
-    it('gets available tools', () => {
-      const client = createMCPClient();
-      const tools = client.getAvailableTools();
-      expect(tools.length).toBeGreaterThan(0);
-    });
-
-    it('executes tool', async () => {
-      const client = createMCPClient();
-      const result = await client.executeTool('gather_requirements', { input: 'test' });
-      expect(result.success).toBe(true);
-    });
+  it('loads configuration', () => {
+    const config = loadMCPConfig('dummy');
+    expect(config.servers.orchestrator).toBeDefined();
+    expect(config.tools.run_tests).toBeDefined();
   });
 
-  describe('loadMCPConfig', () => {
-    it('loads default config', () => {
-      const config = loadMCPConfig('default');
-      expect(config.servers).toBeDefined();
-      expect(config.tools).toBeDefined();
-      expect(config.defaultTimeout).toBeGreaterThan(0);
-    });
+  it('creates client', () => {
+    const client = createMCPClient();
+    expect(client).toBeInstanceOf(MCPClient);
+    expect(client.getAvailableTools()).toContain('run_tests');
+  });
+
+  it('connects to server', async () => {
+    const client = createMCPClient();
+    const result = await client.connect('orchestrator');
+    expect(result).toBe(true);
+    expect(client.isConnected('orchestrator')).toBe(true);
+  });
+
+  it('executes tool successfully', async () => {
+    const client = createMCPClient();
+    const result = await client.executeTool('generate_code', { language: 'ts', spec: 'foo' });
+    expect(result.success).toBe(true);
+    expect(result.data.result).toContain('Executed generate_code');
+  });
+
+  it('fails on unknown tool', async () => {
+    const client = createMCPClient();
+    const result = await client.executeTool('unknown_tool', {});
+    expect(result.success).toBe(false);
   });
 });

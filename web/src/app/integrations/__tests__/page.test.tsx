@@ -1,27 +1,27 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import IntegrationsPage from '../page';
 
-// Mock Tabs
-jest.mock('@/components/ui/tabs', () => ({
-  Tabs: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
-  TabsList: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
-  TabsTrigger: ({ children }: { children: React.ReactNode }) => <button>{children}</button>,
-  TabsContent: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
-}));
-
 describe('IntegrationsPage', () => {
-  it('renders page header', () => {
+  it('renders integration list', () => {
     render(<IntegrationsPage />);
-    expect(screen.getByRole('heading', { name: /Integrations/i })).toBeInTheDocument();
+    expect(screen.getByText('Integrations Hub')).toBeInTheDocument();
+    expect(screen.getByText('GitHub')).toBeInTheDocument();
+    expect(screen.getByText('Slack')).toBeInTheDocument();
   });
 
-  it('lists integration options', () => {
+  it('allows filtering', () => {
     render(<IntegrationsPage />);
-    expect(screen.getAllByText(/GitHub/i)[0]).toBeInTheDocument();
+    const input = screen.getByPlaceholderText('Search integrations...');
+    fireEvent.change(input, { target: { value: 'GitHub' } });
+    expect(screen.getByText('GitHub')).toBeInTheDocument();
   });
 
-  it('shows status indicators', () => {
+  it('allows selection', () => {
     render(<IntegrationsPage />);
-    expect(screen.getAllByText(/Connected/i)[0]).toBeInTheDocument();
+    const githubCard = screen.getByText('GitHub').closest('div');
+    if (githubCard) {
+      fireEvent.click(githubCard);
+      expect(screen.getByText('Configure')).toBeInTheDocument();
+    }
   });
 });

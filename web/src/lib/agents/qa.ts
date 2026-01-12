@@ -25,12 +25,13 @@ const generateTestsTool: MCPTool = {
     const componentPath = params.componentPath as string;
     const testFramework = params.testFramework as string;
     
+    
     return {
       success: true,
       data: {
         testFile: `${componentPath.replace('.tsx', '.test.tsx')}`,
         testCount: 5,
-        testCode: `import { render, screen } from '@testing-library/react';
+        testCode: `// Framework: ${testFramework}\nimport { render, screen } from '@testing-library/react';
 import Component from '${componentPath}';
 
 describe('Component', () => {
@@ -52,7 +53,7 @@ const runTestsTool: MCPTool = {
     pattern: { type: 'string', description: 'Test file pattern', required: false, default: '**/*.test.{ts,tsx}' },
     coverage: { type: 'boolean', description: 'Include coverage', required: false, default: true },
   },
-  execute: async (params): Promise<MCPToolResult> => {
+  execute: async (_params): Promise<MCPToolResult> => {
     return {
       success: true,
       data: {
@@ -140,5 +141,18 @@ export const qaAgent: Agent = {
 };
 
 registerAgent(qaAgent);
+
+
+// Type helper for tool results
+export interface ToolResult {
+  testFile?: string;
+  testCode?: string;
+  passed?: number;
+  coverage?: { lines: number; functions: number; branches: number };
+  gap?: number;
+  uncoveredFiles?: { file: string; coverage: number }[];
+  bugId?: string;
+  title?: string;
+}
 
 export { generateTestsTool, runTestsTool, analyzeCoverageTool, reportBugTool };

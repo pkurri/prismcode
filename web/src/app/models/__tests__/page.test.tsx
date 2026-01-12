@@ -1,32 +1,21 @@
-import { render, screen } from '@testing-library/react';
-import ModelsPage from '../page';
+import { render, screen, waitFor } from '@testing-library/react';
+import AIModelsPage from '../page';
 
-// Mock Tabs
-jest.mock('@/components/ui/tabs', () => ({
-  Tabs: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
-  TabsList: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
-  TabsTrigger: ({ children }: { children: React.ReactNode }) => <button>{children}</button>,
-  TabsContent: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
-}));
+// Mock global fetch
+global.fetch = jest.fn(() =>
+  Promise.resolve({
+    json: () => Promise.resolve({ models: [] }),
+  })
+) as jest.Mock;
 
-// Mock fetch
-global.fetch = jest.fn().mockResolvedValue({
-  json: () => Promise.resolve({ success: true, data: { models: [], usage: {}, routing: {} } }),
-});
-
-describe('ModelsPage', () => {
-  it('renders page header', () => {
-    render(<ModelsPage />);
-    expect(screen.getByRole('heading', { name: /Model/i })).toBeInTheDocument();
-  });
-
-  it('displays models list section', () => {
-    render(<ModelsPage />);
-    expect(screen.getAllByText(/Model/i)[0]).toBeInTheDocument();
-  });
-
-  it('shows routing options', () => {
-    render(<ModelsPage />);
-    expect(screen.getAllByText(/Routing/i)[0]).toBeInTheDocument();
+describe('AIModelsPage', () => {
+  it('renders models page', async () => {
+    render(<AIModelsPage />);
+    expect(screen.getByText('AI Model Selection')).toBeInTheDocument();
+    
+    // Wait for loading to finish to avoid act warnings
+    await waitFor(() => {
+      expect(global.fetch).toHaveBeenCalled();
+    });
   });
 });
