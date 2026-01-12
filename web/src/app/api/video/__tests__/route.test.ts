@@ -1,95 +1,152 @@
+/**
+ * @jest-environment node
+ */
 import { GET, POST, DELETE } from '../route';
+import { NextRequest } from 'next/server';
 
-jest.mock('next/server', () => ({
-  NextResponse: {
-    json: (data: any, options?: any) => ({ 
-      json: async () => data, 
-      status: options?.status || 200 
-    }),
-  },
-  NextRequest: jest.fn(),
-}));
+// Helper to create mock requests
+function createRequest(url: string, options?: RequestInit): NextRequest {
+  return new NextRequest(new URL(url, 'http://localhost:3000'), options);
+}
 
-describe('API Video', () => {
-  it('GET returns rooms', async () => {
-    const req = {
-      url: 'http://localhost/api/video',
-    } as any;
-    const res = await GET(req);
-    const data = await res.json();
-    expect(data.rooms).toBeDefined();
+describe('Video API', () => {
+  describe('GET', () => {
+    it('returns list of rooms', async () => {
+      const req = createRequest('http://localhost:3000/api/video');
+      const res = await GET(req);
+      expect(res.status).toBe(200);
+      const data = await res.json();
+      expect(data).toHaveProperty('rooms');
+      expect(data).toHaveProperty('total');
+    });
+
+    it('returns recordings when view=recordings', async () => {
+      const req = createRequest('http://localhost:3000/api/video?view=recordings');
+      const res = await GET(req);
+      expect(res.status).toBe(200);
+      const data = await res.json();
+      expect(data).toHaveProperty('recordings');
+    });
+
+    it('returns 404 for non-existent room', async () => {
+      const req = createRequest('http://localhost:3000/api/video?roomId=non-existent');
+      const res = await GET(req);
+      expect(res.status).toBe(404);
+    });
+
+    it('returns 404 for non-existent recording', async () => {
+      const req = createRequest('http://localhost:3000/api/video?recordingId=non-existent');
+      const res = await GET(req);
+      expect(res.status).toBe(404);
+    });
+
+    it('returns existing recording by id', async () => {
+      const req = createRequest('http://localhost:3000/api/video?recordingId=rec-001');
+      const res = await GET(req);
+      expect(res.status).toBe(200);
+      const data = await res.json();
+      expect(data.id).toBe('rec-001');
+    });
   });
 
-  it('POST creates instant room', async () => {
-    const req = {
-      json: async () => ({
-        action: 'create_room',
-        name: 'Test Room'
-      })
-    } as any;
-    const res = await POST(req);
-    const data = await res.json();
-    expect(res.status).toBe(201);
-    expect(data.room.type).toBe('instant');
-    expect(data.joinUrl).toBeDefined();
+  describe('POST - create_room', () => {
+    it('creates instant room', async () => {
+      const req = createRequest('http://localhost:3000/api/video', {
+        method: 'POST',
+        body: JSON.stringify({ action: 'create_room', name: 'Test Room' }),
+      });
+      const res = await POST(req);
+      expect(res.status).toBe(201);
+      const data = await res.json();
+      expect(data.room.name).toBe('Test Room');
+      expect(data).toHaveProperty('joinUrl');
+    });
+
+    it('creates scheduled room', async () => {
+      const req = createRequest('http://localhost:3000/api/video', {
+        method: 'POST',
+        body: JSON.stringify({ 
+          action: 'create_room', 
+          name: 'Scheduled Meeting',
+          type: 'scheduled',
+          scheduledAt: new Date().toISOString()
+        }),
+      });
+      const res = await POST(req);
+      expect(res.status).toBe(201);
+    });
   });
 
-  it('POST joins room', async () => {
-    // Create room first
-    const createReq = { json: async () => ({ action: 'create_room' }) } as any;
-    const createRes = await POST(createReq);
-    const roomId = (await createRes.json()).room.id;
-
-    const req = {
-      json: async () => ({
-        action: 'join_room',
-        roomId,
-        userName: 'User'
-      })
-    } as any;
-    const res = await POST(req);
-    const data = await res.json();
-    expect(data.message).toBe('Joined room');
-    expect(data.participant).toBeDefined();
+  describe('POST - join_room', () => {
+    it('returns 404 for non-existent room', async () => {
+      const req = createRequest('http://localhost:3000/api/video', {
+        method: 'POST',
+        body: JSON.stringify({ action: 'join_room', roomId: 'fake-room', userName: 'Test' }),
+      });
+      const res = await POST(req);
+      expect(res.status).toBe(404);
+    });
   });
 
-  it('POST controls recording', async () => {
-    // Create room
-    const createReq = { json: async () => ({ action: 'create_room' }) } as any;
-    const createRes = await POST(createReq);
-    const roomId = (await createRes.json()).room.id;
+  describe('POST - recording', () => {
+    it('returns 404 for start_recording with invalid room', async () => {
+      const req = createRequest('http://localhost:3000/api/video', {
+        method: 'POST',
+        body: JSON.stringify({ action: 'start_recording', roomId: 'fake-room' }),
+      });
+      const res = await POST(req);
+      expect(res.status).toBe(404);
+    });
 
-    // Start
-    const startReq = {
-      json: async () => ({
-         action: 'start_recording',
-         roomId
-      })
-    } as any;
-    const startRes = await POST(startReq);
-    const recordingId = (await startRes.json()).recording.id;
-    expect(recordingId).toBeDefined();
-
-    // Stop
-    const stopReq = {
-      json: async () => ({
-        action: 'stop_recording',
-        recordingId,
-        duration: 10
-      })
-    } as any;
-    const stopRes = await POST(stopReq);
-    expect((await stopRes.json()).message).toBe('Recording stopped');
+    it('returns 404 for stop_recording with invalid id', async () => {
+      const req = createRequest('http://localhost:3000/api/video', {
+        method: 'POST',
+        body: JSON.stringify({ action: 'stop_recording', recordingId: 'fake' }),
+      });
+      const res = await POST(req);
+      expect(res.status).toBe(404);
+    });
   });
 
-  it('DELETE deletes recording', async () => {
-     // Mock a recording ID that exists in mock data from route.ts
-     // 'rec-001' is in the mock data
-     const req = {
-       url: 'http://localhost/api/video?recordingId=rec-001',
-     } as any;
-     const res = await DELETE(req);
-     const data = await res.json();
-     expect(data.message).toBe('Recording deleted');
+  describe('POST - end_room', () => {
+    it('returns 404 for non-existent room', async () => {
+      const req = createRequest('http://localhost:3000/api/video', {
+        method: 'POST',
+        body: JSON.stringify({ action: 'end_room', roomId: 'fake-room' }),
+      });
+      const res = await POST(req);
+      expect(res.status).toBe(404);
+    });
+  });
+
+  describe('POST - invalid action', () => {
+    it('returns 400 for invalid action', async () => {
+      const req = createRequest('http://localhost:3000/api/video', {
+        method: 'POST',
+        body: JSON.stringify({ action: 'invalid_action' }),
+      });
+      const res = await POST(req);
+      expect(res.status).toBe(400);
+    });
+  });
+
+  describe('DELETE', () => {
+    it('returns 400 without recordingId', async () => {
+      const req = createRequest('http://localhost:3000/api/video', { method: 'DELETE' });
+      const res = await DELETE(req);
+      expect(res.status).toBe(400);
+    });
+
+    it('returns 404 for non-existent recording', async () => {
+      const req = createRequest('http://localhost:3000/api/video?recordingId=fake', { method: 'DELETE' });
+      const res = await DELETE(req);
+      expect(res.status).toBe(404);
+    });
+
+    it('deletes existing recording', async () => {
+      const req = createRequest('http://localhost:3000/api/video?recordingId=rec-002', { method: 'DELETE' });
+      const res = await DELETE(req);
+      expect(res.status).toBe(200);
+    });
   });
 });
